@@ -1,0 +1,6 @@
+hiemalia
+hiemalia.cfg
+*.o
+*.d
+
+.vscode/
