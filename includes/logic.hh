@@ -4,60 +4,53 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// logic.hh: header file for logic module
+// logic.hh: header file for logic engine
 
 #ifndef M_LOGIC_HH
 #define M_LOGIC_HH
 
+#include <variant>
+
 #include "defs.hh"
 #include "hbase.hh"
+#include "lmodule.hh"
 #include "lvector.hh"
+#include "menu.hh"
 #include "module.hh"
 #include "msg.hh"
 #include "state.hh"
 
 namespace hiemalia {
 
-class LogicModule : public Module {
-   public:
-    virtual std::string name() const noexcept = 0;
-    std::string role() const noexcept { return role_; }
-    virtual bool run(GameState& state, float interval) = 0;
-
-    LogicModule(const HostModule& copy) = delete;
-    LogicModule& operator=(const HostModule& copy) = delete;
-    LogicModule(LogicModule&& move) : Module(std::move(move)) {}
-    LogicModule& operator=(LogicModule&& move) {
-        Module::operator=(std::move(move));
-        return *this;
-    }
-    virtual ~LogicModule() {}
-
-   protected:
-    LogicModule() {}
-
-   private:
-    static inline const std::string role_ = "logic module";
-};
-
-enum class LogicMessageType { StartLogic };
-
-enum class LogicModuleType { Test, Loading, Menu, Game };
+enum class LogicMessageType { StartMenu, StartGame };
 
 struct LogicMessage {
     LogicMessageType type;
-    union {
-        LogicModuleType mtype;
-        int later_;
-    };
+    std::variant<std::shared_ptr<Menu>> value;
 
-    static LogicMessage startLogic(LogicModuleType mtype) {
-        return LogicMessage(LogicMessageType::StartLogic, mtype);
+    static LogicMessage startMenu(std::shared_ptr<Menu>&& menu) {
+        return LogicMessage(LogicMessageType::StartMenu, std::move(menu));
+    }
+
+    template <typename T, typename... Ts>
+    static LogicMessage startMenuNew(Ts&&... args) {
+        return LogicMessage(LogicMessageType::StartMenu,
+                            std::make_shared<T>(std::forward<Ts>(args)...));
+    }
+
+    const std::shared_ptr<Menu>& menu() const {
+        dynamic_assert(type == LogicMessageType::StartMenu, "invalid access");
+        return std::get<std::shared_ptr<Menu>>(value);
+    }
+
+    static LogicMessage startGame() {
+        return LogicMessage(LogicMessageType::StartGame);
     }
 
    private:
-    LogicMessage(LogicMessageType t, LogicModuleType mtype)
-        : type(t), mtype(mtype) {}
+    LogicMessage(LogicMessageType t) : type(t) {}
+    LogicMessage(LogicMessageType t, std::shared_ptr<Menu>&& menu)
+        : type(t), value(std::move(menu)) {}
 };
 
 class LogicEngine : public Module, MessageHandler<LogicMessage> {
@@ -66,12 +59,15 @@ class LogicEngine : public Module, MessageHandler<LogicMessage> {
     std::string role() const noexcept { return role_; }
 
     LogicEngine() {}
+    DELETE_COPY(LogicEngine);
+    INHERIT_MOVE(LogicEngine, Module);
 
     void gotMessage(const LogicMessage& msg);
     void run(GameState& state, float interval);
+    void test();
 
    private:
-    limited_vector<std::unique_ptr<LogicModule>, 16> modules_;
+    LimitedVector<std::shared_ptr<LogicModule>, 16> modules_;
     static inline const std::string name_ = "LogicEngine";
     static inline const std::string role_ = "logic engine";
 };

@@ -15,7 +15,7 @@
 
 namespace hiemalia {
 template <typename T>
-T can_from_string(const std::string& s) {
+T canFromString(const std::string& s) {
     std::istringstream stream(s);
     T value;
     stream >> value;
@@ -23,7 +23,7 @@ T can_from_string(const std::string& s) {
 }
 
 template <typename T>
-T from_string(const std::string& s) {
+T fromString(const std::string& s) {
     std::istringstream stream(s);
     T value;
     stream >> value;
@@ -32,28 +32,34 @@ T from_string(const std::string& s) {
 }
 
 template <typename T>
-std::string to_string(const T& value) {
+std::string toString(const T& value) {
     std::ostringstream stream;
     stream << value;
     return stream.str();
 }
 
 template <typename T>
-struct c_ify_return { using type = T; };
+struct c_ify_return {
+    using type = T;
+};
 template <>
-struct c_ify_return<std::string> { using type = const char*; };
+struct c_ify_return<std::string> {
+    using type = const char*;
+};
 
 template <typename T>
-typename c_ify_return<T>::type c_ify(T x) { return x; }
+typename c_ify_return<T>::type c_ify(T x) {
+    return x;
+}
 
 template <>
-inline typename c_ify_return<std::string>::type
-                               c_ify<std::string>(std::string s) {
+inline typename c_ify_return<std::string>::type c_ify<std::string>(
+    std::string s) {
     return s.c_str();
 }
 
 template <typename... Ts>
-std::string string_format(const std::string& fmt, Ts... args) {
+std::string stringFormat(const std::string& fmt, Ts... args) {
     int n = snprintf(nullptr, 0, fmt.c_str(), c_ify<Ts>(args)...);
     if (n < 0) throw std::runtime_error("failed to format");
     std::string s(n, ' ');

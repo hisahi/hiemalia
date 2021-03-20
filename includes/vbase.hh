@@ -11,6 +11,7 @@
 
 #include "config.hh"
 #include "hbase.hh"
+#include "inherit.hh"
 #include "module.hh"
 #include "sbuf.hh"
 
@@ -31,14 +32,9 @@ class VideoModule : public Module {
     virtual void blit() = 0;
     virtual void sync() = 0;
 
-    VideoModule(const VideoModule& copy) = delete;
-    VideoModule& operator=(const VideoModule& copy) = delete;
-    VideoModule(VideoModule&& move) : Module(std::move(move)) {}
-    VideoModule& operator=(VideoModule&& move) {
-        Module::operator=(std::move(move));
-        return *this;
-    }
-    virtual ~VideoModule() {}
+    DELETE_COPY(VideoModule);
+    INHERIT_MOVE(VideoModule, Module);
+    virtual ~VideoModule() noexcept {}
 
    protected:
     VideoModule() {}

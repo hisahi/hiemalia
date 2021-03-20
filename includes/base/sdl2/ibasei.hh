@@ -15,6 +15,7 @@
 #include "base/sdl2/hbasei.hh"
 #include "buttons.hh"
 #include "ibase.hh"
+#include "inherit.hh"
 
 namespace hiemalia {
 class InputControlModuleSDL2;
@@ -25,16 +26,15 @@ class InputModuleSDL2 : public InputModule {
 
     void update(ControlState& state, MenuControlState& menustate);
     bool hasInputDevice(InputDevice device) const;
-    InputControlModule& addInputDevice(InputDevice device,
-                                       ConfigSectionPtr<ButtonSetup>& config);
+    InputControlModule& addInputDevice(
+        InputDevice device, const ConfigSectionPtr<ButtonSetup>& config);
     void handle(const SDL_Event& event);
 
     explicit InputModuleSDL2(std::shared_ptr<HostModule> host);
-    InputModuleSDL2(const InputModuleSDL2& copy) = delete;
-    InputModuleSDL2& operator=(const InputModuleSDL2& copy) = delete;
-    InputModuleSDL2(InputModuleSDL2&& move);
-    InputModuleSDL2& operator=(InputModuleSDL2&& move);
-    ~InputModuleSDL2();
+    DELETE_COPY(InputModuleSDL2);
+    InputModuleSDL2(InputModuleSDL2&& move) noexcept;
+    InputModuleSDL2& operator=(InputModuleSDL2&& move) noexcept;
+    ~InputModuleSDL2() noexcept;
 
    private:
     static inline const std::string name_ = "InputModuleSDL2";
@@ -59,12 +59,10 @@ class InputControlModuleSDL2 : public InputControlModule {
 
     explicit InputControlModuleSDL2(
         InputModuleSDL2& host, const ConfigSectionPtr<ButtonSetup>& config);
-    InputControlModuleSDL2(const InputControlModuleSDL2& copy) = delete;
-    InputControlModuleSDL2& operator=(const InputControlModuleSDL2& copy) =
-        delete;
-    InputControlModuleSDL2(InputControlModuleSDL2&& move);
-    InputControlModuleSDL2& operator=(InputControlModuleSDL2&& move);
-    ~InputControlModuleSDL2();
+    DELETE_COPY(InputControlModuleSDL2);
+    InputControlModuleSDL2(InputControlModuleSDL2&& move) noexcept;
+    InputControlModuleSDL2& operator=(InputControlModuleSDL2&& move) noexcept;
+    ~InputControlModuleSDL2() noexcept;
 
    private:
     static inline const std::string name_ = "InputControlModuleSDL2";
@@ -74,7 +72,7 @@ class InputControlModuleSDL2 : public InputControlModule {
     bool setting_key_{false};
     ControlInput set_next_;
     friend InputControlModule& InputModuleSDL2::addInputDevice(
-        InputDevice, ConfigSectionPtr<ButtonSetup>&);
+        InputDevice, const ConfigSectionPtr<ButtonSetup>&);
 };
 };  // namespace hiemalia
 

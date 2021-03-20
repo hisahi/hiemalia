@@ -13,7 +13,7 @@
 
 namespace hiemalia {
 template <typename T1, typename T2>
-inline bool erase_remove(std::vector<T1> v, T2 x) {
+inline bool eraseRemove(std::vector<T1> v, T2 x) noexcept {
     auto it = std::remove(v.begin(), v.end(), x);
     bool found = it != v.end();
     v.erase(it, v.end());

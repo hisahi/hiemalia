@@ -18,4 +18,10 @@ std::ofstream openFileWrite(const std::string& filename, bool binary) {
     return std::move(std::ofstream(
         filename, binary ? std::ios::out | std::ios::binary : std::ios::out));
 }
+
+std::ifstream openAssetFileRead(const std::string& filename, bool binary) {
+    return std::move(
+        std::ifstream("assets/" + filename,
+                      binary ? std::ios::in | std::ios::binary : std::ios::in));
+}
 }  // namespace hiemalia

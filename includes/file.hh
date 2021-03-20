@@ -14,6 +14,7 @@
 namespace hiemalia {
 std::ifstream openFileRead(const std::string& filename, bool binary);
 std::ofstream openFileWrite(const std::string& filename, bool binary);
+std::ifstream openAssetFileRead(const std::string& filename, bool binary);
 };  // namespace hiemalia
 
 #endif  // M_FILE_HH

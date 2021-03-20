@@ -7,8 +7,7 @@ VBACKEND=sdl2
 # input backends (separated with spaces). must have at least one!
 IBACKEND=sdl2
 # audio backends (separated with spaces)
-ABACKEND=
-# sdlmixer
+ABACKEND=sdl2
 
 # main makefile
 
@@ -19,11 +18,10 @@ CXXFLAGS=-std=c++17 -g3 -O0 -Wall -Werror -MMD -MP
 LDFLAGS=
 LDLIBS=
 OBJS=
-SUBDIRS=base main
+SUBDIRS=base render main menu test
 
-ROOT := $(realpath $(dir $(realpath $(firstword $(MAKEFILE_LIST)))))
-TARGET := $(ROOT)/../hiemalia
-IROOT := $(ROOT)/../includes
+TARGET := ../hiemalia
+IROOT := ../includes
 
 CXXFLAGS := -I$(IROOT) $(CXXFLAGS)
 BASECXXFLAGS := $(CXXFLAGS) $(addprefix -DHBACKEND_, $(HBACKEND)) \

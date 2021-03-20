@@ -17,6 +17,7 @@
 #include "base/sdl2.hh"
 #include "hbase.hh"
 #include "ibase.hh"
+#include "inherit.hh"
 #include "vbase.hh"
 
 namespace hiemalia {
@@ -36,18 +37,17 @@ class HostModuleSDL2 : public HostModule {
     void sync();
 
     void addVideoModule(VideoModuleSDL2& module);
-    void removeVideoModule(VideoModuleSDL2& module);
+    void removeVideoModule(VideoModuleSDL2& module) noexcept;
     void addAudioModule(AudioModuleSDL2& module);
-    void removeAudioModule(AudioModuleSDL2& module);
+    void removeAudioModule(AudioModuleSDL2& module) noexcept;
     void addInputModule(InputModuleSDL2& module);
-    void removeInputModule(InputModuleSDL2& module);
+    void removeInputModule(InputModuleSDL2& module) noexcept;
 
     explicit HostModuleSDL2();
-    HostModuleSDL2(const HostModuleSDL2& copy) = delete;
-    HostModuleSDL2& operator=(const HostModuleSDL2& copy) = delete;
-    HostModuleSDL2(HostModuleSDL2&& move);
-    HostModuleSDL2& operator=(HostModuleSDL2&& move);
-    ~HostModuleSDL2();
+    DELETE_COPY(HostModuleSDL2);
+    HostModuleSDL2(HostModuleSDL2&& move) noexcept;
+    HostModuleSDL2& operator=(HostModuleSDL2&& move) noexcept;
+    ~HostModuleSDL2() noexcept;
 
    private:
     static inline const std::string name_ = "HostModuleSDL2";

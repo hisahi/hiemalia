@@ -17,17 +17,17 @@
 
 // audio backends
 #include "abase.hh"
-#ifdef ABACKEND_SDLMIXER2
-#include "base/sdlmixer/abasei.hh"
+#ifdef ABACKEND_sdl2
+#include "base/sdl2/abasei.hh"
 #endif
 
 namespace hiemalia {
 
 std::shared_ptr<AudioModule> getAudioModule(std::shared_ptr<HostModule> host) {
-#ifdef ABACKEND_SDLMIXER2
+#ifdef ABACKEND_sdl2
     TRY_MODULE("audio", AudioModuleSDLMixer2, std::move(host));
 #endif
-    logger.warn("Falling back to silent audio module");
+    LOG_WARN("Falling back to silent audio module");
     return MAKE_MODULE(AudioModuleNull, host);
 }
 

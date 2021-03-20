@@ -12,18 +12,39 @@
 #include <cstdint>
 #include <vector>
 
+#include "defs.hh"
+
 namespace hiemalia {
-static constexpr size_t DEFAULT_BUFFER_SIZE = 4096;
+static constexpr size_t DEFAULT_BUFFER_SIZE = 128;
+static constexpr size_t DEFAULT_SCREEN_BUFFER_SIZE = 8192;
+
+enum class SplinterType {
+    BeginShape,
+    Point,
+    EndShapePoint,
+    BeginClipCenter,
+    EndClip
+};
+
+struct Color {
+    uint8_t r;  // 0-255
+    uint8_t g;  // 0-255
+    uint8_t b;  // 0-255
+    uint8_t a;  // 0-255
+};
 
 struct Splinter {
-    float x1;        // between -1.0 ... 1.0
-    float y1;        // between -1.0 ... 1.0
-    float x2;        // between -1.0 ... 1.0
-    float y2;        // between -1.0 ... 1.0
-    uint_fast8_t r;  // 0-255
-    uint_fast8_t g;  // 0-255
-    uint_fast8_t b;  // 0-255
-    uint_fast8_t a;  // 0-255
+    SplinterType type;
+    coord_t x;  // between -1.0 (left) ... 1.0 (right)
+    coord_t y;  // between -1.0 (top)  ... 1.0 (bottom)
+    union {
+        Color color;
+    };
+
+    Splinter(SplinterType type, coord_t x, coord_t y)
+        : type(type), x(x), y(y) {}
+    Splinter(SplinterType type, coord_t x, coord_t y, Color color)
+        : type(type), x(x), y(y), color(color) {}
 };
 
 class SplinterBuffer {
@@ -31,7 +52,8 @@ class SplinterBuffer {
     using container = std::vector<Splinter>;
     using const_iterator = container::const_iterator;
 
-    SplinterBuffer() { _splinters.reserve(DEFAULT_BUFFER_SIZE); }
+    explicit SplinterBuffer(size_t sz) { _splinters.reserve(sz); }
+    SplinterBuffer() : SplinterBuffer(DEFAULT_BUFFER_SIZE) {}
 
     ~SplinterBuffer() = default;
     SplinterBuffer(const SplinterBuffer& copy) = delete;
@@ -43,10 +65,22 @@ class SplinterBuffer {
         return *this;
     }
 
-    void clear() noexcept { _splinters.clear(); }
-    void push(Splinter splinter) { _splinters.push_back(splinter); }
+    inline void clear() noexcept { _splinters.clear(); }
+    inline void push(Splinter splinter) { _splinters.push_back(splinter); }
+    inline void append(const SplinterBuffer& sbuf) {
+        _splinters.insert(_splinters.end(), sbuf._splinters.begin(),
+                          sbuf._splinters.end());
+    }
+    inline void endShape() {
+        dynamic_assert(_splinters.size() > 0, "cannot end non-shape");
+        dynamic_assert(_splinters.back().type == SplinterType::Point,
+                       "cannot end non-shape");
+        _splinters.back().type = SplinterType::EndShapePoint;
+    }
+
     const_iterator begin() const noexcept { return _splinters.begin(); }
     const_iterator end() const noexcept { return _splinters.end(); }
+    size_t size() const noexcept { return _splinters.size(); }
 
    private:
     container _splinters;

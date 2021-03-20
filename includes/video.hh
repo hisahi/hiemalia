@@ -10,6 +10,7 @@
 #define M_VIDEO_HH
 
 #include "config.hh"
+#include "inherit.hh"
 #include "module.hh"
 #include "msg.hh"
 #include "sbuf.hh"
@@ -25,17 +26,17 @@ class VideoEngine : public Module, MessageHandler<VideoMessage> {
     std::string name() const noexcept { return name_; }
     std::string role() const noexcept { return role_; }
 
-    VideoEngine(const VideoEngine& copy) = delete;
-    VideoEngine& operator=(const VideoEngine& copy) = delete;
-    VideoEngine(VideoEngine&& move)
+    DELETE_COPY(VideoEngine);
+
+    VideoEngine(VideoEngine&& move) noexcept
         : Module(std::move(move)), video_(std::move(move.video_)) {}
-    VideoEngine& operator=(VideoEngine&& move) {
+    VideoEngine& operator=(VideoEngine&& move) noexcept {
         Module::operator=(std::move(move));
         video_ = std::move(move.video_);
         return *this;
     }
     VideoEngine(std::shared_ptr<HostModule> host);
-    virtual ~VideoEngine() {}
+    ~VideoEngine() noexcept {}
 
     void frame(const SplinterBuffer& sbuf);
     void sync();

@@ -33,7 +33,7 @@ class ConfigStore {
         typename decltype(map_)::const_iterator it = map_.find(key);
         if (it == map_.end()) return false;
 
-        return can_from_string<T>(it->second);
+        return canFromString<T>(it->second);
     }
 
     template <typename T>
@@ -48,13 +48,13 @@ class ConfigStore {
         typename decltype(map_)::const_iterator it = map_.find(key);
         if (it == map_.end()) return def;
 
-        return from_string<T>(it->second);
+        return fromString<T>(it->second);
     }
 
     template <typename T>
     void set(const std::string& key, T value) {
         validate_key(key);
-        map_.insert_or_assign(key, to_string<T>(value));
+        map_.insert_or_assign(key, toString<T>(value));
     }
 
     void clear() noexcept;
@@ -119,9 +119,15 @@ class Config {
     void load(std::string filename);
     void save(std::string filename);
 
+    template <typename T, typename... Ts>
+    ConfigSectionPtr<T> section(Ts&&... args) {
+        return std::dynamic_pointer_cast<T>(confs_.emplace_back(
+            std::make_shared<T>(std::forward<Ts>(args)...)));
+    }
+
     template <typename T>
-    ConfigSectionPtr<T>& section() {
-        return confs_.emplace_back(std::make_shared<T>());
+    void sectionLoad(const T& section) {
+        section->load(ConfigSectionStore(*section, store_));
     }
 
    private:

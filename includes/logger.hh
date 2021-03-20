@@ -15,6 +15,8 @@
 #include <string>
 #include <vector>
 
+#include "str.hh"
+
 namespace hiemalia {
 enum class LogLevel { TRACE, DEBUG, INFO, WARN, ERROR, FAIL };
 
@@ -24,8 +26,8 @@ class LogHandler {
     LogHandler& operator=(const LogHandler& copy) = default;
     LogHandler(LogHandler&& move) = default;
     LogHandler& operator=(LogHandler&& move) = default;
-    virtual void handle(LogLevel level, const std::tm& tm,
-                        const std::string& msg) = 0;
+    virtual void handle(LogLevel level, const std::tm& tm, const char* file,
+                        size_t line, const std::string& msg) = 0;
     virtual ~LogHandler() {}
 
    protected:
@@ -35,8 +37,8 @@ class LogHandler {
 class StdLogHandler : public LogHandler {
    public:
     StdLogHandler(LogLevel minimumLevel) : minimumLevel_(minimumLevel) {}
-    void handle(LogLevel level, const std::tm& tm,
-                const std::string& msg) override;
+    void handle(LogLevel level, const std::tm& tm, const char* file,
+                size_t line, const std::string& msg) override;
     ~StdLogHandler() {}
 
    private:
@@ -47,8 +49,8 @@ class FileLogHandler : public LogHandler {
    public:
     FileLogHandler(std::unique_ptr<std::ostream> stream, LogLevel minimumLevel)
         : stream_(std::move(stream)), minimumLevel_(minimumLevel) {}
-    void handle(LogLevel level, const std::tm& t,
-                const std::string& msg) override;
+    void handle(LogLevel level, const std::tm& tm, const char* file,
+                size_t line, const std::string& msg) override;
     ~FileLogHandler() {}
 
    private:
@@ -62,55 +64,75 @@ class Logger {
     template <typename T>
     using LogHandlerContainer = std::vector<T>;
 
-    void log(LogLevel level, const std::string& s);
-    void trace(const std::string& s) { log(LogLevel::TRACE, s); }
-    void debug(const std::string& s) { log(LogLevel::DEBUG, s); }
-    void info(const std::string& s) { log(LogLevel::INFO, s); }
-    void warn(const std::string& s) { log(LogLevel::WARN, s); }
-    void error(const std::string& s) { log(LogLevel::ERROR, s); }
-    void fail(const std::string& s) { log(LogLevel::FAIL, s); }
-
     template <typename... Ts>
-    void log_fmt(LogLevel level, const std::string& fmt, Ts&&... args) {
-        log(level, string_format(fmt, std::forward<Ts>(args)...));
+    void log(const char* file, size_t line, LogLevel level,
+             const std::string& fmt, Ts&&... args) {
+        if constexpr (sizeof...(Ts) > 0)
+            log_(level, file, line,
+                 stringFormat(fmt, std::forward<Ts>(args)...));
+        else
+            log_(level, file, line, fmt);
     }
     template <typename... Ts>
-    void trace_fmt(const std::string& fmt, Ts&&... args) {
-        trace(string_format(fmt, std::forward<Ts>(args)...));
+    void trace(const char* file, size_t line, const std::string& fmt,
+               Ts&&... args) {
+        log(file, line, LogLevel::TRACE, fmt, std::forward<Ts>(args)...);
     }
     template <typename... Ts>
-    void debug_fmt(const std::string& fmt, Ts&&... args) {
-        debug(string_format(fmt, std::forward<Ts>(args)...));
+    void debug(const char* file, size_t line, const std::string& fmt,
+               Ts&&... args) {
+        log(file, line, LogLevel::DEBUG, fmt, std::forward<Ts>(args)...);
     }
     template <typename... Ts>
-    void info_fmt(const std::string& fmt, Ts&&... args) {
-        info(string_format(fmt, std::forward<Ts>(args)...));
+    void info(const char* file, size_t line, const std::string& fmt,
+              Ts&&... args) {
+        log(file, line, LogLevel::INFO, fmt, std::forward<Ts>(args)...);
     }
     template <typename... Ts>
-    void warn_fmt(const std::string& fmt, Ts&&... args) {
-        warn(string_format(fmt, std::forward<Ts>(args)...));
+    void warn(const char* file, size_t line, const std::string& fmt,
+              Ts&&... args) {
+        log(file, line, LogLevel::WARN, fmt, std::forward<Ts>(args)...);
     }
     template <typename... Ts>
-    void error_fmt(const std::string& fmt, Ts&&... args) {
-        error(string_format(fmt, std::forward<Ts>(args)...));
+    void error(const char* file, size_t line, const std::string& fmt,
+               Ts&&... args) {
+        log(file, line, LogLevel::ERROR, fmt, std::forward<Ts>(args)...);
     }
     template <typename... Ts>
-    void fail_fmt(const std::string& fmt, Ts&&... args) {
-        fail(string_format(fmt, std::forward<Ts>(args)...));
+    void fail(const char* file, size_t line, const std::string& fmt,
+              Ts&&... args) {
+        log(file, line, LogLevel::FAIL, fmt, std::forward<Ts>(args)...);
     }
 
     template <typename T, typename... Ts>
     void addHandler(Ts&&... args) {
         handlers_.emplace_back(std::make_unique<T>(std::forward<Ts>(args)...));
-        debug(std::string("Added new logger ") + typeid(T).name());
+        debug(__FILE__, __LINE__,
+              std::string("Added new logger ") + typeid(T).name());
     }
 
    private:
+    void log_(LogLevel level, const char* file, size_t line,
+              const std::string& s);
     LogHandlerContainer<LogHandlerPtr> handlers_;
 };
 
 extern Logger logger;
 extern bool logger_ok;
+
+#define LOG_ADD_HANDLER(T, ...) logger.addHandler<T>(__VA_ARGS__)
+#define LOG_TRACE(...) \
+    (logger_ok ? logger.trace(__FILE__, __LINE__, __VA_ARGS__) : (void)0)
+#define LOG_DEBUG(...) \
+    (logger_ok ? logger.debug(__FILE__, __LINE__, __VA_ARGS__) : (void)0)
+#define LOG_INFO(...) \
+    (logger_ok ? logger.info(__FILE__, __LINE__, __VA_ARGS__) : (void)0)
+#define LOG_WARN(...) \
+    (logger_ok ? logger.warn(__FILE__, __LINE__, __VA_ARGS__) : (void)0)
+#define LOG_ERROR(...) \
+    (logger_ok ? logger.error(__FILE__, __LINE__, __VA_ARGS__) : (void)0)
+#define LOG_FAIL(...) \
+    (logger_ok ? logger.fail(__FILE__, __LINE__, __VA_ARGS__) : (void)0)
 };  // namespace hiemalia
 
 #endif  // M_LOGGER_HH

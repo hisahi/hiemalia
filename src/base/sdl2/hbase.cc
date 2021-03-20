@@ -20,23 +20,23 @@ namespace hiemalia {
 
 hiemalia::HostModuleSDL2::HostModuleSDL2() {
     if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_EVENTS))
-        throw SDLException(SDL_GetError());
+        throw SDLException("Could not initialize SDL2");
     sdl_owner_ = true;
     ticks_ = SDL_GetTicks();
 }
 
-HostModuleSDL2::~HostModuleSDL2() {
+HostModuleSDL2::~HostModuleSDL2() noexcept {
     if (sdl_owner_) SDL_Quit();
 }
 
-HostModuleSDL2::HostModuleSDL2(HostModuleSDL2&& move)
+HostModuleSDL2::HostModuleSDL2(HostModuleSDL2&& move) noexcept
     : HostModule(std::move(move)) {
     std::swap(sdl_owner_, move.sdl_owner_);
     std::swap(ticks_, move.ticks_);
     std::swap(quit_, move.quit_);
 }
 
-HostModuleSDL2& HostModuleSDL2::operator=(HostModuleSDL2&& move) {
+HostModuleSDL2& HostModuleSDL2::operator=(HostModuleSDL2&& move) noexcept {
     HostModule::operator=(std::move(move));
     std::swap(sdl_owner_, move.sdl_owner_);
     std::swap(ticks_, move.ticks_);
@@ -47,12 +47,12 @@ HostModuleSDL2& HostModuleSDL2::operator=(HostModuleSDL2&& move) {
 void HostModuleSDL2::begin() {}
 
 bool HostModuleSDL2::proceed() {
-    if (quit_) return true;
+    if (quit_) return false;
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_QUIT:
-                logger.debug("Got quit command from SDL");
+                LOG_DEBUG("Got quit command from SDL");
                 quit_ = true;
                 break;
             case SDL_KEYDOWN:
@@ -74,24 +74,24 @@ void HostModuleSDL2::addVideoModule(VideoModuleSDL2& module) {
     video_modules_.push_back(&module);
 }
 
-void HostModuleSDL2::removeVideoModule(VideoModuleSDL2& module) {
-    erase_remove(video_modules_, &module);
+void HostModuleSDL2::removeVideoModule(VideoModuleSDL2& module) noexcept {
+    eraseRemove(video_modules_, &module);
 }
 
 void HostModuleSDL2::addAudioModule(AudioModuleSDL2& module) {
     audio_modules_.push_back(&module);
 }
 
-void HostModuleSDL2::removeAudioModule(AudioModuleSDL2& module) {
-    erase_remove(audio_modules_, &module);
+void HostModuleSDL2::removeAudioModule(AudioModuleSDL2& module) noexcept {
+    eraseRemove(audio_modules_, &module);
 }
 
 void HostModuleSDL2::addInputModule(InputModuleSDL2& module) {
     input_modules_.push_back(&module);
 }
 
-void HostModuleSDL2::removeInputModule(InputModuleSDL2& module) {
-    erase_remove(input_modules_, &module);
+void HostModuleSDL2::removeInputModule(InputModuleSDL2& module) noexcept {
+    eraseRemove(input_modules_, &module);
 }
 
 void HostModuleSDL2::sync() {
@@ -106,9 +106,9 @@ void HostModuleSDL2::sync() {
 }
 
 void HostModuleSDL2::quit() {
-    logger.debug("Got quit command from game");
+    LOG_DEBUG("Got quit command from game");
     quit_ = true;
 }
 
-void HostModuleSDL2::finish() { quit(); }
+void HostModuleSDL2::finish() { quit_ = true; }
 }  // namespace hiemalia

@@ -21,22 +21,24 @@ InputModuleSDL2::InputModuleSDL2(std::shared_ptr<HostModule> host)
     if (SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER))
         subsystem_ = true;
     else
-        logger.warn(
+        LOG_WARN(
             "could not initialize SDL2 joystick / game controller "
             "subsystems: " +
             std::string(SDL_GetError()));
     host_->addInputModule(*this);
 }
 
-InputModuleSDL2::~InputModuleSDL2() { host_->removeInputModule(*this); }
+InputModuleSDL2::~InputModuleSDL2() noexcept {
+    host_->removeInputModule(*this);
+}
 
-InputModuleSDL2::InputModuleSDL2(InputModuleSDL2&& move)
+InputModuleSDL2::InputModuleSDL2(InputModuleSDL2&& move) noexcept
     : InputModule(std::move(move)), host_(std::move(move.host_)) {
     state_ = move.state_;
     host_->addInputModule(*this);
 }
 
-InputModuleSDL2& InputModuleSDL2::operator=(InputModuleSDL2&& move) {
+InputModuleSDL2& InputModuleSDL2::operator=(InputModuleSDL2&& move) noexcept {
     InputModule::operator=(std::move(move));
     if (host_ != move.host_) {
         host_->removeInputModule(*this);
@@ -69,7 +71,7 @@ bool InputModuleSDL2::hasInputDevice(InputDevice device) const {
 }
 
 InputControlModule& InputModuleSDL2::addInputDevice(
-    InputDevice device, ConfigSectionPtr<ButtonSetup>& config) {
+    InputDevice device, const ConfigSectionPtr<ButtonSetup>& config) {
     int index = static_cast<int>(device);
     dynamic_assert(devices_.at(index) == nullptr, "too many devices");
     devices_[index] = std::make_unique<InputControlModuleSDL2>(*this, config);
@@ -83,13 +85,13 @@ InputControlModule& InputModuleSDL2::addInputDevice(
                 if (SDL_IsGameController(i)) {
                     pad = SDL_GameControllerOpen(i);
                     if (!pad) {
-                        logger.warn("could not initialize game controller: " +
-                                    std::string(SDL_GetError()));
+                        LOG_WARN("could not initialize game controller: " +
+                                 std::string(SDL_GetError()));
                     } else
                         break;
                 }
             }
-            if (!pad) logger.error("no game controllers available");
+            if (!pad) LOG_ERROR("no game controllers available");
             module->pad_ = pad;
             break;
         }
@@ -120,7 +122,8 @@ InputControlModuleSDL2::InputControlModuleSDL2(
     InputModuleSDL2& host, const ConfigSectionPtr<ButtonSetup>& config)
     : InputControlModule(host, config), host_(host) {}
 
-InputControlModuleSDL2::InputControlModuleSDL2(InputControlModuleSDL2&& move)
+InputControlModuleSDL2::InputControlModuleSDL2(
+    InputControlModuleSDL2&& move) noexcept
     : InputControlModule(move.host_,
                          std::dynamic_pointer_cast<ButtonSetup>(move.config_)),
       host_(move.host_),
@@ -131,7 +134,7 @@ InputControlModuleSDL2::InputControlModuleSDL2(InputControlModuleSDL2&& move)
 }
 
 InputControlModuleSDL2& InputControlModuleSDL2::operator=(
-    InputControlModuleSDL2&& move) {
+    InputControlModuleSDL2&& move) noexcept {
     std::swap(joy_, move.joy_);
     std::swap(pad_, move.pad_);
     setting_key_ = move.setting_key_;
@@ -139,7 +142,7 @@ InputControlModuleSDL2& InputControlModuleSDL2::operator=(
     return *this;
 }
 
-InputControlModuleSDL2::~InputControlModuleSDL2() {
+InputControlModuleSDL2::~InputControlModuleSDL2() noexcept {
     if (joy_) SDL_JoystickClose(joy_);
     if (pad_) SDL_GameControllerClose(pad_);
 }

@@ -17,106 +17,11 @@
 
 namespace hiemalia {
 
-template <typename T, size_t N, typename Allocator = std::allocator<T>>
-class limited_vector;
-
 template <typename T>
-class limited_vector_iterator {
-   public:
-    using iterator = limited_vector_iterator;
-    using iterator_category = std::random_access_iterator_tag;
-    using value_type = T;
-    using size_type = size_t;
-    using difference_type = ptrdiff_t;
-    using reference = T&;
-    using const_reference = const T&;
-    using pointer = T*;
-    using const_pointer = const T*;
+class LimitedVectorIterator;
 
-    limited_vector_iterator() : ptr_(nullptr) {}
-    limited_vector_iterator(pointer ptr) : ptr_(ptr) {}
-    limited_vector_iterator(const iterator& copy) : ptr_(copy.ptr_) {}
-    limited_vector_iterator(iterator&& move) : ptr_(move.ptr_) {}
-
-    inline iterator& operator=(pointer ptr) {
-        ptr_ = ptr;
-        return *this;
-    }
-    inline iterator& operator=(const iterator& copy) {
-        ptr_ = copy.ptr_;
-        return *this;
-    }
-    inline iterator& operator=(iterator&& move) {
-        ptr_ = move.ptr_;
-        return *this;
-    }
-    inline iterator& operator+=(const difference_type& rhs) {
-        ptr_ += rhs;
-        return *this;
-    }
-    inline iterator& operator-=(const difference_type& rhs) {
-        ptr_ -= rhs;
-        return *this;
-    }
-    inline reference operator*() { return *ptr_; }
-    inline pointer operator->() { return ptr_; }
-    inline reference operator[](const difference_type& rhs) {
-        return ptr_[rhs];
-    }
-
-    inline iterator operator+(const iterator& rhs) {
-        return iterator(ptr_ + rhs.ptr);
-    }
-    inline iterator operator-(const iterator& rhs) {
-        return iterator(ptr_ - rhs.ptr);
-    }
-    inline iterator operator+(const difference_type& rhs) {
-        return iterator(ptr_ + rhs);
-    }
-    inline iterator operator-(const difference_type& rhs) {
-        return iterator(ptr_ - rhs);
-    }
-    friend inline iterator operator+(const difference_type& lhs,
-                                     const iterator& rhs) {
-        return iterator(lhs + rhs.ptr_);
-    }
-    friend inline iterator operator-(const difference_type& lhs,
-                                     const iterator& rhs) {
-        return iterator(lhs - rhs.ptr_);
-    }
-
-    inline iterator& operator++() {
-        ++ptr_;
-        return *this;
-    }
-    inline iterator& operator--() {
-        --ptr_;
-        return *this;
-    }
-    inline iterator& operator++(difference_type) {
-        iterator tmp(*this);
-        ++ptr_;
-        return tmp;
-    }
-    inline iterator& operator--(difference_type) {
-        iterator tmp(*this);
-        --ptr_;
-        return tmp;
-    }
-
-    inline bool operator==(const iterator& rhs) { return ptr_ == rhs.ptr_; }
-    inline bool operator!=(const iterator& rhs) { return ptr_ != rhs.ptr_; }
-    inline bool operator>(const iterator& rhs) { return ptr_ > rhs.ptr_; }
-    inline bool operator>=(const iterator& rhs) { return ptr_ >= rhs.ptr_; }
-    inline bool operator<(const iterator& rhs) { return ptr_ < rhs.ptr_; }
-    inline bool operator<=(const iterator& rhs) { return ptr_ <= rhs.ptr_; }
-
-   private:
-    pointer ptr_;
-};
-
-template <typename T, size_t N, typename Allocator>
-class limited_vector {
+template <typename T, size_t N, typename Allocator = std::allocator<T>>
+class LimitedVector {
    public:
     using value_type = T;
     using size_type = size_t;
@@ -126,18 +31,18 @@ class limited_vector {
     using rvalue_reference = T&&;
     using pointer = T*;
     using const_pointer = const T*;
-    using iterator = limited_vector_iterator<T>;
-    using const_iterator = limited_vector_iterator<const T>;
+    using iterator = LimitedVectorIterator<T>;
+    using const_iterator = LimitedVectorIterator<const T>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using allocator_type = Allocator;
 
-    explicit limited_vector(allocator_type alloc)
+    explicit LimitedVector(allocator_type alloc)
         : count_(0), alloc_(alloc), data_(alloc_.allocate(N)) {}
-    limited_vector() : limited_vector(allocator_type()) {}
-    explicit limited_vector(size_type count, const T& value = T(),
-                            const allocator_type& alloc = allocator_type())
-        : limited_vector(alloc) {
+    LimitedVector() : LimitedVector(allocator_type()) {}
+    explicit LimitedVector(size_type count, const T& value = T(),
+                           const allocator_type& alloc = allocator_type())
+        : LimitedVector(alloc) {
         size_type i;
         for (i = 0; i < count; ++i) {
             if (i >= N) out_of_capacity();
@@ -146,9 +51,9 @@ class limited_vector {
         count_ = i;
     }
     template <class InputIt>
-    explicit limited_vector(InputIt first, InputIt last,
-                            const allocator_type& alloc = allocator_type())
-        : limited_vector(alloc) {
+    explicit LimitedVector(InputIt first, InputIt last,
+                           const allocator_type& alloc = allocator_type())
+        : LimitedVector(alloc) {
         size_type i;
         while (first < last) {
             if (i >= N) out_of_capacity();
@@ -157,19 +62,19 @@ class limited_vector {
         count_ = i;
     }
 
-    limited_vector(const limited_vector& copy)
+    LimitedVector(const LimitedVector& copy)
         : count_(copy.count), alloc_(copy.alloc_), data_(alloc_.allocate(N)) {
         for (size_type i = 0; i < count_; ++i) {
             new (&data_[i]) T(copy.data_[i]);
         }
     }
 
-    limited_vector(limited_vector&& move)
+    LimitedVector(LimitedVector&& move)
         : count_(move.count), alloc_(std::move(move.alloc_)) {
         std::swap(data_, move.data_);
     }
 
-    limited_vector& operator=(const limited_vector& copy) {
+    LimitedVector& operator=(const LimitedVector& copy) {
         if (&copy != this) {
             size_type i;
 
@@ -193,7 +98,7 @@ class limited_vector {
         return *this;
     }
 
-    limited_vector& operator=(limited_vector&& move) {
+    LimitedVector& operator=(LimitedVector&& move) {
         if (&move != this) {
             for (size_t i = 0; i < count_; ++i) {
                 data_[i].~T();
@@ -208,11 +113,13 @@ class limited_vector {
         return *this;
     }
 
-    ~limited_vector() {
-        for (size_t i = 0; i < count_; ++i) {
-            data_[i].~T();
+    ~LimitedVector() {
+        if (data_ != nullptr) {
+            for (size_t i = 0; i < count_; ++i) {
+                data_[i].~T();
+            }
+            alloc_.deallocate(data_, N);
         }
-        alloc_.deallocate(data_, N);
     }
 
     void assign(size_type count, const_reference value) {
@@ -412,7 +319,7 @@ class limited_vector {
     }
 
     template <typename T2, size_t N2, typename Allocator2>
-    inline bool operator==(const limited_vector<T2, N2, Allocator2> v) {
+    inline bool operator==(const LimitedVector<T2, N2, Allocator2> v) {
         if (count_ != v.count_) return false;
         for (size_type i = 0; i < count_; ++i) {
             if (data_[i] != v.data_[i]) return false;
@@ -421,7 +328,7 @@ class limited_vector {
     }
 
     template <typename T2, size_t N2, typename Allocator2>
-    inline bool operator!=(const limited_vector<T2, N2, Allocator2> v) {
+    inline bool operator!=(const LimitedVector<T2, N2, Allocator2> v) {
         if (count_ == v.count_) return true;
         for (size_type i = 0; i < count_; ++i) {
             if (data_[i] != v.data_[i]) return true;
@@ -476,16 +383,116 @@ class limited_vector {
     }
 
     template <typename vT, size_t vN, typename vAllocator>
-    friend void std::swap(limited_vector<vT, vN, vAllocator> v1,
-                          limited_vector<vT, vN, vAllocator> v2);
+    friend void std::swap(LimitedVector<vT, vN, vAllocator> v1,
+                          LimitedVector<vT, vN, vAllocator> v2);
+};
+
+template <typename T>
+class LimitedVectorIterator {
+   public:
+    using iterator = LimitedVectorIterator;
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = T;
+    using size_type = size_t;
+    using difference_type = ptrdiff_t;
+    using reference = T&;
+    using const_reference = const T&;
+    using pointer = T*;
+    using const_pointer = const T*;
+
+    LimitedVectorIterator() : ptr_(nullptr) {}
+    LimitedVectorIterator(pointer ptr) : ptr_(ptr) {}
+    LimitedVectorIterator(const iterator& copy) : ptr_(copy.ptr_) {}
+    LimitedVectorIterator(iterator&& move) : ptr_(move.ptr_) {}
+    inline operator LimitedVectorIterator<const T>() {
+        return LimitedVectorIterator<const T>(ptr_);
+    }
+
+    inline iterator& operator=(pointer ptr) {
+        ptr_ = ptr;
+        return *this;
+    }
+    inline iterator& operator=(const iterator& copy) {
+        ptr_ = copy.ptr_;
+        return *this;
+    }
+    inline iterator& operator=(iterator&& move) {
+        ptr_ = move.ptr_;
+        return *this;
+    }
+    inline iterator& operator+=(const difference_type& rhs) {
+        ptr_ += rhs;
+        return *this;
+    }
+    inline iterator& operator-=(const difference_type& rhs) {
+        ptr_ -= rhs;
+        return *this;
+    }
+    inline reference operator*() { return *ptr_; }
+    inline pointer operator->() { return ptr_; }
+    inline reference operator[](const difference_type& rhs) {
+        return ptr_[rhs];
+    }
+
+    inline iterator operator+(const iterator& rhs) {
+        return iterator(ptr_ + rhs.ptr);
+    }
+    inline iterator operator-(const iterator& rhs) {
+        return iterator(ptr_ - rhs.ptr);
+    }
+    inline iterator operator+(const difference_type& rhs) {
+        return iterator(ptr_ + rhs);
+    }
+    inline iterator operator-(const difference_type& rhs) {
+        return iterator(ptr_ - rhs);
+    }
+    friend inline iterator operator+(const difference_type& lhs,
+                                     const iterator& rhs) {
+        return iterator(lhs + rhs.ptr_);
+    }
+    friend inline iterator operator-(const difference_type& lhs,
+                                     const iterator& rhs) {
+        return iterator(lhs - rhs.ptr_);
+    }
+
+    inline iterator& operator++() {
+        ++ptr_;
+        return *this;
+    }
+    inline iterator& operator--() {
+        --ptr_;
+        return *this;
+    }
+    inline iterator& operator++(int) {
+        iterator tmp(*this);
+        ++ptr_;
+        return tmp;
+    }
+    inline iterator& operator--(int) {
+        iterator tmp(*this);
+        --ptr_;
+        return tmp;
+    }
+
+    inline bool operator==(const iterator& rhs) { return ptr_ == rhs.ptr_; }
+    inline bool operator!=(const iterator& rhs) { return ptr_ != rhs.ptr_; }
+    inline bool operator>(const iterator& rhs) { return ptr_ > rhs.ptr_; }
+    inline bool operator>=(const iterator& rhs) { return ptr_ >= rhs.ptr_; }
+    inline bool operator<(const iterator& rhs) { return ptr_ < rhs.ptr_; }
+    inline bool operator<=(const iterator& rhs) { return ptr_ <= rhs.ptr_; }
+
+   private:
+    pointer ptr_;
+    template <typename Tv, size_t N, typename Allocator>
+    friend class LimitedVector;
 };
 
 };  // namespace hiemalia
 
 namespace std {
 template <typename T, size_t N, typename Allocator>
-void swap(hiemalia::limited_vector<T, N, Allocator>& lhs,
-          hiemalia::limited_vector<T, N, Allocator>& rhs) {
+void swap(hiemalia::LimitedVector<T, N, Allocator>& lhs,
+          hiemalia::LimitedVector<T, N, Allocator>& rhs) {
     size_t i;
 
     for (i = 0; i < std::min(lhs.count_, rhs.count_); ++i) {

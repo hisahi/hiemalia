@@ -16,20 +16,35 @@
 #include "audio.hh"
 #include "defs.hh"
 #include "hbase.hh"
-#include "ibase.hh"
+#include "input.hh"
 #include "logic.hh"
 #include "msg.hh"
 #include "video.hh"
 
 namespace hiemalia {
 
-template <typename T, typename... Ts>
-void sendMessage(Ts&&... args) {
-    T msg(std::forward<Ts>(args)...);
+template <typename T>
+void sendMessage(T msg) {
     MessageHandler<T>::deliver(msg);
 }
 
-class Hiemalia {
+template <typename T, typename... Ts>
+void sendMessageMake(Ts&&... args) {
+    MessageHandler<T>::deliver(T(std::forward<Ts>(args)...));
+}
+
+enum class GameMessageType { Quit };
+
+struct GameMessage {
+    GameMessageType type;
+
+    static GameMessage quit() { return GameMessage(GameMessageType::Quit); }
+
+   private:
+    GameMessage(GameMessageType t) : type(t) {}
+};
+
+class Hiemalia : MessageHandler<GameMessage> {
    public:
     Hiemalia(const std::string& command);
     ~Hiemalia();
@@ -38,6 +53,7 @@ class Hiemalia {
     Hiemalia(Hiemalia&& move);
     Hiemalia& operator=(Hiemalia&& move);
 
+    void gotMessage(const GameMessage& msg);
     void args(std::vector<std::string> args);
     void run();
 
@@ -45,9 +61,8 @@ class Hiemalia {
     std::string command_;
     std::string configFileName{"hiemalia.cfg"};
     GameState state_;
-    MenuControlState controlsmenu_;
     std::shared_ptr<HostModule> host_;
-    std::shared_ptr<InputModule> input_;
+    std::shared_ptr<InputEngine> input_;
     std::unique_ptr<VideoEngine> video_;
     std::unique_ptr<AudioEngine> audio_;
     std::unique_ptr<LogicEngine> logic_;

@@ -13,6 +13,8 @@
 
 #include "base/sdl2.hh"
 #include "base/sdl2/hbasei.hh"
+#include "defs.hh"
+#include "inherit.hh"
 #include "sbuf.hh"
 #include "vbase.hh"
 
@@ -30,20 +32,22 @@ class VideoModuleSDL2 : public VideoModule {
     void onResize();
 
     explicit VideoModuleSDL2(std::shared_ptr<HostModule> host);
-    VideoModuleSDL2(const VideoModuleSDL2& copy) = delete;
-    VideoModuleSDL2& operator=(const VideoModuleSDL2& copy) = delete;
-    VideoModuleSDL2(VideoModuleSDL2&& move);
-    VideoModuleSDL2& operator=(VideoModuleSDL2&& move);
-    ~VideoModuleSDL2();
+    DELETE_COPY(VideoModuleSDL2);
+    VideoModuleSDL2(VideoModuleSDL2&& move) noexcept;
+    VideoModuleSDL2& operator=(VideoModuleSDL2&& move) noexcept;
+    ~VideoModuleSDL2() noexcept;
 
    private:
     static inline const std::string name_ = "VideoModuleSDL2";
-    float cx_, cy_, scale_;
+    int width_{0};
+    coord_t cx_, cy_, scale_;
     std::shared_ptr<HostModuleSDL2> host_;
     SDL_Window* window_{nullptr};
     SDL_Renderer* renderer_{nullptr};
     SDL_Surface* surface_{nullptr};
     SDL_Texture* screen_{nullptr};
+    SDL_Rect rect_;
+    std::vector<SDL_Point> points_;
 };
 };  // namespace hiemalia
 

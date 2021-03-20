@@ -24,7 +24,7 @@ class MessageHandler {
     using MessageHandlerPtrList = std::vector<MessageHandlerPtr>;
 
     MessageHandler() { list_.push_back(this); }
-    virtual ~MessageHandler() { erase_remove(list_, this); }
+    virtual ~MessageHandler() { eraseRemove(list_, this); }
 
     virtual void gotMessage(const T& msg) = 0;
     void enable() { _enabled = true; }
@@ -37,6 +37,8 @@ class MessageHandler {
         for (auto& hook : list_)
             if (hook->_enabled) hook->gotMessage(msg);
     }
+    template <typename Tm>
+    friend void sendMessage(Tm);
 };
 
 template <typename T>

@@ -14,6 +14,7 @@
 #include "buttons.hh"
 #include "config.hh"
 #include "hbase.hh"
+#include "inherit.hh"
 #include "module.hh"
 
 namespace hiemalia {
@@ -28,16 +29,11 @@ class InputModule : public Module {
     virtual bool hasInputDevice(InputDevice device) const = 0;
     // these MUST be destroyed before/with the InputModule!
     virtual InputControlModule& addInputDevice(
-        InputDevice device, ConfigSectionPtr<ButtonSetup>& config) = 0;
+        InputDevice device, const ConfigSectionPtr<ButtonSetup>& config) = 0;
 
-    InputModule(const InputModule& copy) = delete;
-    InputModule& operator=(const InputModule& copy) = delete;
-    InputModule(InputModule&& move) : Module(std::move(move)) {}
-    InputModule& operator=(InputModule&& move) {
-        Module::operator=(std::move(move));
-        return *this;
-    }
-    virtual ~InputModule() {}
+    DELETE_COPY(InputModule);
+    INHERIT_MOVE(InputModule, Module);
+    virtual ~InputModule() noexcept {}
 
    protected:
     InputModule() {}

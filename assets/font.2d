@@ -1,0 +1,856 @@
+
+font
+fontmin 32
+fontwidth 2
+fontheight 2
+fontend
+
+scale 0.75
+
+#  
+begin
+end
+
+# !
+begin
+move 0,-1
+line 0,0
+move -0.25,1
+line 0.25,1
+end
+
+# "
+begin
+move -0.25,-1
+line -0.25,-0.5
+move 0.25,-1
+line 0.25,-0.5
+end
+
+# #
+begin
+move -0.5,-1
+line -0.5,1
+move 0.5,-1
+line 0.5,1
+move -1,-0.5
+line 1,-0.5
+move -1,0.5
+line 1,0.5
+end
+
+# $
+begin
+move 0,-1
+line 0,1
+move 0.75,-0.75
+line -0.75,-0.75
+line -0.75,0
+line 0.75,0
+line 0.75,0.75
+line -0.75,0.75
+end
+
+# %
+begin
+move -1,-0.5
+line -1,0
+move 1,0.5
+line 1,0
+move -1,1
+line 1,-1
+end
+
+# &
+begin
+move 1,0
+line 0,1
+line -1,0
+line 0,-1
+line -1,-1
+line 1,1
+end
+
+# '
+begin
+move 0,-1
+line 0,-0.25
+end
+
+# (
+begin
+move 0.5,-1
+line 0,-0.5
+line 0,0.5
+line 0.5,1
+end
+
+# )
+begin
+move -0.5,-1
+line 0,-0.5
+line 0,0.5
+line -0.5,1
+end
+
+# *
+begin
+move 0,-0.5
+line 0,0.5
+move -0.5,-0.25
+line 0.5,0.25
+move 0.5,-0.25
+line -0.5,0.25
+end
+
+# +
+begin
+move 0,-0.75
+line 0,0.75
+move -0.75,0
+line 0.75,0
+end
+
+# ,
+begin
+move 0,0.5
+line -0.5,1
+end
+
+# -
+begin
+move -0.75,0
+line 0.75,0
+end
+
+# .
+begin
+move 0,0.875
+line 0,0,1
+end
+
+# /
+begin
+move -1,-1
+line 1,1
+end
+
+# 0
+begin
+move -1,-1
+line 1,-1
+line 1,1
+line -1,1
+line -1,-1
+end
+
+# 1
+begin
+move 0,-1
+line 0,1
+end
+
+# 2
+begin
+move -1,-1
+line 1,-1
+line 1,0
+line -1,0
+line -1,1
+line 1,1
+end
+
+# 3
+begin
+move -1,-1
+line 1,-1
+line 1,0
+line -1,0
+move 1,0
+line 1,1
+line -1,1
+end
+
+# 4
+begin
+move -1,-1
+line -1,0
+line 1,0
+move 1,-1
+line 1,1
+end
+
+# 5
+begin
+move 1,-1
+line -1,-1
+line -1,0
+line 1,0
+line 1,1
+line -1,1
+end
+
+# 6
+begin
+move 1,-1
+line -1,-1
+line -1,1
+line 1,1
+line 1,0
+line -1,0
+end
+
+# 7
+begin
+move -1,-1
+line 1,-1
+line 1,1
+end
+
+# 8
+begin
+move -1,-1
+line 1,-1
+line 1,1
+line -1,1
+line -1,-1
+move -1,0
+line 1,0
+end
+
+# 9
+begin
+move -1,1
+line 1,1
+line 1,-1
+line -1,-1
+line -1,0
+line 1,0
+end
+
+# :
+begin
+move 0,-0.25
+line 0,0
+move 0,0.5
+line 0,0.75
+end
+
+# ;
+begin
+move 0,-0.25
+line 0,0
+move 0,0.5
+line -0.5,1
+end
+
+# <
+begin
+move 0.5,-0.5
+line -0.5,0
+line 0.5,0.5
+end
+
+# =
+begin
+move -0.5,-0.25
+line 0.5,-0.25
+move -0.5,0.25
+line 0.5,0.25
+end
+
+# >
+begin
+move -0.5,-0.5
+line 0.5,0
+line -0.5,0.5
+end
+
+# ?
+begin
+move -1,-1
+line 0,-1
+line 0.5,-0.5
+line 0,0
+move -0.25,1
+line 0.25,1
+end
+
+# @ - copyright symobl
+begin
+move -0.5,-1
+line -1,-0.5
+line -1,0.5
+line -0.5,1
+line 0.5,1
+line 1,0.5
+line 1,-0.5
+line 0.5,-1
+line -0.5,-1
+move 0.5,-0.5
+line 0,-0.5
+line -0.5,0
+line 0,0.5
+line 0.5,0.5
+end
+
+# A
+begin
+move -1,1
+line -1,0
+line 0,-1
+line 1,0
+line 1,1
+move -1,0.25
+line 1,0.25
+end
+
+# B
+begin
+move -1,-1
+line -1,1
+move -1,-1
+line 0.5,-1
+line 1,-0.5
+line 0.5,0
+line -1,0
+move 0.5,0
+line 1,0.5
+line 0.5,1
+line -1,1
+end
+
+# C
+begin
+move 1,-1
+line -1,-1
+line -1,1
+line 1,1
+end
+
+# D
+begin
+move -1,-1
+line 0,-1
+line 1,0
+line 0,1
+line -1,1
+line -1,-1
+end
+
+# E
+begin
+move 1,-1
+line -1,-1
+line -1,1
+line 1,1
+move -1,0
+line 0.5,0
+end
+
+# F
+begin
+move 1,-1
+line -1,-1
+line -1,1
+move -1,0
+line 0.5,0
+end
+
+# G
+begin
+move 1,-1
+line -1,-1
+line -1,1
+line 1,1
+line 1,0
+line 0,0
+end
+
+# H
+begin
+move -1,-1
+line -1,1
+move -1,0
+line 1,0
+move 1,-1
+line 1,1
+end
+
+# I
+begin
+move -0.5,-1
+line 0.5,-1
+move 0,-1
+line 0,1
+move -0.5,1
+line 0.5,1
+end
+
+# J
+begin
+move 1,-1
+line 1,1
+line 0,1
+line -1,0
+end
+
+# K
+begin
+move -1,-1
+line -1,1
+move 1,-1
+line -1,0
+line 1,1
+end
+
+# L
+begin
+move -1,-1
+line -1,1
+line 1,1
+end
+
+# M
+begin
+move -1,1
+line -1,-1
+line 0,0
+line 1,-1
+line 1,1
+end
+
+# N
+begin
+move -1,1
+line -1,-1
+line 1,1
+line 1,-1
+end
+
+# O
+begin
+move 1,-1
+line -1,-1
+line -1,1
+line 1,1
+line 1,-1
+end
+
+# P
+begin
+move -1,1
+line -1,-1
+line 1,-1
+line 1,0
+line -1,0
+end
+
+# Q
+begin
+move 1,-1
+line -1,-1
+line -1,0.5
+line 1,0.5
+line 1,-1
+move 0,0
+line 1,1
+end
+
+# R
+begin
+move -1,1
+line -1,-1
+line 1,-1
+line 1,0
+line -1,0
+move -0.5,0
+line 0.5,1
+end
+
+# S
+begin
+move 1,-1
+line -1,-1
+line -1,0
+line 1,0
+line 1,1
+line -1,1
+end
+
+# T
+begin
+move -1,-1
+line 1,-1
+move 0,-1
+line 0,1
+end
+
+# U
+begin
+move -1,-1
+line -1,1
+line 1,1
+line 1,-1
+end
+
+# V
+begin
+move -1,-1
+line 0,1
+line 1,-1
+end
+
+# W
+begin
+move -1,-1
+line -1,1
+line 0,0
+line 1,1
+line 1,-1
+end
+
+# X
+begin
+move -1,-1
+line 1,1
+move 1,-1
+line -1,1
+end
+
+# Y
+begin
+move -1,-1
+line 0,0
+line 1,-1
+move 0,0
+line 0,1
+end
+
+# Z
+begin
+move -1,-1
+line 1,-1
+line -1,1
+line 1,1
+end
+
+# [
+begin
+move 0.5,-1
+line 0,-1
+line 0,1
+line 0.5,1
+end
+
+# \
+begin
+move -1,-1
+line 1,1
+end
+
+# ]
+begin
+move -0.5,-1
+line 0,-1
+line 0,1
+line -0.5,1
+end
+
+# ^
+begin
+move -0.5,-0.5
+line 0,-1
+line 0.5,-0.5
+end
+
+# _
+begin
+move -1,1
+line 1,1
+end
+
+# ` (placeholder)
+begin
+end
+
+# A
+begin
+move -1,1
+line -1,0
+line 0,-1
+line 1,0
+line 1,1
+move -1,0.25
+line 1,0.25
+end
+
+# B
+begin
+move -1,-1
+line -1,1
+move -1,-1
+line 0.5,-1
+line 1,-0.5
+line 0.5,0
+line -1,0
+move 0.5,0
+line 1,0.5
+line 0.5,1
+line -1,1
+end
+
+# C
+begin
+move 1,-1
+line -1,-1
+line -1,1
+line 1,1
+end
+
+# D
+begin
+move -1,-1
+line 0,-1
+line 1,0
+line 0,1
+line -1,1
+line -1,-1
+end
+
+# E
+begin
+move 1,-1
+line -1,-1
+line -1,1
+line 1,1
+move -1,0
+line 0.5,0
+end
+
+# F
+begin
+move 1,-1
+line -1,-1
+line -1,1
+move -1,0
+line 0.5,0
+end
+
+# G
+begin
+move 1,-1
+line -1,-1
+line -1,1
+line 1,1
+line 1,0
+line 0,0
+end
+
+# H
+begin
+move -1,-1
+line -1,1
+move -1,0
+line 1,0
+move 1,-1
+line 1,1
+end
+
+# I
+begin
+move -0.5,-1
+line 0.5,-1
+move 0,-1
+line 0,1
+move -0.5,1
+line 0.5,1
+end
+
+# J
+begin
+move 1,-1
+line 1,1
+line 0,1
+line -1,0
+end
+
+# K
+begin
+move -1,-1
+line -1,1
+move 1,-1
+line -1,0
+line 1,1
+end
+
+# L
+begin
+move -1,-1
+line -1,1
+line 1,1
+end
+
+# M
+begin
+move -1,1
+line -1,-1
+line 0,0
+line 1,-1
+line 1,1
+end
+
+# N
+begin
+move -1,1
+line -1,-1
+line 1,1
+line 1,-1
+end
+
+# O
+begin
+move 1,-1
+line -1,-1
+line -1,1
+line 1,1
+line 1,-1
+end
+
+# P
+begin
+move -1,1
+line -1,-1
+line 1,-1
+line 1,0
+line -1,0
+end
+
+# Q
+begin
+move 1,-1
+line -1,-1
+line -1,0.5
+line 1,0.5
+line 1,-1
+move 0,0
+line 1,1
+end
+
+# R
+begin
+move -1,1
+line -1,-1
+line 1,-1
+line 1,0
+line -1,0
+move -0.5,0
+line 0.5,1
+end
+
+# S
+begin
+move 1,-1
+line -1,-1
+line -1,0
+line 1,0
+line 1,1
+line -1,1
+end
+
+# T
+begin
+move -1,-1
+line 1,-1
+move 0,-1
+line 0,1
+end
+
+# U
+begin
+move -1,-1
+line -1,1
+line 1,1
+line 1,-1
+end
+
+# V
+begin
+move -1,-1
+line 0,1
+line 1,-1
+end
+
+# W
+begin
+move -1,-1
+line -1,1
+line 0,0
+line 1,1
+line 1,-1
+end
+
+# X
+begin
+move -1,-1
+line 1,1
+move 1,-1
+line -1,1
+end
+
+# Y
+begin
+move -1,-1
+line 0,0
+line 1,-1
+move 0,0
+line 0,1
+end
+
+# Z
+begin
+move -1,-1
+line 1,-1
+line -1,1
+line 1,1
+end
+
+# {
+begin
+move 0.5,-1
+line 0,-0.75
+line 0,-0.25
+line -0.25,0
+line 0,0.25
+line 0,0.75
+line 0.5,1
+end
+
+# |
+begin
+move 0,-1
+line 0,-0.25
+move 0,0.25
+line 0,1
+end
+
+# }
+begin
+move -0.5,-1
+line 0,-0.75
+line 0,-0.25
+line 0.25,0
+line 0,0.25
+line 0,0.75
+line -0.5,1
+end
+
+# ~
+begin
+move -1,0
+line -0.75,-0.25
+line -0.25,-0.25
+line 0.25,0.25
+line 0.75,0.25
+line 1,0
+end

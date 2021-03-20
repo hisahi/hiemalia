@@ -11,6 +11,7 @@
 
 #include "abase.hh"
 #include "config.hh"
+#include "inherit.hh"
 #include "module.hh"
 #include "msg.hh"
 #include "sbuf.hh"
@@ -30,17 +31,17 @@ class AudioEngine : public Module, MessageHandler<AudioMessage> {
     std::string name() const noexcept { return name_; }
     std::string role() const noexcept { return role_; }
 
-    AudioEngine(const AudioEngine& copy) = delete;
-    AudioEngine& operator=(const AudioEngine& copy) = delete;
-    AudioEngine(AudioEngine&& move)
+    DELETE_COPY(AudioEngine);
+
+    AudioEngine(AudioEngine&& move) noexcept
         : Module(std::move(move)), audio_(std::move(move.audio_)) {}
-    AudioEngine& operator=(AudioEngine&& move) {
+    AudioEngine& operator=(AudioEngine&& move) noexcept {
         Module::operator=(std::move(move));
         audio_ = std::move(move.audio_);
         return *this;
     }
     AudioEngine(std::shared_ptr<HostModule> host);
-    virtual ~AudioEngine() {}
+    ~AudioEngine() noexcept {}
 
     void load();
     void tick();

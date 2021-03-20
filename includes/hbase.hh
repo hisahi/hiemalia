@@ -10,6 +10,7 @@
 #define M_HBASE_HH
 
 #include "config.hh"
+#include "inherit.hh"
 #include "module.hh"
 #include "sbuf.hh"
 
@@ -23,14 +24,9 @@ class HostModule : public Module {
     virtual void quit() = 0;
     virtual void finish() = 0;
 
-    HostModule(const HostModule& copy) = delete;
-    HostModule& operator=(const HostModule& copy) = delete;
-    HostModule(HostModule&& move) : Module(std::move(move)) {}
-    HostModule& operator=(HostModule&& move) {
-        Module::operator=(std::move(move));
-        return *this;
-    }
-    virtual ~HostModule() {}
+    DELETE_COPY(HostModule);
+    INHERIT_MOVE(HostModule, Module);
+    virtual ~HostModule() noexcept {}
 
    protected:
     HostModule() {}

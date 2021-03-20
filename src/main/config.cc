@@ -9,13 +9,13 @@
 #include "config.hh"
 
 #include "file.hh"
+#include "logger.hh"
 
 namespace hiemalia {
 void ConfigStore::clear() noexcept { map_.clear(); }
 
 void ConfigStore::readStream(std::istream& stream) {
-    std::string line;
-    while (std::getline(stream, line)) {
+    for (std::string line; std::getline(stream, line);) {
         std::size_t i = line.find('=');
         if (i != std::string::npos)
             map_.insert_or_assign(line.substr(0, i), line.substr(i + 1));
@@ -29,7 +29,14 @@ void ConfigStore::writeStream(std::ostream& stream) const {
 
 void Config::load(std::string filename) {
     store_.clear();
+    LOG_TRACE("loading config from %s", filename);
     std::ifstream f = std::move(openFileRead(filename, false));
+    if (f.fail()) {
+        LOG_ERROR("failed to read config file %s. will use defaults.",
+                  filename);
+        return;
+    }
+    f.exceptions(std::ifstream::badbit);
     store_.readStream(f);
     for (auto& conf : confs_) conf->load(ConfigSectionStore(*conf, store_));
 }

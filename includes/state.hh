@@ -13,8 +13,8 @@
 #include <stdexcept>
 #include <string>
 
-#include "buttons.hh"
 #include "config.hh"
+#include "controls.hh"
 #include "sbuf.hh"
 
 namespace hiemalia {

@@ -13,18 +13,17 @@
 #include <memory>
 #include <string>
 
-#include "config.hh"
 #include "defs.hh"
 #include "logger.hh"
 
 namespace hiemalia {
 class Module {
    public:
-    virtual ~Module() {}
+    virtual ~Module() noexcept {}
     Module(const Module& copy) = delete;
     Module& operator=(const Module& copy) = delete;
-    Module(Module&& move) {}
-    Module& operator=(Module&& move) { return *this; }
+    Module(Module&& move) noexcept {}
+    Module& operator=(Module&& move) noexcept { return *this; }
 
     virtual std::string role() const noexcept = 0;
     virtual std::string name() const noexcept = 0;
@@ -34,7 +33,7 @@ class Module {
         static_assert(std::is_base_of<Module, T>::value, "T must be a Module");
         std::shared_ptr<T> module =
             std::make_shared<T>(std::forward<Ts>(args)...);
-        logger.info("started " + module->role() + " '" + module->name() + "'");
+        LOG_INFO("started " + module->role() + " '" + module->name() + "'");
         return module;
     }
 
@@ -43,7 +42,7 @@ class Module {
         static_assert(std::is_base_of<Module, T>::value, "T must be a Module");
         std::unique_ptr<T> module =
             std::make_unique<T>(std::forward<Ts>(args)...);
-        logger.info("started " + module->role() + " '" + module->name() + "'");
+        LOG_INFO("started " + module->role() + " '" + module->name() + "'");
         return module;
     }
 

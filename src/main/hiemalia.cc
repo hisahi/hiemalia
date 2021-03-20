@@ -18,6 +18,8 @@
 #include "hbase.hh"
 #include "ibase.hh"
 #include "logger.hh"
+#include "logic.hh"
+#include "menumain.hh"
 #include "vbase.hh"
 
 namespace hiemalia {
@@ -47,31 +49,40 @@ Hiemalia &Hiemalia::operator=(Hiemalia &&move) {
     return *this;
 }
 
+void Hiemalia::gotMessage(const GameMessage &msg) {
+    switch (msg.type) {
+        case GameMessageType::Quit:
+            host_->quit();
+            break;
+    }
+}
+
 void Hiemalia::args(std::vector<std::string> args) {
     // TODO
 }
 
 void Hiemalia::run() {
-    state_.config.load(configFileName);
     SplinterBuffer &sbuf = state_.sbuf;
 
-    input_ = std::move(getInputModule(host_));
+    state_.config.load(configFileName);
+    input_ = Module::create_unique<InputEngine>(host_, state_);
     video_ = Module::create_unique<VideoEngine>(host_);
     audio_ = Module::create_unique<AudioEngine>(host_);
     logic_ = Module::create_unique<LogicEngine>();
 
     host_->begin();
-    logger.debug("Entering main game loop");
+    // sendMessage(LogicMessage::startMenuNew<MenuMain>());
+    logic_->test();
+    LOG_DEBUG("Entering main game loop");
     while (host_->proceed()) {
-        sbuf.clear();
-        input_->update(state_.controls, controlsmenu_);
-        // TODO: controlsmenu_ to menu messages
-        audio_->tick();
-        logic_->run(state_, tickInterval);
         video_->frame(sbuf);
         video_->sync();
+        sbuf.clear();
+        input_->update(state_);
+        audio_->tick();
+        logic_->run(state_, tickInterval);
     }
-    logger.debug("Finishing up");
+    LOG_DEBUG("Finishing up");
     host_->finish();
 
     state_.config.save(configFileName);
@@ -94,13 +105,19 @@ static std::string fail_never_(const std::string &file, unsigned line,
 
 static std::string fail_exception_(const std::exception &e) {
     std::ostringstream stream;
-    stream << "Unhandled exception: " << e.what();
+    stream << "Unhandled exception (" << typeid(e).name() << "): " << e.what();
+    return stream.str();
+}
+
+static std::string fail_exception_u_() {
+    std::ostringstream stream;
+    stream << "Unhandled exception of unusual type";
     return stream.str();
 }
 
 void never_(const std::string &file, unsigned line, const std::string &msg) {
     if (logger_ok)
-        logger.fail(fail_never_(file, line, msg));
+        LOG_FAIL(fail_never_(file, line, msg));
     else
         std::cerr << fail_never_(file, line, msg) << std::endl;
     std::terminate();
@@ -110,7 +127,7 @@ void dynamic_assert_(const std::string &file, unsigned line, bool condition,
                      const std::string &msg) {
     if (!condition) {
         if (logger_ok)
-            logger.fail(fail_assert_(file, line, msg));
+            LOG_FAIL(fail_assert_(file, line, msg));
         else
             std::cerr << fail_assert_(file, line, msg) << std::endl;
         std::terminate();
@@ -118,7 +135,7 @@ void dynamic_assert_(const std::string &file, unsigned line, bool condition,
 }
 
 static int main(int argc, char *argv[]) {
-    logger.addHandler<StdLogHandler>(LogLevel::TRACE);
+    LOG_ADD_HANDLER(StdLogHandler, LogLevel::TRACE);
     Hiemalia game{std::string(argv[0])};
     std::vector<std::string> args;
     if (argc > 1) args.assign(argv + 1, argv + argc);
@@ -126,7 +143,10 @@ static int main(int argc, char *argv[]) {
     try {
         game.run();
     } catch (std::exception &e) {
-        logger.fail(fail_exception_(e));
+        LOG_FAIL(fail_exception_(e));
+        throw;
+    } catch (...) {
+        LOG_FAIL(fail_exception_u_());
         throw;
     }
     return 0;
