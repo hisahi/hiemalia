@@ -10,6 +10,7 @@
 #define M_REND3D_HH
 
 #include <string>
+#include <vector>
 
 #include "defs.hh"
 #include "model.hh"
@@ -64,10 +65,7 @@ struct Vector3D {
     inline coord_t getY() { return y / w; }
     inline coord_t getDepth() { return z / w; }
 
-    inline ModelPoint toCartesian() {
-        coord_t wf = 1.0 / w;
-        return ModelPoint(x * wf, y * wf, z * wf);
-    }
+    ModelPoint toCartesian() const;
 
     inline static coord_t dot(const Vector3D& a, const Vector3D& b) {
         coord_t wf = 1.0 / (a.w * b.w);
@@ -98,12 +96,11 @@ struct Matrix3D {
     inline const coord_t& operator[](size_t i) const { return m[i]; }
 
     inline static Matrix3D identity() {
-        Matrix3D i;
-        i[15] = i[10] = i[5] = i[0] = 1;
-        return i;
+        return Matrix3D({1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1});
     }
 
-    static Matrix3D translate(ModelPoint p);
+    static Matrix3D translate(const ModelPoint& p);
+    static Matrix3D rotate(const Rotation3D& r);
     static Matrix3D scale(coord_t s);
     static Matrix3D yaw(coord_t theta);
     static Matrix3D pitch(coord_t theta);
@@ -213,18 +210,38 @@ struct Matrix3D {
 std::string printMatrix(const Matrix3D& m);  // test.cc
 #endif
 
+struct ScreenPoint {
+    Vector3D v;
+    bool onScreen;
+    bool inFront;
+
+    ScreenPoint(const Vector3D& v)
+        : v(v), onScreen(screenCheck(v)), inFront(v.z >= 0) {}
+
+    inline ModelPoint toCartesian() const { return v.toCartesian(); }
+
+   private:
+    inline static bool screenCheck(const Vector3D& v) {
+        return v.x >= -1 && v.x <= 1 && v.y >= -1 && v.y <= 1 && v.z >= 0 &&
+               v.z <= 1;
+    }
+};
+
 class Renderer3D {
    public:
     Matrix3D getModelMatrix(ModelPoint p, Rotation3D r, coord_t s) const;
     void renderModel(SplinterBuffer& buf, ModelPoint p, Rotation3D r, coord_t s,
-                     const Model& m) const;
+                     const Model& m);
     void setCamera(ModelPoint pos, Rotation3D rot);
     Renderer3D();
 
    private:
-    void renderModelFragment(SplinterBuffer& buf, const Matrix3D& wrld,
-                             const ModelFragment& f) const;
+    void renderModelFragment(SplinterBuffer& buf, const ModelFragment& f) const;
+    void projectVertices(const std::vector<ModelPoint>& v, const Matrix3D& m);
+    ModelPoint clip(const ScreenPoint& onScreen,
+                    const ScreenPoint& offScreen) const;
     Matrix3D view;
+    std::vector<ScreenPoint> points_;
 };
 };  // namespace hiemalia
 

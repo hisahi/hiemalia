@@ -27,24 +27,27 @@ struct ModelPoint {
 
 struct ModelFragment {
     Color color;
-    ModelPoint start;
-    std::vector<ModelPoint> points;
+    size_t start;
+    std::vector<size_t> points;
 
-    ModelFragment(const Color& color, ModelPoint start)
+    ModelFragment(const Color& color, size_t start)
         : color(color), start(start), points() {}
-    ModelFragment(const Color& color, ModelPoint start,
-                  std::initializer_list<ModelPoint> points)
+    ModelFragment(const Color& color, size_t start,
+                  std::initializer_list<size_t> points)
         : color(color), start(start), points(points) {}
-    ModelFragment(const Color& color, ModelPoint start,
-                  std::vector<ModelPoint>&& points)
+    ModelFragment(const Color& color, size_t start,
+                  std::vector<size_t>&& points)
         : color(color), start(start), points(std::move(points)) {}
 };
 
 struct Model {
-    std::vector<ModelFragment> parts;
+    std::vector<ModelPoint> vertices;
+    std::vector<ModelFragment> shapes;
 
-    Model() : parts() {}
-    Model(std::vector<ModelFragment>&& parts) : parts(std::move(parts)) {}
+    Model() : vertices(), shapes() {}
+    Model(std::vector<ModelPoint>&& vertices,
+          std::vector<ModelFragment>&& shapes)
+        : vertices(std::move(vertices)), shapes(std::move(shapes)) {}
 };
 
 };  // namespace hiemalia

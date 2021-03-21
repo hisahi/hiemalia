@@ -13,17 +13,10 @@
 
 namespace hiemalia {
 
-enum Item : symbol_t {
-    Item_StoryMode,
-    Item_EndlessMode,
-    Item_Options,
-    Item_Help,
-    Item_Exit
-};
+enum Item : symbol_t { Item_Game, Item_Options, Item_Help, Item_Exit };
 
 void MenuMain::begin(GameState& state) {
-    option(MenuOption::make_button(Item_StoryMode, "STORY MODE"));
-    option(MenuOption::make_button(Item_EndlessMode, "ENDLESS MODE"));
+    option(MenuOption::make_button(Item_Game, "GAME"));
     option(MenuOption::make_button(Item_Options, "OPTIONS"));
     option(MenuOption::make_button(Item_Help, "HELP"));
     option(MenuOption::make_button(Item_Exit, "EXIT"));
@@ -31,9 +24,7 @@ void MenuMain::begin(GameState& state) {
 
 void MenuMain::select(int index, symbol_t id) {
     switch (id) {
-        case Item_StoryMode:
-            break;
-        case Item_EndlessMode:
+        case Item_Game:
             break;
         case Item_Options:
             break;

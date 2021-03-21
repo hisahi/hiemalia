@@ -21,7 +21,7 @@
 #include "str.hh"
 
 namespace hiemalia {
-static Color parseColor(std::string s) {
+Color parseColor(std::string s) {
     uint8_t r = 255, g = 255, b = 255, a;
     float af = 1.0f;
     std::sscanf(s.c_str(), "%hhu,%hhu,%hhu,%f", &r, &g, &b, &af);

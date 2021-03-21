@@ -18,7 +18,7 @@
 namespace hiemalia {
 enum class InputDevice { Keyboard, Gamepad };
 
-enum class ControlInput { Up, Down, Left, Right, Fire, Pause };
+enum class ControlInput { Up, Down, Left, Right, Forward, Back, Fire, Pause };
 enum class MenuControlInput { Up, Down, Left, Right, Select, Exit };
 
 inline auto inputDevices = hiemalia::to_array<NamePair<InputDevice>>({
@@ -31,6 +31,8 @@ inline auto controlInputs = to_array<NamePair<ControlInput>>({
     {"Down", ControlInput::Down},
     {"Left", ControlInput::Left},
     {"Right", ControlInput::Right},
+    {"Forward", ControlInput::Forward},
+    {"Back", ControlInput::Back},
     {"Fire", ControlInput::Fire},
     {"Pause", ControlInput::Pause},
 });
@@ -61,6 +63,8 @@ struct ControlState {
     bool down{false};
     bool left{false};
     bool right{false};
+    bool forward{false};
+    bool back{false};
     bool fire{false};
     bool pause{false};
 
@@ -74,6 +78,10 @@ struct ControlState {
                 return left;
             case ControlInput::Right:
                 return right;
+            case ControlInput::Forward:
+                return forward;
+            case ControlInput::Back:
+                return back;
             case ControlInput::Fire:
                 return fire;
             case ControlInput::Pause:
@@ -87,6 +95,8 @@ struct ControlState {
         updateInputLevel(down, down_prev_, state.down);
         updateInputLevel(left, left_prev_, state.left);
         updateInputLevel(right, right_prev_, state.right);
+        updateInputLevel(forward, forward_prev_, state.forward);
+        updateInputLevel(back, back_prev_, state.back);
         updateInputLevel(fire, fire_prev_, state.fire);
         updateInputEdge(pause, pause_prev_, state.pause);
         return *this;
@@ -97,6 +107,8 @@ struct ControlState {
     bool down_prev_{false};
     bool left_prev_{false};
     bool right_prev_{false};
+    bool forward_prev_{false};
+    bool back_prev_{false};
     bool fire_prev_{false};
     bool pause_prev_{false};
 };

@@ -14,6 +14,7 @@
 #include "defs.hh"
 #include "inherit.hh"
 #include "lmodule.hh"
+#include "menu.hh"
 #include "model.hh"
 #include "msg.hh"
 #include "rend3d.hh"
@@ -21,11 +22,12 @@
 #include "state.hh"
 
 namespace hiemalia {
-class TestMode : public LogicModule {
+class TestMode : public LogicModule, MessageHandler<MenuMessage> {
    public:
     std::string name() const noexcept { return name_; }
     std::string role() const noexcept { return role_; }
 
+    void gotMessage(const MenuMessage& msg);
     bool run(GameState& state, float interval);
 
     DELETE_COPY(TestMode);
@@ -38,10 +40,10 @@ class TestMode : public LogicModule {
     static inline const std::string name_ = "TestMode";
     static inline const std::string role_ = "test module";
     void setMode(int mode);
-    coord_t scale_{1.0 / 8};
     Model cube_;
     ModelPoint pos_;
     Rotation3D rot_;
+    coord_t scale_;
     Renderer3D rend_;
     RendererText font_;
     SplinterBuffer text_;

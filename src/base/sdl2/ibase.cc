@@ -213,8 +213,12 @@ static SDL_Scancode keyboardDefault(ControlInput input) {
             return SDL_SCANCODE_LEFT;
         case ControlInput::Right:
             return SDL_SCANCODE_RIGHT;
-        case ControlInput::Fire:
+        case ControlInput::Forward:
+            return SDL_SCANCODE_A;
+        case ControlInput::Back:
             return SDL_SCANCODE_Z;
+        case ControlInput::Fire:
+            return SDL_SCANCODE_LSHIFT;
         case ControlInput::Pause:
             return SDL_SCANCODE_P;
         default:
@@ -233,8 +237,12 @@ static SDL_GameControllerButton gamepadDefault(ControlInput input) {
             return SDL_CONTROLLER_BUTTON_DPAD_LEFT;
         case ControlInput::Right:
             return SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
-        case ControlInput::Fire:
+        case ControlInput::Forward:
+            return SDL_CONTROLLER_BUTTON_X;
+        case ControlInput::Back:
             return SDL_CONTROLLER_BUTTON_A;
+        case ControlInput::Fire:
+            return SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
         case ControlInput::Pause:
             return SDL_CONTROLLER_BUTTON_START;
         default:

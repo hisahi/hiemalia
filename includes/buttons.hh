@@ -42,6 +42,10 @@ class ButtonSetup : public ConfigSection {
                 return left;
             case ControlInput::Right:
                 return right;
+            case ControlInput::Forward:
+                return forward;
+            case ControlInput::Back:
+                return back;
             case ControlInput::Fire:
                 return fire;
             case ControlInput::Pause:
@@ -67,6 +71,8 @@ class ButtonSetup : public ConfigSection {
     control_t down;
     control_t left;
     control_t right;
+    control_t forward;
+    control_t back;
     control_t fire;
     control_t pause;
     std::string name_;

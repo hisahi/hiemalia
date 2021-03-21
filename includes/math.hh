@@ -13,13 +13,18 @@
 
 namespace hiemalia {
 template <typename T>
-T radians(T degrees) {
-    return degrees * (M_PI / 180.0);
+constexpr T radians(T degrees) {
+    return degrees * (M_PI / 180);
 }
 
 template <typename T>
-T degrees(T radians) {
-    return radians * (180.0 / M_PI);
+constexpr T degrees(T radians) {
+    return radians * (180 / M_PI);
+}
+
+template <typename T>
+constexpr T lerp(T start, T x, T end) {
+    return x * end + (1 - x) * start;
 }
 };  // namespace hiemalia
 

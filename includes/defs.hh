@@ -19,8 +19,8 @@ namespace hiemalia {
 static inline const std::string gameVersion = "v0.2";
 static inline const std::string gameTitle = "Hiemalia " + gameVersion;
 
-using coord_t = float;
-#define FMT_coord_t "%f"
+using coord_t = double;
+#define FMT_coord_t "%lf"
 
 constexpr unsigned tickCount = 60;
 constexpr unsigned long long tickMicroseconds = 1000000ULL / tickCount;
