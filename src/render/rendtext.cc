@@ -8,6 +8,7 @@
 
 #include "rendtext.hh"
 
+#include "font.hh"
 #include "logger.hh"
 
 namespace hiemalia {
@@ -15,9 +16,9 @@ RendererText::RendererText() { setScale(scalex_, scaley_); }
 
 void RendererText::renderCharacter(SplinterBuffer& buf, coord_t x, coord_t y,
                                    const Color& clr, char c) const {
-    if (c >= font_.minChar && c < font_.maxChar) {
+    if (c >= font_->minChar && c < font_->maxChar) {
         Renderer2D::renderShapeColor(buf, x, y, clr,
-                                     font_.shapes[c - font_.minChar]);
+                                     font_->shapes[c - font_->minChar]);
     }
 }
 
@@ -25,7 +26,7 @@ void RendererText::renderTextLine(SplinterBuffer& buf, coord_t x, coord_t y,
                                   const Color& clr, std::string s) const {
     for (const char& c : s) {
         renderCharacter(buf, x, y, clr, c);
-        x += font_.width * scalex_;
+        x += font_->width * scalex_;
     }
 }
 
@@ -36,7 +37,7 @@ void RendererText::setScale(coord_t scalex, coord_t scaley) {
 }
 
 coord_t RendererText::getTextWidth(std::string s) const {
-    return s.length() * font_.width * scalex_;
+    return s.length() * font_->width * scalex_;
 }
 
 void RendererText::renderText(SplinterBuffer& buf, coord_t x, coord_t y,
@@ -49,7 +50,7 @@ void RendererText::renderText(SplinterBuffer& buf, coord_t x, coord_t y,
             continue;
         }
         renderCharacter(buf, x, y, clr, c);
-        x += font_.width * scalex_;
+        x += font_->width * scalex_;
     }
 }
 }  // namespace hiemalia

@@ -9,11 +9,13 @@
 #ifndef M_LOGIC_HH
 #define M_LOGIC_HH
 
+#include <algorithm>
 #include <variant>
 
 #include "defs.hh"
 #include "hbase.hh"
 #include "lmodule.hh"
+#include "logicmsg.hh"
 #include "lvector.hh"
 #include "menu.hh"
 #include "module.hh"
@@ -21,37 +23,6 @@
 #include "state.hh"
 
 namespace hiemalia {
-
-enum class LogicMessageType { StartMenu, StartGame };
-
-struct LogicMessage {
-    LogicMessageType type;
-    std::variant<std::shared_ptr<Menu>> value;
-
-    static LogicMessage startMenu(std::shared_ptr<Menu>&& menu) {
-        return LogicMessage(LogicMessageType::StartMenu, std::move(menu));
-    }
-
-    template <typename T, typename... Ts>
-    static LogicMessage startMenuNew(Ts&&... args) {
-        return LogicMessage(LogicMessageType::StartMenu,
-                            std::make_shared<T>(std::forward<Ts>(args)...));
-    }
-
-    const std::shared_ptr<Menu>& menu() const {
-        dynamic_assert(type == LogicMessageType::StartMenu, "invalid access");
-        return std::get<std::shared_ptr<Menu>>(value);
-    }
-
-    static LogicMessage startGame() {
-        return LogicMessage(LogicMessageType::StartGame);
-    }
-
-   private:
-    LogicMessage(LogicMessageType t) : type(t) {}
-    LogicMessage(LogicMessageType t, std::shared_ptr<Menu>&& menu)
-        : type(t), value(std::move(menu)) {}
-};
 
 class LogicEngine : public Module, MessageHandler<LogicMessage> {
    public:
@@ -65,6 +36,19 @@ class LogicEngine : public Module, MessageHandler<LogicMessage> {
     void gotMessage(const LogicMessage& msg);
     void run(GameState& state, float interval);
     void test();
+
+    template <typename T, typename... Ts>
+    T& getOrCreate(Ts&&... args) {
+        auto it =
+            std::find_if(modules_.begin(), modules_.end(),
+                         [&](const std::shared_ptr<LogicModule>& module) {
+                             return dynamic_cast<T*>(module.get()) != nullptr;
+                         });
+        return dynamic_cast<T&>(
+            it != modules_.end() ? **it
+                                 : *modules_.emplace_back(std::make_shared<T>(
+                                       std::forward<Ts>(args)...)));
+    }
 
    private:
     LimitedVector<std::shared_ptr<LogicModule>, 16> modules_;

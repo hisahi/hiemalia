@@ -27,6 +27,7 @@ class InputModule : public Module {
 
     virtual void update(ControlState& state, MenuControlState& menustate) = 0;
     virtual bool hasInputDevice(InputDevice device) const = 0;
+    virtual InputControlModule& getInputDevice(InputDevice device) = 0;
     // these MUST be destroyed before/with the InputModule!
     virtual InputControlModule& addInputDevice(
         InputDevice device, const ConfigSectionPtr<ButtonSetup>& config) = 0;
@@ -68,12 +69,15 @@ class InputControlModule : public Module {
     }
     virtual ~InputControlModule() {}
 
+    inline const ConfigSectionPtr<ButtonSetup>& getConfig() { return config_; }
+
    protected:
     explicit InputControlModule(InputModule& host,
                                 const ConfigSectionPtr<ButtonSetup>& config)
         : device_(config->getDevice()), config_(config) {}
     InputDevice device_;
     ConfigSectionPtr<ButtonSetup> config_;
+    void doneSettingButton(ControlInput control);
 
    private:
     static inline const std::string role_ = "input control module";

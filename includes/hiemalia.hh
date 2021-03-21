@@ -18,6 +18,7 @@
 #include "hbase.hh"
 #include "input.hh"
 #include "logic.hh"
+#include "menu.hh"
 #include "msg.hh"
 #include "video.hh"
 
@@ -62,10 +63,7 @@ class Hiemalia : MessageHandler<GameMessage> {
     std::string configFileName{"hiemalia.cfg"};
     GameState state_;
     std::shared_ptr<HostModule> host_;
-    std::shared_ptr<InputEngine> input_;
-    std::unique_ptr<VideoEngine> video_;
-    std::unique_ptr<AudioEngine> audio_;
-    std::unique_ptr<LogicEngine> logic_;
+    std::shared_ptr<ModuleHolder> modules_;
 };
 
 };  // namespace hiemalia

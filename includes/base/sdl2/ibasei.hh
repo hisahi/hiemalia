@@ -26,6 +26,7 @@ class InputModuleSDL2 : public InputModule {
 
     void update(ControlState& state, MenuControlState& menustate);
     bool hasInputDevice(InputDevice device) const;
+    InputControlModule& getInputDevice(InputDevice device);
     InputControlModule& addInputDevice(
         InputDevice device, const ConfigSectionPtr<ButtonSetup>& config);
     void handle(const SDL_Event& event);

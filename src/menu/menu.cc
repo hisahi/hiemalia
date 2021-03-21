@@ -8,6 +8,7 @@
 
 #include "menu.hh"
 
+#include "assets.hh"
 #include "defs.hh"
 #include "hiemalia.hh"
 #include "load2d.hh"
@@ -16,46 +17,54 @@
 
 namespace hiemalia {
 
+static const Color menuTitleColor{255, 255, 255, 255};
 static const Color menuItemSelectedColor{255, 255, 255, 255};
 static const Color menuItemColor{255, 255, 255, 160};
+static const Color menuItemDisabledColor{255, 255, 255, 96};
 
 void MenuOption::redraw(coord_t x1, coord_t x2, coord_t y,
                         const RendererText& font, const Color& color) {
     sbuf.clear();
     switch (type) {
-        case MenuOptionType::Button:
-            font.renderTextLine(sbuf, (x1 + x2 - font.getTextWidth(text)) / 2,
-                                y, color, text);
+        case MenuOptionType::Spacer:
             break;
         case MenuOptionType::Text:
             font.renderTextLine(sbuf, x1, y, color, text);
             break;
+        case MenuOptionType::Button:
+            font.renderTextLine(sbuf, (x1 + x2 - font.getTextWidth(text)) / 2,
+                                y, color, text);
+            break;
         case MenuOptionType::Select:
             font.renderTextLine(sbuf, x1, y, color, text);
             break;
+        case MenuOptionType::Input: {
+            std::string v = asInput().value;
+            font.renderTextLine(sbuf, x1, y, color, text);
+            font.renderTextLine(sbuf, x2 - font.getTextWidth(v), y, color, v);
+            break;
+        }
     }
     dirty = false;
 }
 
-Menu::Menu(std::shared_ptr<Menu>&& parent) : parent_(std::move(parent)) {
-    font_.setFont(std::move(loadFont("font.2d")));
+Menu::Menu(MenuHandler& handler) : handler_(handler) {
+    font_.setFont(getAssets().gameFont);
 }
 
 Menu::Menu(Menu&& move) noexcept
-    : LogicModule(std::move(move)),
-      index_(move.index_),
+    : index_(move.index_),
       init_(move.init_),
       exiting_(move.exiting_),
-      parent_(move.parent_),
+      handler_(move.handler_),
       font_(std::move(move.font_)),
       options_(std::move(move.options_)) {}
 
 Menu& Menu::operator=(Menu&& move) noexcept {
-    LogicModule::operator=(std::move(move));
     index_ = move.index_;
     init_ = move.init_;
     exiting_ = move.exiting_;
-    parent_ = move.parent_;
+    handler_ = move.handler_;
     font_ = std::move(move.font_);
     options_ = std::move(move.options_);
     return *this;
@@ -109,7 +118,7 @@ void Menu::doLeft() {}
 
 void Menu::doRight() {}
 
-void Menu::gotMessage(const MenuMessage& msg) {
+void Menu::gotMenuMessage(const MenuMessage& msg) {
     if (!init_) return;
     switch (msg.type) {
         case MenuMessageType::MenuUp:
@@ -128,39 +137,59 @@ void Menu::gotMessage(const MenuMessage& msg) {
             if (index_ >= 0) select(index_, options_[index_].id);
             break;
         case MenuMessageType::MenuExit:
-            if (parent_ != nullptr) exiting_ = true;
+            exiting_ = exitable_;
             break;
     }
 }
 
-bool Menu::run(GameState& state, float interval) {
+static Color getMenuOptionColor(const MenuOption& o, bool selected) {
+    return o.type == MenuOptionType::Text || o.enabled
+               ? (selected ? menuItemSelectedColor : menuItemColor)
+               : menuItemDisabledColor;
+}
+
+void Menu::runMenu(GameState& state, float interval) {
     if (!init_) {
+        std::string t = title();
         init_ = true;
         begin(state);
         dynamic_assert(options_.size() > 0, "menu cannot be empty");
         index_ = 0;
         if (!options_[0].enabled) goDown();
+        font_.renderTextLine(titlebuf_, -font_.getTextWidth(t) / 2, -0.875,
+                             menuTitleColor, t);
     }
     if (exiting_) {
         end(state);
-        sendMessage(LogicMessage::startMenu(std::move(parent_)));
-        return false;
+        MenuHandler& h = handler_;
+        h.closeMenu();
+        return;
     }
 
     coord_t x1 = -0.75;
     coord_t x2 = 0.75;
-    coord_t y = -font_.lineHeight() * (options_.size() - 1);
+    coord_t y = (-font_.lineHeight() * (options_.size() - 1)) / 2;
     for (int i = 0, e = options_.size(); i < e; ++i) {
         MenuOption& option = options_[i];
         if (option.dirty) {
             option.redraw(x1, x2, y, font_,
-                          i == index_ ? menuItemSelectedColor : menuItemColor);
+                          getMenuOptionColor(option, i == index_));
         }
         state.sbuf.append(option.sbuf);
         y += font_.lineHeight();
     }
+    state.sbuf.append(titlebuf_);
+}
 
-    return true;
+MenuHandler::MenuHandler() {}
+
+void MenuHandler::gotMessage(const MenuMessage& msg) {
+    if (!menus_.empty()) menus_.top()->gotMenuMessage(msg);
+}
+
+bool MenuHandler::run(GameState& state, float interval) {
+    if (!menus_.empty()) menus_.top()->runMenu(state, interval);
+    return !menus_.empty();
 }
 
 }  // namespace hiemalia

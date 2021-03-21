@@ -70,6 +70,13 @@ bool InputModuleSDL2::hasInputDevice(InputDevice device) const {
     return false;
 }
 
+InputControlModule& InputModuleSDL2::getInputDevice(InputDevice device) {
+    int index = static_cast<int>(device);
+    dynamic_assert(devices_.at(index) != nullptr,
+                   "no such device. check with hasInputDevice!");
+    return *devices_.at(index);
+}
+
 InputControlModule& InputModuleSDL2::addInputDevice(
     InputDevice device, const ConfigSectionPtr<ButtonSetup>& config) {
     int index = static_cast<int>(device);
@@ -263,21 +270,31 @@ void InputControlModuleSDL2::handle(ControlState& state,
             if (device_ != InputDevice::Keyboard) return;
             down = event.type == SDL_KEYDOWN;
             button = static_cast<control_t>(event.key.keysym.scancode);
-            updateMenuStateKeyboard(menustate, down, button);
             break;
         case SDL_CONTROLLERBUTTONDOWN:
         case SDL_CONTROLLERBUTTONUP:
             if (device_ != InputDevice::Gamepad || !pad_) return;
             down = event.type == SDL_CONTROLLERBUTTONDOWN;
             button = static_cast<control_t>(event.cbutton.button);
-            updateMenuStateGamepad(menustate, down, button);
             break;
     }
 
     if (down && setting_key_) {
         setup[set_next_] = button;
         setting_key_ = false;
+        doneSettingButton(set_next_);
         return;
+    }
+
+    switch (event.type) {
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+            updateMenuStateKeyboard(menustate, down, button);
+            break;
+        case SDL_CONTROLLERBUTTONDOWN:
+        case SDL_CONTROLLERBUTTONUP:
+            updateMenuStateGamepad(menustate, down, button);
+            break;
     }
 
     for (auto& pair : controlInputs) {

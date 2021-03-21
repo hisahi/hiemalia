@@ -14,18 +14,19 @@
 #include <string>
 #include <vector>
 
-#include "abase.hh"
+#include "assets.hh"
 #include "hbase.hh"
-#include "ibase.hh"
 #include "logger.hh"
 #include "logic.hh"
 #include "menumain.hh"
-#include "vbase.hh"
+#include "mholder.hh"
 
 namespace hiemalia {
 
 Hiemalia::Hiemalia(const std::string &command)
-    : command_(command), host_(std::move(getHostModule())) {}
+    : command_(command), host_(std::move(getHostModule())) {
+    getAssets();
+}
 
 Hiemalia::~Hiemalia() {}
 
@@ -33,19 +34,13 @@ Hiemalia::Hiemalia(Hiemalia &&move)
     : command_(move.command_),
       state_(std::move(move.state_)),
       host_(std::move(move.host_)),
-      input_(std::move(move.input_)),
-      video_(std::move(move.video_)),
-      audio_(std::move(move.audio_)),
-      logic_(std::move(move.logic_)) {}
+      modules_(std::move(move.modules_)) {}
 
 Hiemalia &Hiemalia::operator=(Hiemalia &&move) {
     command_ = move.command_;
     state_ = std::move(move.state_);
     host_ = std::move(move.host_);
-    input_ = std::move(move.input_);
-    video_ = std::move(move.video_);
-    audio_ = std::move(move.audio_);
-    logic_ = std::move(move.logic_);
+    modules_ = std::move(move.modules_);
     return *this;
 }
 
@@ -65,22 +60,19 @@ void Hiemalia::run() {
     SplinterBuffer &sbuf = state_.sbuf;
 
     state_.config.load(configFileName);
-    input_ = Module::create_unique<InputEngine>(host_, state_);
-    video_ = Module::create_unique<VideoEngine>(host_);
-    audio_ = Module::create_unique<AudioEngine>(host_);
-    logic_ = Module::create_unique<LogicEngine>();
+    modules_ = std::make_unique<ModuleHolder>(host_, state_);
+    ModuleHolder &m = *modules_;
 
     host_->begin();
-    // sendMessage(LogicMessage::startMenuNew<MenuMain>());
-    logic_->test();
+    sendMessage(LogicMessage::mainMenu(modules_));
     LOG_DEBUG("Entering main game loop");
     while (host_->proceed()) {
-        video_->frame(sbuf);
-        video_->sync();
+        m.video->frame(sbuf);
+        m.video->sync();
         sbuf.clear();
-        input_->update(state_);
-        audio_->tick();
-        logic_->run(state_, tickInterval);
+        m.input->update(state_);
+        m.audio->tick();
+        m.logic->run(state_, tickInterval);
     }
     LOG_DEBUG("Finishing up");
     host_->finish();

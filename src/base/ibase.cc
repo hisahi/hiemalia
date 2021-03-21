@@ -13,7 +13,9 @@
 #include "basemacr.hh"
 #include "defs.hh"
 #include "hbase.hh"
+#include "hiemalia.hh"
 #include "logger.hh"
+#include "menuinpb.hh"
 
 // input backends
 #include "ibase.hh"
@@ -28,6 +30,10 @@ std::shared_ptr<InputModule> getInputModule(std::shared_ptr<HostModule> host) {
     TRY_MODULE("input", InputModuleSDL2, std::move(host));
 #endif
     never("no available input module!");
+}
+
+void InputControlModule::doneSettingButton(ControlInput control) {
+    sendMessage(InputMenuMessage::newButtonSet(control));
 }
 
 }  // namespace hiemalia

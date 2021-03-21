@@ -130,6 +130,11 @@ class Config {
         section->load(ConfigSectionStore(*section, store_));
     }
 
+    template <typename T>
+    void sectionSave(const T& section) {
+        section->save(ConfigSectionStore(*section, store_));
+    }
+
    private:
     ConfigStore store_;
     ConfigSectionContainer<ConfigSectionPtrDefault> confs_;

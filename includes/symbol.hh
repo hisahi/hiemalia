@@ -20,7 +20,10 @@
 namespace hiemalia {
 
 using symbol_t = uint32_t;
+constexpr symbol_t symbol_none = UINT32_MAX;
+constexpr symbol_t index_to_symbol(int i) { return i; }
+constexpr int symbol_to_index(symbol_t i) { return i; }
 
-};
+};  // namespace hiemalia
 
 #endif  // M_SYMBOL_HH

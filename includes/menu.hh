@@ -9,6 +9,7 @@
 #ifndef M_MENU_HH
 #define M_MENU_HH
 
+#include <stack>
 #include <string>
 
 #include "defs.hh"
@@ -47,11 +48,15 @@ struct MenuMessage {
     MenuMessage(MenuMessageType t) : type(t) {}
 };
 
-enum class MenuOptionType { Button, Text, Select };
+enum class MenuOptionType { Spacer, Button, Text, Select, Input };
 
 struct MenuOptionSelect {
     int index;
     std::vector<std::string> options;
+};
+
+struct MenuOptionInput {
+    std::string value;
 };
 
 class MenuOption {
@@ -60,21 +65,34 @@ class MenuOption {
     MenuOptionType type;
     bool enabled;
     std::string text;
-    std::variant<MenuOptionSelect> x;
     bool dirty;
+    std::variant<MenuOptionSelect, MenuOptionInput> x;
     SplinterBuffer sbuf;
 
-    static MenuOption make_button(symbol_t id, std::string text,
-                                  bool enabled = true) {
+    inline static MenuOption make_button(symbol_t id, std::string text,
+                                         bool enabled = true) {
         return MenuOption(id, MenuOptionType::Button, enabled, text);
     }
 
-    static MenuOption make_spacer(symbol_t id) {
-        return MenuOption(id, MenuOptionType::Text, false, "");
+    inline static MenuOption make_spacer(symbol_t id) {
+        return MenuOption(id, MenuOptionType::Spacer, false, "");
     }
 
-    static MenuOption make_text(symbol_t id, std::string text) {
+    inline static MenuOption make_text(symbol_t id, std::string text) {
         return MenuOption(id, MenuOptionType::Text, false, text);
+    }
+
+    inline static MenuOption make_input(symbol_t id, std::string text,
+                                        std::string initialValue = "",
+                                        bool enabled = true) {
+        return MenuOption(id, MenuOptionType::Input, enabled, text,
+                          MenuOptionInput{initialValue});
+    }
+
+    inline MenuOptionInput& asInput() { return std::get<MenuOptionInput>(x); }
+
+    inline static bool defaultEnabled(MenuOptionType type) {
+        return type != MenuOptionType::Spacer && type != MenuOptionType::Text;
     }
 
     void redraw(coord_t x1, coord_t x2, coord_t y, const RendererText& font,
@@ -83,37 +101,91 @@ class MenuOption {
    private:
     MenuOption(symbol_t id, MenuOptionType type, bool enabled, std::string text)
         : id(id), type(type), enabled(enabled), text(text), dirty(true) {}
+    MenuOption(symbol_t id, MenuOptionType type, bool enabled, std::string text,
+               MenuOptionInput inp)
+        : id(id),
+          type(type),
+          enabled(enabled),
+          text(text),
+          dirty(true),
+          x(inp) {}
 };
 
-class Menu : public LogicModule, MessageHandler<MenuMessage> {
+class Menu;
+
+class MenuHandler : public LogicModule, MessageHandler<MenuMessage> {
    public:
-    virtual std::string name() const noexcept = 0;
+    std::string name() const noexcept { return name_; }
     std::string role() const noexcept { return role_; }
 
+    DELETE_COPY(MenuHandler);
+
+    MenuHandler(MenuHandler&& move) noexcept
+        : LogicModule(std::move(move)), menus_(std::move(move.menus_)) {}
+    MenuHandler& operator=(MenuHandler&& move) noexcept {
+        Module::operator=(std::move(move));
+        menus_ = std::move(move.menus_);
+        return *this;
+    }
+    MenuHandler();
+    ~MenuHandler() noexcept {}
+
+    void openMenu(const std::shared_ptr<Menu>& menu) {
+        menus_.push(std::move(menu));
+    }
+
+    template <typename T, typename... Ts>
+    void newMenu(Ts&&... args) {
+        menus_.push(std::make_shared<T>(*this, std::forward<Ts>(args)...));
+    }
+
+    void closeMenu() { menus_.pop(); }
+
+    void gotMessage(const MenuMessage& msg);
+    bool run(GameState& state, float interval);
+
+   private:
+    std::stack<std::shared_ptr<Menu>> menus_;
+    static inline const std::string name_ = "MenuHandler";
+    static inline const std::string role_ = "menu handler";
+};
+
+class Menu {
+   public:
+    virtual std::string title() const noexcept = 0;
     virtual void begin(GameState& state) = 0;
     virtual void select(int index, symbol_t id) = 0;
     virtual void end(GameState& state) = 0;
 
     void option(MenuOption&& option) { options_.push_back(std::move(option)); }
-    void gotMessage(const MenuMessage& msg);
-    bool run(GameState& state, float interval);
+    void gotMenuMessage(const MenuMessage& msg);
+    void runMenu(GameState& state, float interval);
 
     DELETE_COPY(Menu);
     Menu(Menu&& move) noexcept;
     Menu& operator=(Menu&& move) noexcept;
     virtual ~Menu() noexcept {}
 
+    void closeMenu() { exiting_ = true; }
+
+    template <typename T, typename... Ts>
+    void openMenu(Ts&&... args) {
+        handler_.get().newMenu<T>(std::forward<Ts>(args)...);
+    }
+
    protected:
-    Menu(std::shared_ptr<Menu>&& parent);
+    Menu(MenuHandler& handler);
     int index_{0};
     bool init_{false};
     bool exiting_{false};
-    std::shared_ptr<Menu> parent_;
+    bool exitable_{true};
+    inline void makeUncloseable() { exitable_ = false; }
+    std::reference_wrapper<MenuHandler> handler_;
     RendererText font_;
+    SplinterBuffer titlebuf_;
     std::vector<MenuOption> options_;
 
    private:
-    static inline const std::string role_ = "menu module";
     void goUp();
     void goDown();
     void doLeft();

@@ -10,6 +10,7 @@
 
 #include <vector>
 
+#include "assets.hh"
 #include "hiemalia.hh"
 #include "load2d.hh"
 #include "load3d.hh"
@@ -22,7 +23,7 @@ static const Color white{255, 255, 255, 255};
 
 TestMode::TestMode() : pos_(0, 0, 0.5), rot_(0, 0, 0), scale_(1.0) {
     cube_ = load3D("ship.3d");
-    font_.setFont(std::move(loadFont("font.2d")));
+    font_.setFont(getAssets().menuFont);
     setMode(0);
     rend_.setCamera(ModelPoint(0, -0.5, 0), Rotation3D(0, -0.5, 0));
 }

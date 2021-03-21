@@ -4,21 +4,29 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// load2d.hh: header file for load2d.cc
+// font.hh: header file for fonts
 
-#ifndef M_LOAD2D_HH
-#define M_LOAD2D_HH
+#ifndef M_FONT_HH
+#define M_FONT_HH
 
-#include <vector>
-
-#include "font.hh"
+#include "defs.hh"
 #include "shape.hh"
 
 namespace hiemalia {
-Color parseColor(std::string s);
-ShapeSheet load2D(const std::string& filename);
-Font loadFont(const std::string& filename);
+struct Font {
+    ShapeSheet shapes;
+    coord_t width;
+    coord_t height;
+    char minChar;
+    char maxChar;
 
-};  // namespace hiemalia
+    Font(ShapeSheet shapes, coord_t width, coord_t height, char minChar)
+        : shapes(shapes),
+          width(width),
+          height(height),
+          minChar(minChar),
+          maxChar(minChar + shapes.count()) {}
+};
+}  // namespace hiemalia
 
-#endif  // M_LOAD2D_HH
+#endif  // M_FONT_HH

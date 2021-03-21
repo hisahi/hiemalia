@@ -9,16 +9,21 @@
 #include "logic.hh"
 
 #include "defs.hh"
+#include "menumain.hh"
 #include "test.hh"
 
 namespace hiemalia {
 void LogicEngine::gotMessage(const LogicMessage& msg) {
     switch (msg.type) {
-        case LogicMessageType::StartMenu:
-            modules_.emplace_back(std::move(msg.menu()));
+        case LogicMessageType::MainMenu: {
+            MenuHandler& menu = getOrCreate<MenuHandler>();
+            menu.openMenu(std::make_shared<MenuMain>(menu, msg.holder()));
             break;
-        case LogicMessageType::StartGame:
-            never("not implemented");
+        }
+        case LogicMessageType::StartGame: {
+            test();
+            break;
+        }
     }
 }
 

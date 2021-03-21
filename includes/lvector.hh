@@ -434,11 +434,11 @@ class LimitedVectorIterator {
         return ptr_[rhs];
     }
 
-    inline iterator operator+(const iterator& rhs) {
-        return iterator(ptr_ + rhs.ptr);
+    inline difference_type operator+(const iterator& rhs) {
+        return ptr_ + rhs.ptr_;
     }
-    inline iterator operator-(const iterator& rhs) {
-        return iterator(ptr_ - rhs.ptr);
+    inline difference_type operator-(const iterator& rhs) {
+        return ptr_ - rhs.ptr_;
     }
     inline iterator operator+(const difference_type& rhs) {
         return iterator(ptr_ + rhs);

@@ -26,6 +26,14 @@ InputEngine::InputEngine(std::shared_ptr<HostModule> host, GameState& state)
     }
 }
 
+bool InputEngine::hasInputDevice(InputDevice device) const {
+    return input_->hasInputDevice(device);
+}
+
+InputControlModule& InputEngine::getInputDevice(InputDevice device) {
+    return input_->getInputDevice(device);
+}
+
 void InputEngine::update(GameState& state) {
     input_->update(state.controls, controlsmenu_);
     if (controlsmenu_.exit) sendMessage(MenuMessage::exit());

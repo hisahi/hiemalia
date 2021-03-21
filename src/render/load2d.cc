@@ -78,7 +78,7 @@ static ShapeSheet loadStream2D(std::istream& in) {
     return ShapeSheet(std::move(shapes));
 }
 
-static RendererTextFont loadStreamFont(std::istream& in) {
+static Font loadStreamFont(std::istream& in) {
     bool is_font = false;
     coord_t width = 0;
     coord_t height = 0;
@@ -106,7 +106,7 @@ static RendererTextFont loadStreamFont(std::istream& in) {
         }
     }
 
-    return RendererTextFont(loadStream2D(in), width, height, minChar);
+    return Font(loadStream2D(in), width, height, minChar);
 }
 
 ShapeSheet load2D(const std::string& filename) {
@@ -118,7 +118,7 @@ ShapeSheet load2D(const std::string& filename) {
     return loadStream2D(stream);
 }
 
-RendererTextFont loadFont(const std::string& filename) {
+Font loadFont(const std::string& filename) {
     LOG_TRACE("loading font from %s", filename);
     std::ifstream stream = openAssetFileRead(filename, false);
     if (stream.fail()) throw std::runtime_error("failed to open font file");

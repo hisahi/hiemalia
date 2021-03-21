@@ -4,21 +4,25 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// load2d.hh: header file for load2d.cc
+// assets.cc: implementation of asset store
 
-#ifndef M_LOAD2D_HH
-#define M_LOAD2D_HH
+#include "assets.hh"
 
-#include <vector>
-
-#include "font.hh"
-#include "shape.hh"
+#include "load2d.hh"
+#include "load3d.hh"
 
 namespace hiemalia {
-Color parseColor(std::string s);
-ShapeSheet load2D(const std::string& filename);
-Font loadFont(const std::string& filename);
+static bool assets_loaded = false;
+static GameAssets assets;
 
-};  // namespace hiemalia
+const GameAssets& getAssets() {
+    if (!assets_loaded) {
+        assets_loaded = true;
+        assets.menuFont =
+            std::make_shared<Font>(std::move(loadFont("font.2d")));
+        assets.gameFont = assets.menuFont;
+    }
+    return assets;
+}
 
-#endif  // M_LOAD2D_HH
+}  // namespace hiemalia
