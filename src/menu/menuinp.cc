@@ -23,11 +23,11 @@ void MenuInputDevices::begin(GameState& state) {
     for (int i = 0, e = inputDevices.size(); i < e; ++i) {
         const auto& pair = inputDevices[i];
         InputDevice device = pair.value;
-        option(MenuOption::make_button(index_to_symbol(i), pair.name,
-                                       inp.hasInputDevice(device)));
+        option(MenuOption::button(index_to_symbol(i), pair.name,
+                                  inp.hasInputDevice(device)));
     }
-    option(MenuOption::make_spacer(symbol_none));
-    option(MenuOption::make_button(Item_Back, "BACK"));
+    option(MenuOption::spacer(symbol_none));
+    option(MenuOption::button(Item_Back, "BACK"));
 }
 
 void MenuInputDevices::select(int index, symbol_t id) {

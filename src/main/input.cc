@@ -20,6 +20,7 @@ InputEngine::InputEngine(std::shared_ptr<HostModule> host, GameState& state)
     for (const auto& pair : inputDevices) {
         if (input_->hasInputDevice(pair.value)) {
             auto section = state.config.section<ButtonSetup>(*input_, pair);
+            LOG_DEBUG("P=%s", pair.name);
             input_->addInputDevice(pair.value, section).resetAllDefaults();
             state.config.sectionLoad(section);
         }

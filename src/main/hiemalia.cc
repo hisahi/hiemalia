@@ -15,11 +15,13 @@
 #include <vector>
 
 #include "assets.hh"
+#include "audio.hh"
 #include "hbase.hh"
 #include "logger.hh"
 #include "logic.hh"
 #include "menumain.hh"
 #include "mholder.hh"
+#include "sounds.hh"
 
 namespace hiemalia {
 
@@ -62,9 +64,11 @@ void Hiemalia::run() {
     state_.config.load(configFileName);
     modules_ = std::make_unique<ModuleHolder>(host_, state_);
     ModuleHolder &m = *modules_;
+    m.loadAssets();
 
     host_->begin();
     sendMessage(LogicMessage::mainMenu(modules_));
+    sendMessage(AudioMessage::playMusic(MusicTrack::StageStart));
     LOG_DEBUG("Entering main game loop");
     while (host_->proceed()) {
         m.video->frame(sbuf);

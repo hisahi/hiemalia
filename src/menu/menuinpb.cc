@@ -22,11 +22,11 @@ std::string MenuInputControls::title() const noexcept { return title_; }
 void MenuInputControls::begin(GameState& state) {
     for (const auto& pair : controlInputs) {
         ControlInput ctrl = pair.value;
-        option(MenuOption::make_input(index_to_symbol(static_cast<int>(ctrl)),
-                                      pair.name, getControlText(ctrl)));
+        option(MenuOption::input(index_to_symbol(static_cast<int>(ctrl)),
+                                 pair.name, getControlText(ctrl)));
     }
-    option(MenuOption::make_spacer(symbol_none));
-    option(MenuOption::make_button(Item_Back, "BACK"));
+    option(MenuOption::spacer(symbol_none));
+    option(MenuOption::button(Item_Back, "BACK"));
 }
 
 void MenuInputControls::select(int index, symbol_t id) {

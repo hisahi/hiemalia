@@ -9,6 +9,7 @@
 #include "menuopt.hh"
 
 #include "defs.hh"
+#include "menuaud.hh"
 #include "menuinp.hh"
 
 namespace hiemalia {
@@ -16,11 +17,11 @@ namespace hiemalia {
 enum Item : symbol_t { Item_Graphics, Item_Audio, Item_Input, Item_Back };
 
 void MenuOptions::begin(GameState& state) {
-    option(MenuOption::make_button(Item_Graphics, "GRAPHICS", false));
-    option(MenuOption::make_button(Item_Audio, "AUDIO", false));
-    option(MenuOption::make_button(Item_Input, "INPUT"));
-    option(MenuOption::make_spacer(symbol_none));
-    option(MenuOption::make_button(Item_Back, "BACK"));
+    option(MenuOption::button(Item_Graphics, "GRAPHICS", false));
+    option(MenuOption::button(Item_Audio, "AUDIO"));
+    option(MenuOption::button(Item_Input, "INPUT"));
+    option(MenuOption::spacer(symbol_none));
+    option(MenuOption::button(Item_Back, "BACK"));
 }
 
 void MenuOptions::select(int index, symbol_t id) {
@@ -28,6 +29,7 @@ void MenuOptions::select(int index, symbol_t id) {
         case Item_Graphics:
             break;
         case Item_Audio:
+            openMenu<MenuAudioOptions>(holder_);
             break;
         case Item_Input:
             openMenu<MenuInputDevices>(holder_);

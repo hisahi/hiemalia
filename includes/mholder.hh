@@ -32,6 +32,8 @@ struct ModuleHolder {
     ModuleHolder& operator=(const ModuleHolder& copy) = delete;
     ModuleHolder(ModuleHolder&& move) noexcept;
     ModuleHolder& operator=(ModuleHolder&& move) noexcept;
+
+    void loadAssets();
 };
 
 };  // namespace hiemalia

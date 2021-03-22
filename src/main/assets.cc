@@ -25,4 +25,12 @@ const GameAssets& getAssets() {
     return assets;
 }
 
+void setAssetLoadedSounds(std::vector<sound_t>&& sounds) {
+    assets.sounds = std::move(sounds);
+}
+
+void setAssetLoadedMusicTracks(std::vector<std::string>&& tracks) {
+    assets.musicTracks = std::move(tracks);
+}
+
 }  // namespace hiemalia

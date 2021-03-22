@@ -4,26 +4,19 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// video.cc: implementation of VideoEngine
+// assetmod.hh: header file for modifying the asset holder
 
-#include "video.hh"
+#ifndef M_ASSETMOD_HH
+#define M_ASSETMOD_HH
 
-#include "hbase.hh"
-#include "vbase.hh"
+#include "assets.hh"
 
 namespace hiemalia {
-VideoEngine::VideoEngine(std::shared_ptr<HostModule> host, GameState& state)
-    : video_(std::move(getVideoModule(std::move(host)))) {}
 
-void VideoEngine::gotMessage(const VideoMessage& msg) {}
-
-void VideoEngine::frame(const SplinterBuffer& sbuf) {
-    video_->frame();
-    video_->blank();
-    video_->draw(sbuf);
-    video_->blit();
-}
-
-void VideoEngine::sync() { video_->sync(); }
+// in assets.cc
+void setAssetLoadedSounds(std::vector<sound_t>&& sounds);
+void setAssetLoadedMusicTracks(std::vector<std::string>&& tracks);
 
 }  // namespace hiemalia
+
+#endif  // M_ASSETMOD_HH

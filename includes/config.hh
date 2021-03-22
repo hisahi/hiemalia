@@ -46,7 +46,7 @@ class ConfigStore {
     T get(const std::string& key, T def) const {
         validate_key(key);
         typename decltype(map_)::const_iterator it = map_.find(key);
-        if (it == map_.end()) return def;
+        if (it == map_.end() || !canFromString<T>(it->second)) return def;
 
         return fromString<T>(it->second);
     }
@@ -100,7 +100,7 @@ class ConfigSectionStore {
     }
 
     ConfigSectionStore(const ConfigSection& section, ConfigStore& store)
-        : header_(section.name), store_(store) {}
+        : header_(section.name + ":"), store_(store) {}
 
    private:
     const std::string header_;
@@ -121,8 +121,9 @@ class Config {
 
     template <typename T, typename... Ts>
     ConfigSectionPtr<T> section(Ts&&... args) {
-        return std::dynamic_pointer_cast<T>(confs_.emplace_back(
-            std::make_shared<T>(std::forward<Ts>(args)...)));
+        auto sptr = std::make_shared<T>(std::forward<Ts>(args)...);
+        sectionLoad(sptr);
+        return std::dynamic_pointer_cast<T>(confs_.emplace_back(sptr));
     }
 
     template <typename T>

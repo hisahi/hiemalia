@@ -24,11 +24,11 @@ enum Item : symbol_t {
 };
 
 void MenuMain::begin(GameState& state) {
-    option(MenuOption::make_button(Item_Game, "GAME"));
-    option(MenuOption::make_button(Item_Options, "OPTIONS"));
-    option(MenuOption::make_button(Item_Scores, "HIGH SCORES"));
-    option(MenuOption::make_button(Item_Help, "HELP"));
-    option(MenuOption::make_button(Item_Exit, "EXIT"));
+    option(MenuOption::button(Item_Game, "GAME"));
+    option(MenuOption::button(Item_Options, "OPTIONS"));
+    option(MenuOption::button(Item_Scores, "HIGH SCORES"));
+    option(MenuOption::button(Item_Help, "HELP"));
+    option(MenuOption::button(Item_Exit, "EXIT"));
 }
 
 void MenuMain::select(int index, symbol_t id) {

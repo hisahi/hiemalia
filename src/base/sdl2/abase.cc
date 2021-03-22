@@ -61,7 +61,7 @@ AudioModuleSDLMixer2 &AudioModuleSDLMixer2::operator=(
 }
 
 AudioModuleSDLMixer2::~AudioModuleSDLMixer2() noexcept {
-    if (!music_) Mix_FreeMusic(music_);
+    if (music_) Mix_FreeMusic(music_);
 }
 
 void AudioModuleSDLMixer2::tick() {}
@@ -78,7 +78,7 @@ void AudioModuleSDLMixer2::resume() {
 
 void AudioModuleSDLMixer2::playMusic(const std::string &filename,
                                      size_t loopCount) {
-    if (!music_) Mix_FreeMusic(music_);
+    if (music_) Mix_FreeMusic(music_);
     music_ = Mix_LoadMUS(filename.c_str());
     if (music_) {
         Mix_PlayMusic(music_, loopCount > 0 ? loopCount - 1 : -1);

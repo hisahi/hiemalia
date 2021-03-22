@@ -18,16 +18,24 @@
 #include "msg.hh"
 #include "sbuf.hh"
 #include "shape.hh"
+#include "sounds.hh"
 
 namespace hiemalia {
 
 struct GameAssets {
     std::shared_ptr<Font> gameFont;
     std::shared_ptr<Font> menuFont;
+    std::vector<sound_t> sounds;
+    std::vector<std::string> musicTracks;
 };
+
+inline auto soundEffectNames = hiemalia::to_array<NamePair<SoundEffect>>({
+    {"mselect.wav", SoundEffect::MenuSelect},
+    {"mmove.wav", SoundEffect::MenuChange},
+});
 
 const GameAssets& getAssets();
 
 }  // namespace hiemalia
 
-#endif  // M_AUDIO_HH
+#endif  // M_ASSETS_HH

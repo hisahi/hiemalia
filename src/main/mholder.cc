@@ -22,8 +22,8 @@ namespace hiemalia {
 ModuleHolder::ModuleHolder(const std::shared_ptr<HostModule> host,
                            GameState &state)
     : input(Module::create_unique<InputEngine>(host, state)),
-      video(Module::create_unique<VideoEngine>(host)),
-      audio(Module::create_unique<AudioEngine>(host)),
+      video(Module::create_unique<VideoEngine>(host, state)),
+      audio(Module::create_unique<AudioEngine>(host, state)),
       logic(Module::create_unique<LogicEngine>()) {}
 
 ModuleHolder::ModuleHolder(ModuleHolder &&move) noexcept
@@ -39,5 +39,7 @@ ModuleHolder &ModuleHolder::operator=(ModuleHolder &&move) noexcept {
     logic = std::move(move.logic);
     return *this;
 }
+
+void ModuleHolder::loadAssets() { audio->load(); }
 
 }  // namespace hiemalia

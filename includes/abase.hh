@@ -34,8 +34,9 @@ class AudioModule : public Module {
     virtual void stopMusic() = 0;
     virtual bool isMusicPlaying() = 0;
 
-    // loopCount 0 = infinite, others = play N times
     virtual sound_t loadSound(const std::string& filename) = 0;
+    // loopCount 0 = infinite, others = play N times.
+    // channel may be channelAny, in which case "play on any free channel"
     virtual void playSound(sound_t soundId, float volume, float pan,
                            size_t loopCount, int channel) = 0;
     virtual void stopSound(int channel) = 0;

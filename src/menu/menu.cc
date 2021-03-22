@@ -9,11 +9,13 @@
 #include "menu.hh"
 
 #include "assets.hh"
+#include "audio.hh"
 #include "defs.hh"
 #include "hiemalia.hh"
 #include "load2d.hh"
 #include "logger.hh"
 #include "logic.hh"
+#include "sounds.hh"
 
 namespace hiemalia {
 
@@ -35,9 +37,12 @@ void MenuOption::redraw(coord_t x1, coord_t x2, coord_t y,
             font.renderTextLine(sbuf, (x1 + x2 - font.getTextWidth(text)) / 2,
                                 y, color, text);
             break;
-        case MenuOptionType::Select:
+        case MenuOptionType::Select: {
+            std::string v = asSelect().options.at(asSelect().index);
             font.renderTextLine(sbuf, x1, y, color, text);
+            font.renderTextLine(sbuf, x2 - font.getTextWidth(v), y, color, v);
             break;
+        }
         case MenuOptionType::Input: {
             std::string v = asInput().value;
             font.renderTextLine(sbuf, x1, y, color, text);
@@ -114,18 +119,48 @@ void Menu::goDown() {
     }
 }
 
-void Menu::doLeft() {}
+void Menu::doLeft() {
+    MenuOption& option = options_[index_];
+    if (option.type == MenuOptionType::Select) {
+        MenuOptionSelect& sel = option.asSelect();
+        if (--sel.index < 0) sel.index += sel.options.size();
+        option.dirty = true;
+        select(index_, option.id);
+        sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
+    }
+}
 
-void Menu::doRight() {}
+void Menu::doRight() {
+    MenuOption& option = options_[index_];
+    if (option.type == MenuOptionType::Select) {
+        MenuOptionSelect& sel = option.asSelect();
+        if (++sel.index >= static_cast<int>(sel.options.size())) sel.index = 0;
+        option.dirty = true;
+        select(index_, option.id);
+        sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
+    }
+}
+
+void Menu::doSelect() {
+    MenuOption& option = options_[index_];
+    if (option.type == MenuOptionType::Select) {
+        doRight();
+        return;
+    }
+    select(index_, option.id);
+    sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
+}
 
 void Menu::gotMenuMessage(const MenuMessage& msg) {
     if (!init_) return;
     switch (msg.type) {
         case MenuMessageType::MenuUp:
             goUp();
+            sendMessage(AudioMessage::playSound(SoundEffect::MenuChange));
             break;
         case MenuMessageType::MenuDown:
             goDown();
+            sendMessage(AudioMessage::playSound(SoundEffect::MenuChange));
             break;
         case MenuMessageType::MenuLeft:
             doLeft();
@@ -134,7 +169,7 @@ void Menu::gotMenuMessage(const MenuMessage& msg) {
             doRight();
             break;
         case MenuMessageType::MenuSelect:
-            if (index_ >= 0) select(index_, options_[index_].id);
+            if (index_ >= 0) doSelect();
             break;
         case MenuMessageType::MenuExit:
             exiting_ = exitable_;

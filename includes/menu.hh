@@ -66,30 +66,39 @@ class MenuOption {
     bool enabled;
     std::string text;
     bool dirty;
-    std::variant<MenuOptionSelect, MenuOptionInput> x;
     SplinterBuffer sbuf;
 
-    inline static MenuOption make_button(symbol_t id, std::string text,
-                                         bool enabled = true) {
+    inline static MenuOption button(symbol_t id, std::string text,
+                                    bool enabled = true) {
         return MenuOption(id, MenuOptionType::Button, enabled, text);
     }
 
-    inline static MenuOption make_spacer(symbol_t id) {
+    inline static MenuOption spacer(symbol_t id) {
         return MenuOption(id, MenuOptionType::Spacer, false, "");
     }
 
-    inline static MenuOption make_text(symbol_t id, std::string text) {
+    inline static MenuOption label(symbol_t id, std::string text) {
         return MenuOption(id, MenuOptionType::Text, false, text);
     }
 
-    inline static MenuOption make_input(symbol_t id, std::string text,
-                                        std::string initialValue = "",
-                                        bool enabled = true) {
+    inline static MenuOption toggle(symbol_t id, std::string text,
+                                    bool initialValue = false,
+                                    bool enabled = true) {
+        return MenuOption(id, MenuOptionType::Select, enabled, text,
+                          MenuOptionSelect{initialValue != 0, {"OFF", "ON"}});
+    }
+
+    inline static MenuOption input(symbol_t id, std::string text,
+                                   std::string initialValue = "",
+                                   bool enabled = true) {
         return MenuOption(id, MenuOptionType::Input, enabled, text,
                           MenuOptionInput{initialValue});
     }
 
     inline MenuOptionInput& asInput() { return std::get<MenuOptionInput>(x); }
+    inline MenuOptionSelect& asSelect() {
+        return std::get<MenuOptionSelect>(x);
+    }
 
     inline static bool defaultEnabled(MenuOptionType type) {
         return type != MenuOptionType::Spacer && type != MenuOptionType::Text;
@@ -102,13 +111,26 @@ class MenuOption {
     MenuOption(symbol_t id, MenuOptionType type, bool enabled, std::string text)
         : id(id), type(type), enabled(enabled), text(text), dirty(true) {}
     MenuOption(symbol_t id, MenuOptionType type, bool enabled, std::string text,
+               MenuOptionSelect sel)
+        : id(id),
+          type(type),
+          enabled(enabled),
+          text(text),
+          dirty(true),
+          x(sel) {
+        dynamic_assert(type == MenuOptionType::Select, "invalid init");
+    }
+    MenuOption(symbol_t id, MenuOptionType type, bool enabled, std::string text,
                MenuOptionInput inp)
         : id(id),
           type(type),
           enabled(enabled),
           text(text),
           dirty(true),
-          x(inp) {}
+          x(inp) {
+        dynamic_assert(type == MenuOptionType::Input, "invalid init");
+    }
+    std::variant<MenuOptionSelect, MenuOptionInput> x;
 };
 
 class Menu;
@@ -190,6 +212,7 @@ class Menu {
     void goDown();
     void doLeft();
     void doRight();
+    void doSelect();
 };
 };  // namespace hiemalia
 

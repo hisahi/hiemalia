@@ -14,6 +14,7 @@
 #include "module.hh"
 #include "msg.hh"
 #include "sbuf.hh"
+#include "state.hh"
 #include "vbase.hh"
 
 namespace hiemalia {
@@ -35,7 +36,7 @@ class VideoEngine : public Module, MessageHandler<VideoMessage> {
         video_ = std::move(move.video_);
         return *this;
     }
-    VideoEngine(std::shared_ptr<HostModule> host);
+    VideoEngine(std::shared_ptr<HostModule> host, GameState& state);
     ~VideoEngine() noexcept {}
 
     void frame(const SplinterBuffer& sbuf);
