@@ -23,6 +23,35 @@ struct ModelPoint {
     ModelPoint(coord_t x, coord_t y, coord_t z) : x(x), y(y), z(z) {}
 
     inline ModelPoint operator-() const { return ModelPoint(-x, -y, -z); }
+
+    inline ModelPoint& operator+=(const ModelPoint& r) {
+        x += r.x;
+        y += r.y;
+        z += r.z;
+        return *this;
+    }
+    inline ModelPoint& operator-=(const ModelPoint& r) {
+        x -= r.x;
+        y -= r.y;
+        z -= r.z;
+        return *this;
+    }
+    inline ModelPoint& operator*=(const coord_t& f) {
+        x *= f;
+        y *= f;
+        z *= f;
+        return *this;
+    }
+
+    friend inline ModelPoint operator+(ModelPoint a, const ModelPoint& b) {
+        return a += b;
+    }
+    friend inline ModelPoint operator-(ModelPoint a, const ModelPoint& b) {
+        return a -= b;
+    }
+    friend inline ModelPoint operator*(ModelPoint a, const coord_t& f) {
+        return a *= f;
+    }
 };
 
 struct ModelFragment {

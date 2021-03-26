@@ -101,6 +101,7 @@ struct Matrix3D {
 
     static Matrix3D translate(const ModelPoint& p);
     static Matrix3D rotate(const Rotation3D& r);
+    static Matrix3D scaleXYZ(coord_t x, coord_t y, coord_t z);
     static Matrix3D scale(coord_t s);
     static Matrix3D yaw(coord_t theta);
     static Matrix3D pitch(coord_t theta);
@@ -210,38 +211,23 @@ struct Matrix3D {
 std::string printMatrix(const Matrix3D& m);  // test.cc
 #endif
 
-struct ScreenPoint {
-    Vector3D v;
-    bool onScreen;
-    bool inFront;
-
-    ScreenPoint(const Vector3D& v)
-        : v(v), onScreen(screenCheck(v)), inFront(v.z >= 0) {}
-
-    inline ModelPoint toCartesian() const { return v.toCartesian(); }
-
-   private:
-    inline static bool screenCheck(const Vector3D& v) {
-        return v.x >= -1 && v.x <= 1 && v.y >= -1 && v.y <= 1 && v.z >= 0 &&
-               v.z <= 1;
-    }
-};
-
 class Renderer3D {
    public:
     Matrix3D getModelMatrix(ModelPoint p, Rotation3D r, coord_t s) const;
     void renderModel(SplinterBuffer& buf, ModelPoint p, Rotation3D r, coord_t s,
                      const Model& m);
-    void setCamera(ModelPoint pos, Rotation3D rot);
+    void setCamera(ModelPoint pos, Rotation3D rot, coord_t scale);
     Renderer3D();
 
    private:
     void renderModelFragment(SplinterBuffer& buf, const ModelFragment& f) const;
     void projectVertices(const std::vector<ModelPoint>& v, const Matrix3D& m);
-    ModelPoint clip(const ScreenPoint& onScreen,
-                    const ScreenPoint& offScreen) const;
+    ModelPoint clipPoint(const Vector3D& onScreen,
+                         const Vector3D& offScreen) const;
+    bool clipLine(const Vector3D& v0, const Vector3D& v1, ModelPoint& p0,
+                  ModelPoint& p1) const;
     Matrix3D view;
-    std::vector<ScreenPoint> points_;
+    std::vector<Vector3D> points_;
 };
 };  // namespace hiemalia
 

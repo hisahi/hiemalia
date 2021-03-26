@@ -15,13 +15,11 @@
 #include <vector>
 
 #include "assets.hh"
-#include "audio.hh"
 #include "hbase.hh"
 #include "logger.hh"
 #include "logic.hh"
 #include "menumain.hh"
 #include "mholder.hh"
-#include "sounds.hh"
 
 namespace hiemalia {
 
@@ -46,9 +44,12 @@ Hiemalia &Hiemalia::operator=(Hiemalia &&move) {
     return *this;
 }
 
-void Hiemalia::gotMessage(const GameMessage &msg) {
+void Hiemalia::gotMessage(const HostMessage &msg) {
     switch (msg.type) {
-        case GameMessageType::Quit:
+        case HostMessageType::MainMenu:
+            sendMessage(LogicMessage::mainMenu(modules_));
+            break;
+        case HostMessageType::Quit:
             host_->quit();
             break;
     }
@@ -67,15 +68,14 @@ void Hiemalia::run() {
     m.loadAssets();
 
     host_->begin();
-    sendMessage(LogicMessage::mainMenu(modules_));
-    sendMessage(AudioMessage::playMusic(MusicTrack::StageStart));
+    sendMessage(HostMessage::mainMenu());
     LOG_DEBUG("Entering main game loop");
     while (host_->proceed()) {
         m.video->frame(sbuf);
         m.video->sync();
         sbuf.clear();
-        m.input->update(state_);
         m.audio->tick();
+        m.input->update(state_);
         m.logic->run(state_, tickInterval);
     }
     LOG_DEBUG("Finishing up");

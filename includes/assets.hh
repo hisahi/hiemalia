@@ -12,6 +12,7 @@
 #include "abase.hh"
 #include "config.hh"
 #include "font.hh"
+#include "game/stage.hh"
 #include "inherit.hh"
 #include "model.hh"
 #include "module.hh"
@@ -22,19 +23,24 @@
 
 namespace hiemalia {
 
+enum class GameModel {
+    PlayerShip,
+
+    EndOfModels
+};
+
 struct GameAssets {
     std::shared_ptr<Font> gameFont;
     std::shared_ptr<Font> menuFont;
     std::vector<sound_t> sounds;
     std::vector<std::string> musicTracks;
+    std::vector<std::shared_ptr<Model>> gameModels;
+    std::vector<std::shared_ptr<GameSection>> sectionData;
 };
 
-inline auto soundEffectNames = hiemalia::to_array<NamePair<SoundEffect>>({
-    {"mselect.wav", SoundEffect::MenuSelect},
-    {"mmove.wav", SoundEffect::MenuChange},
-});
-
 const GameAssets& getAssets();
+std::shared_ptr<const Model> getGameModel(GameModel model);
+const GameSection& getSectionById(size_t id);
 
 }  // namespace hiemalia
 

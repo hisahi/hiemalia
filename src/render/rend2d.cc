@@ -27,15 +27,15 @@ void Renderer2D::renderShapeColor(SplinterBuffer& buf, coord_t x, coord_t y,
 void Renderer2D::renderFragment(SplinterBuffer& buf, coord_t x, coord_t y,
                                 const Color& clr,
                                 const ShapeFragment& f) const {
+    if (f.points.empty()) return;
     buf.push(Splinter{SplinterType::BeginShape,
                       x + projectX(f.start.x, f.start.y),
                       y + projectY(f.start.x, f.start.y), clr});
     for (auto it = f.points.begin(); it != f.points.end(); ++it) {
         const ShapePoint& p = *it;
-        buf.push(Splinter((it + 1) == f.points.end()
-                              ? SplinterType::EndShapePoint
-                              : SplinterType::Point,
-                          x + projectX(p.x, p.y), y + projectY(p.x, p.y), clr));
+        buf.push(Splinter(SplinterType::Point, x + projectX(p.x, p.y),
+                          y + projectY(p.x, p.y), clr));
     }
+    buf.endShape();
 }
 }  // namespace hiemalia

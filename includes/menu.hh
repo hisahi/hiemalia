@@ -161,7 +161,11 @@ class MenuHandler : public LogicModule, MessageHandler<MenuMessage> {
         menus_.push(std::make_shared<T>(*this, std::forward<Ts>(args)...));
     }
 
-    void closeMenu() { menus_.pop(); }
+    std::shared_ptr<Menu> closeMenu() {
+        auto s = menus_.top();
+        menus_.pop();
+        return s;
+    }
 
     void gotMessage(const MenuMessage& msg);
     bool run(GameState& state, float interval);

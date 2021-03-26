@@ -184,6 +184,12 @@ static Color getMenuOptionColor(const MenuOption& o, bool selected) {
 }
 
 void Menu::runMenu(GameState& state, float interval) {
+    if (exiting_) {
+        auto s = handler_.get().closeMenu();
+        if (init_) end(state);
+        init_ = false;
+        return;
+    }
     if (!init_) {
         std::string t = title();
         init_ = true;
@@ -193,12 +199,6 @@ void Menu::runMenu(GameState& state, float interval) {
         if (!options_[0].enabled) goDown();
         font_.renderTextLine(titlebuf_, -font_.getTextWidth(t) / 2, -0.875,
                              menuTitleColor, t);
-    }
-    if (exiting_) {
-        end(state);
-        MenuHandler& h = handler_;
-        h.closeMenu();
-        return;
     }
 
     coord_t x1 = -0.75;

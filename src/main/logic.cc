@@ -9,8 +9,9 @@
 #include "logic.hh"
 
 #include "defs.hh"
+#include "game/game.hh"
 #include "menumain.hh"
-#include "test.hh"
+#include "menupaus.hh"
 
 namespace hiemalia {
 void LogicEngine::gotMessage(const LogicMessage& msg) {
@@ -21,7 +22,12 @@ void LogicEngine::gotMessage(const LogicMessage& msg) {
             break;
         }
         case LogicMessageType::StartGame: {
-            test();
+            getOrCreate<GameMain>();
+            break;
+        }
+        case LogicMessageType::PauseMenu: {
+            MenuHandler& menu = getOrCreate<MenuHandler>();
+            menu.openMenu(std::make_shared<MenuPause>(menu));
             break;
         }
     }
@@ -35,12 +41,6 @@ void LogicEngine::run(GameState& state, float interval) {
         else {
             it = modules_.erase(it);
         }
-    }
-}
-
-void LogicEngine::test() {
-    if constexpr (!NDEBUG) {
-        modules_.emplace_back(std::make_shared<TestMode>());
     }
 }
 

@@ -4,20 +4,21 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// load3d.hh: header file for load3d.cc
+// models.hh: header file for model file name list
 
-#ifndef M_LOAD3D_HH
-#define M_LOAD3D_HH
+#ifndef M_MODELS_HH
+#define M_MODELS_HH
 
-#include <vector>
+#include <array>
+#include <string>
 
-#include "model.hh"
-#include "rend3d.hh"
+#include "array.hh"
 
 namespace hiemalia {
-Model load3D(const std::string& filename);
-Model load3D(const std::string& folder, const std::string& filename);
-
+inline auto modelFileNames = hiemalia::to_array<std::string>({
+    "ship.3d",
+    // more
+});
 };  // namespace hiemalia
 
-#endif  // M_LOAD3D_HH
+#endif  // M_MODELS_HH

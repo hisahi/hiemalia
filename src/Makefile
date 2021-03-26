@@ -18,7 +18,7 @@ CXXFLAGS=-std=c++17 -g3 -O0 -Wall -Werror -MMD -MP
 LDFLAGS=
 LDLIBS=
 OBJS=
-SUBDIRS=base render main menu test
+SUBDIRS=base render main menu game
 
 TARGET := ../hiemalia
 IROOT := ../includes

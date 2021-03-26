@@ -9,22 +9,24 @@
 #ifndef M_MSG_HH
 #define M_MSG_HH
 
+#include <list>
 #include <memory>
-#include <vector>
 
 #include "defs.hh"
 #include "helpers.hh"
-#include "msg.hh"
 
 namespace hiemalia {
 template <typename T>
 class MessageHandler {
    public:
     using MessageHandlerPtr = MessageHandler<T>*;
-    using MessageHandlerPtrList = std::vector<MessageHandlerPtr>;
+    using MessageHandlerPtrList = std::list<MessageHandlerPtr>;
 
     MessageHandler() { list_.push_back(this); }
-    virtual ~MessageHandler() { eraseRemove(list_, this); }
+    virtual ~MessageHandler() {
+        dynamic_assert(eraseRemove(list_, this),
+                       "message handler unable to unregister itself");
+    }
 
     virtual void gotMessage(const T& msg) = 0;
     void enable() { _enabled = true; }

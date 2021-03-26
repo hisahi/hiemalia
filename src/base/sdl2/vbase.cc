@@ -95,6 +95,7 @@ void VideoModuleSDL2::draw(const SplinterBuffer &buffer) {
             case SplinterType::BeginShape:
                 SDL_SetRenderDrawColor(renderer_, s.color.r, s.color.g,
                                        s.color.b, s.color.a);
+                points_.clear();
                 points_.push_back(SDL_Point{x, y});
                 break;
             case SplinterType::Point:
@@ -103,13 +104,12 @@ void VideoModuleSDL2::draw(const SplinterBuffer &buffer) {
             case SplinterType::EndShapePoint:
                 points_.push_back(SDL_Point{x, y});
                 SDL_RenderDrawLines(renderer_, points_.data(), points_.size());
-                points_.clear();
                 break;
             case SplinterType::BeginClipCenter:
                 rect_.x = 0;
                 rect_.y = x;
                 rect_.w = width_;
-                rect_.h = y;
+                rect_.h = y - x;
                 SDL_RenderSetClipRect(renderer_, &rect_);
                 break;
             case SplinterType::EndClip:

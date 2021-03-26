@@ -299,9 +299,7 @@ void InputControlModuleSDL2::handle(ControlState& state,
 
     for (auto& pair : controlInputs) {
         ControlInput input = pair.value;
-        if (setup[input] == button) {
-            state[input] = down;
-        }
+        if (setup[input] == button) state[input] = down;
     }
 }
 

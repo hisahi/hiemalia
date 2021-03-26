@@ -45,7 +45,7 @@ void MenuMain::select(int index, symbol_t id) {
         case Item_Help:
             break;
         case Item_Exit:
-            sendMessage(GameMessage::quit());
+            sendMessage(HostMessage::quit());
             break;
     }
 }

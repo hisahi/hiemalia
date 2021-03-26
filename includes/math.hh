@@ -26,6 +26,18 @@ template <typename T>
 constexpr T lerp(T start, T x, T end) {
     return x * end + (1 - x) * start;
 }
+
+template <typename T>
+constexpr T unlerp(T start, T x, T end) {
+    return (x - start) / (end - start);
+}
+
+template <typename Ti, typename Tf>
+Ti floatToWholeFrac(Tf& x) {
+    Ti i = std::floor(x);
+    x -= i;
+    return i;
+}
 };  // namespace hiemalia
 
 #endif  // M_MATH_HH

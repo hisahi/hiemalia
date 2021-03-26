@@ -4,20 +4,19 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// load3d.hh: header file for load3d.cc
+// game/sections.hh: header file for resolving game sections
 
-#ifndef M_LOAD3D_HH
-#define M_LOAD3D_HH
+#ifndef M_GAME_SECTIONS_HH
+#define M_GAME_SECTIONS_HH
 
-#include <vector>
+#include <unordered_map>
 
-#include "model.hh"
-#include "rend3d.hh"
+#include "game/world.hh"
 
 namespace hiemalia {
-Model load3D(const std::string& filename);
-Model load3D(const std::string& folder, const std::string& filename);
-
+extern const std::unordered_map<std::string, section_t> sectionMap;
+int getSectionCount();
+section_t getSectionIdByName(const std::string& s);
 };  // namespace hiemalia
 
-#endif  // M_LOAD3D_HH
+#endif  // M_GAME_SECTIONS_HH

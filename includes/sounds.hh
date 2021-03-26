@@ -20,12 +20,16 @@ enum class MusicTrack {
     Stage1,
     Stage2,
     Stage3,
-    Stage4,
-    Boss,
     GameOver,
     HighScore
 };
-enum class SoundEffect { MenuSelect, MenuChange, EndOfSounds };
+enum class SoundEffect { MenuSelect, MenuChange, Pause, EndOfSounds };
+
+inline auto soundEffectNames = hiemalia::to_array<NamePair<SoundEffect>>({
+    {"mselect.wav", SoundEffect::MenuSelect},
+    {"mmove.wav", SoundEffect::MenuChange},
+    {"pause.wav", SoundEffect::Pause},
+});
 
 };  // namespace hiemalia
 

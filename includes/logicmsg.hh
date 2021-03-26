@@ -20,7 +20,7 @@
 
 namespace hiemalia {
 
-enum class LogicMessageType { MainMenu, StartGame };
+enum class LogicMessageType { MainMenu, StartGame, PauseMenu };
 
 class ModuleHolder;
 
@@ -39,6 +39,10 @@ struct LogicMessage {
 
     inline static LogicMessage startGame() {
         return LogicMessage(LogicMessageType::StartGame);
+    }
+
+    inline static LogicMessage pauseMenu() {
+        return LogicMessage(LogicMessageType::PauseMenu);
     }
 
    private:

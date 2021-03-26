@@ -34,18 +34,21 @@ void sendMessageMake(Ts&&... args) {
     MessageHandler<T>::deliver(T(std::forward<Ts>(args)...));
 }
 
-enum class GameMessageType { Quit };
+enum class HostMessageType { MainMenu, Quit };
 
-struct GameMessage {
-    GameMessageType type;
+struct HostMessage {
+    HostMessageType type;
 
-    static GameMessage quit() { return GameMessage(GameMessageType::Quit); }
+    static HostMessage mainMenu() {
+        return HostMessage(HostMessageType::MainMenu);
+    }
+    static HostMessage quit() { return HostMessage(HostMessageType::Quit); }
 
    private:
-    GameMessage(GameMessageType t) : type(t) {}
+    HostMessage(HostMessageType t) : type(t) {}
 };
 
-class Hiemalia : MessageHandler<GameMessage> {
+class Hiemalia : MessageHandler<HostMessage> {
    public:
     Hiemalia(const std::string& command);
     ~Hiemalia();
@@ -54,7 +57,7 @@ class Hiemalia : MessageHandler<GameMessage> {
     Hiemalia(Hiemalia&& move);
     Hiemalia& operator=(Hiemalia&& move);
 
-    void gotMessage(const GameMessage& msg);
+    void gotMessage(const HostMessage& msg);
     void args(std::vector<std::string> args);
     void run();
 

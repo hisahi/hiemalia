@@ -35,7 +35,6 @@ class LogicEngine : public Module, MessageHandler<LogicMessage> {
 
     void gotMessage(const LogicMessage& msg);
     void run(GameState& state, float interval);
-    void test();
 
     template <typename T, typename... Ts>
     T& getOrCreate(Ts&&... args) {
