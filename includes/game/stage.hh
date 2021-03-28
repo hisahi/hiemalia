@@ -9,6 +9,7 @@
 #ifndef M_GAME_STAGE_HH
 #define M_GAME_STAGE_HH
 
+#include <deque>
 #include <vector>
 
 #include "cbuffer.hh"
@@ -22,11 +23,16 @@ using section_t = unsigned;
 constexpr unsigned stageVisibility = 22;
 constexpr unsigned stageDivision = 4;
 inline const coord_t stageSectionLength = 1.0 / stageDivision;
+constexpr unsigned stageSpawnDistance = 4;
 
 struct ObjectSpawn {
     std::shared_ptr<GameObject> obj;
-    unsigned int offset;
-    float offsetFloat;
+    unsigned pos_i;
+    coord_t pos_f;
+
+    inline bool shouldSpawn(unsigned i, coord_t f) const {
+        return i > pos_i || (i == pos_i && f >= pos_f);
+    }
 };
 
 struct MoveRegion {
@@ -44,7 +50,7 @@ GameSection loadSection(const std::string& name);
 struct GameStage {
     std::vector<section_t> sections;
     std::vector<section_t> sectionsLoop;
-    std::vector<ObjectSpawn> spawns;
+    std::deque<ObjectSpawn> spawns;
     circular_buffer<section_t, stageVisibility> visible;
 
     void loadStage();
@@ -54,7 +60,7 @@ struct GameStage {
 
    private:
     GameStage(std::vector<section_t>&& sections, int loopLength,
-              std::vector<ObjectSpawn>&& spawns);
+              std::deque<ObjectSpawn>&& spawns);
     size_t nextSection_{0};
     size_t nextSectionLoop_{0};
 };

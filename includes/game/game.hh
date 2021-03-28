@@ -55,10 +55,12 @@ class GameMain : public LogicModule,
     bool continue_{true};
     bool shouldBePaused_{false};
     bool paused_{false};
+    coord_t moveSpeed;
 
     void startNewStage();
     void drawStatusBar();
     void positionCamera();
+    void updateMoveSpeedInput(ControlState& controls, float delta);
     void pauseGame();
 };
 };  // namespace hiemalia

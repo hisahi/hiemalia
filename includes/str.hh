@@ -9,6 +9,8 @@
 #ifndef M_STR_HH
 #define M_STR_HH
 
+#include <algorithm>
+#include <cctype>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -64,6 +66,13 @@ std::string stringFormat(const std::string& fmt, Ts... args) {
     if (n < 0) throw std::runtime_error("failed to format");
     std::string s(n, ' ');
     snprintf(s.data(), n + 1, fmt.c_str(), c_ify<Ts>(args)...);
+    return s;
+}
+
+inline std::string trimLeft(std::string s) {
+    s.erase(s.begin(),
+            std::find_if_not(s.begin(), s.end(),
+                             [](unsigned char c) { return std::isspace(c); }));
     return s;
 }
 };  // namespace hiemalia

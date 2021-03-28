@@ -23,6 +23,8 @@ bool collidesLineCuboid(const ModelPoint& line1, const ModelPoint& line2,
                         const ModelPoint& cuboid1, const ModelPoint& cuboid2);
 bool collidesSphereCuboid(const ModelPoint& center, coord_t radius2,
                           const ModelPoint& cuboid1, const ModelPoint& cuboid2);
+bool collidesCuboidSphere(const ModelPoint& cuboid1, const ModelPoint& cuboid2,
+                          const ModelPoint& center, coord_t radius2);
 bool collidesCuboidCuboid(const ModelPoint& cuboid1_1,
                           const ModelPoint& cuboid1_2,
                           const ModelPoint& cuboid2_1,
@@ -35,6 +37,11 @@ bool collidesLineTri(const ModelPoint& line1, const ModelPoint& line2,
 bool collidesSphereTri(const ModelPoint& center, coord_t radius2,
                        const ModelPoint& tri1, const ModelPoint& tri2,
                        const ModelPoint& tri3);
+
+struct CollisionSphere {
+    ModelPoint center;
+    coord_t radius2;
+};
 };  // namespace hiemalia
 
 #endif  // M_COLLIDE_HH

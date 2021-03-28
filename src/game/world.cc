@@ -32,15 +32,26 @@ void GameWorld::drawStage(SplinterBuffer& sbuf, Renderer3D& r3d) {
 }
 
 void GameWorld::moveForward(coord_t dist) {
+    progress += dist;
     progress_f += dist;
     player->move(0, 0, dist);
-    if (progress_f >= stageSectionLength) {
+    while (progress_f >= stageSectionLength) {
         progress_f -= stageSectionLength;
-        progress += 1;
+        ++sections;
         player->move(0, 0, -stageSectionLength);
         for (auto& obj : objects) obj->move(0, 0, -stageSectionLength);
         stage->nextSection();
     }
+
+    auto& obj = stage->spawns;
+    unsigned u = sections + stageSpawnDistance * stageDivision;
+    while (!obj.empty() && obj.front().shouldSpawn(u, progress_f)) {
+        LOG_TRACE("spawn");
+        objects.emplace_back(std::move(obj.front().obj))->onSpawn(*this);
+        obj.pop_front();
+    }
 }
+
+PlayerObject& GameWorld::getPlayer() { return *player; }
 
 }  // namespace hiemalia

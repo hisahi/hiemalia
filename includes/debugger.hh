@@ -4,28 +4,24 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// models.hh: header file for model file name list
+// debugger.hh: definition of debugger()
 
-#ifndef M_MODELS_HH
-#define M_MODELS_HH
+#ifndef M_DEBUGGER_HH
+#define M_DEBUGGER_HH
 
-#include <array>
-#include <string>
+#include "defs.hh"
 
-#include "array.hh"
+#if NDEBUG
+#define debugger()
+#elif defined(_MSC_VER)
+#define debugger() __debugbreak()
+#elif defined(__unix__)
+#include <signal.h>
+#include <unistd.h>
+#define debugger() raise(SIGTRAP)
+#else
+#pragma message "warning: debugger calls not supported"
+#define debugger()
+#endif
 
-namespace hiemalia {
-enum class GameModel {
-    PlayerShip,
-    BoxModel,
-
-    EndOfModels
-};
-
-inline auto modelFileNames = hiemalia::to_array<std::string>({
-    "ship.3d", "box.3d",
-    // more
-});
-};  // namespace hiemalia
-
-#endif  // M_MODELS_HH
+#endif  // M_DEBUGGER_HH

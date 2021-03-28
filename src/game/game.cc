@@ -14,9 +14,11 @@
 
 namespace hiemalia {
 
-constexpr float move_speed = 0.25;
-
+static const coord_t defaultMoveSpeed = 0.75;
+static const coord_t minimumMoveSpeed = 0.25;
+static const coord_t maximumMoveSpeed = 2;
 static const Color white{255, 255, 255, 255};
+static const bool firstPerson = true;
 
 GameMain::GameMain(GameMain&& move) noexcept
     : LogicModule(std::move(move)),
@@ -38,6 +40,7 @@ GameMain& GameMain::operator=(GameMain&& move) noexcept {
 
 GameMain::GameMain() : world_(std::make_unique<GameWorld>()) {
     font_.setFont(getAssets().menuFont);
+    moveSpeed = defaultMoveSpeed;
 }
 
 GameMain::~GameMain() noexcept {}
@@ -96,8 +99,32 @@ void GameMain::gotMessage(const MenuMessage& msg) {
     }
 }
 
+void GameMain::updateMoveSpeedInput(ControlState& inputs, float delta) {
+    if (inputs.back) {
+        moveSpeed = std::max<coord_t>(
+            moveSpeed + (minimumMoveSpeed - defaultMoveSpeed) * delta,
+            minimumMoveSpeed);
+    } else if (inputs.forward) {
+        moveSpeed = std::min<coord_t>(
+            moveSpeed + (maximumMoveSpeed - defaultMoveSpeed) * delta * 2,
+            maximumMoveSpeed);
+    } else if (moveSpeed < defaultMoveSpeed) {
+        moveSpeed = std::min<coord_t>(
+            defaultMoveSpeed,
+            moveSpeed + (defaultMoveSpeed - minimumMoveSpeed) * delta * 2);
+    } else if (moveSpeed > defaultMoveSpeed) {
+        moveSpeed = std::max<coord_t>(
+            defaultMoveSpeed,
+            moveSpeed + (defaultMoveSpeed - maximumMoveSpeed) * delta);
+    }
+}
+
+coord_t moveSpeed{0.5};
+
 bool GameMain::run(GameState& state, float interval) {
     static constexpr coord_t Y = 0.875;
+    static const Rotation3D c_rot = Rotation3D(0, 0, 0);
+    static const ModelPoint c_scale = ModelPoint(0.25, 0.25, 0.25);
     if (!continue_) return false;
 
     if (world_->nextStage) {
@@ -109,16 +136,32 @@ bool GameMain::run(GameState& state, float interval) {
     paused_ = shouldBePaused_;
     if (!paused_ && state.controls.pause) pauseGame();
     if (!paused_) {
-        state.sbuf.push(Splinter(SplinterType::BeginClipCenter, -Y, +Y));
-        world_->moveForward(interval * move_speed);
-        world_->drawStage(state.sbuf, r3d_);
         auto& plr = world_->player;
+        state.sbuf.push(Splinter(SplinterType::BeginClipCenter, -Y, +Y));
+        plr->updateInput(state.controls);
+        updateMoveSpeedInput(state.controls, interval);
+        world_->moveForward(interval * moveSpeed);
+        world_->drawStage(state.sbuf, r3d_);
+        bool playerAlive = plr->update(*world_, interval);
         ModelPoint p = plr->pos;
-        r3d_.setCamera(ModelPoint(p.x, p.y, -0.25 + world_->progress_f),
-                       Rotation3D(0, 0, 0), 0.25);
+        if (firstPerson) {  // first person view
+            r3d_.setCamera(ModelPoint(p.x, p.y - 0.01171875, p.z - 0.03515625),
+                           plr->rot, c_scale);
+            // crosshair
+            state.sbuf.push(Splinter(SplinterType::BeginShape, -0.03125,
+                                     -0.03125, Color{255, 255, 0, 160}));
+            state.sbuf.push(
+                Splinter(SplinterType::EndShapePoint, 0.03125, 0.03125));
+            state.sbuf.push(Splinter(SplinterType::BeginShape, 0.03125,
+                                     -0.03125, Color{255, 255, 0, 160}));
+            state.sbuf.push(
+                Splinter(SplinterType::EndShapePoint, -0.03125, 0.03125));
+        } else  // third person view
+            r3d_.setCamera(ModelPoint(p.x, p.y, -0.25 + world_->progress_f),
+                           c_rot, c_scale);
         auto& obj = world_->objects;
-        auto it = obj.begin(), eit = obj.end();
-        while (it != eit) {
+        auto it = obj.begin();
+        while (it != obj.end()) {
             if ((*it)->update(*world_, interval)) {
                 (*it)->render(state.sbuf, r3d_);
                 ++it;
@@ -126,8 +169,7 @@ bool GameMain::run(GameState& state, float interval) {
                 it = obj.erase(it);
             }
         }
-        plr->updateInput(state.controls);
-        if (plr->update(*world_, interval)) {
+        if (playerAlive) {
             plr->render(state.sbuf, r3d_);
         } else {
             // TODO: respawn

@@ -15,6 +15,7 @@
 #include "game/stage.hh"
 #include "inherit.hh"
 #include "model.hh"
+#include "models.hh"
 #include "module.hh"
 #include "msg.hh"
 #include "sbuf.hh"
@@ -22,12 +23,6 @@
 #include "sounds.hh"
 
 namespace hiemalia {
-
-enum class GameModel {
-    PlayerShip,
-
-    EndOfModels
-};
 
 struct GameAssets {
     std::shared_ptr<Font> gameFont;

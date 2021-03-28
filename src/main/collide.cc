@@ -115,6 +115,11 @@ bool collidesSphereCuboid(const ModelPoint& c, coord_t r2, const ModelPoint& c1,
     return r2 >= 0;
 }
 
+bool collidesCuboidSphere(const ModelPoint& cuboid1, const ModelPoint& cuboid2,
+                          const ModelPoint& center, coord_t radius2) {
+    return collidesSphereCuboid(center, radius2, cuboid1, cuboid2);
+}
+
 bool collidesCuboidCuboid(const ModelPoint& a1, const ModelPoint& a2,
                           const ModelPoint& b1, const ModelPoint& b2) {
     return collidesRangeRange(a1.x, a2.x, b1.x, b2.x) &&

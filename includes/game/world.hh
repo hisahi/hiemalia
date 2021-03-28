@@ -24,12 +24,14 @@ struct GameWorld {
     void startNewStage();
     void drawStage(SplinterBuffer& sbuf, Renderer3D& r3d);
     void moveForward(coord_t dist);
+    PlayerObject& getPlayer();
 
    private:
     std::unique_ptr<PlayerObject> player;
     std::unique_ptr<GameStage> stage;
-    std::vector<std::unique_ptr<GameObject>> objects;
-    unsigned progress{0};
+    std::vector<std::shared_ptr<GameObject>> objects;
+    unsigned sections{0};
+    coord_t progress{0};
     coord_t progress_f{0};
     unsigned int score{0};
     unsigned int highScore{0};

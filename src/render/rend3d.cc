@@ -23,12 +23,12 @@ Matrix3D Matrix3D::translate(const ModelPoint& p) {
     return Matrix3D(1, 0, 0, p.x, 0, 1, 0, p.y, 0, 0, 1, p.z, 0, 0, 0, 1);
 }
 
-Matrix3D Matrix3D::scale(coord_t s) {
-    return Matrix3D(s, 0, 0, 0, 0, s, 0, 0, 0, 0, s, 0, 0, 0, 0, 1);
+Matrix3D Matrix3D::scale(const ModelPoint& s) {
+    return Matrix3D(s.x, 0, 0, 0, 0, s.y, 0, 0, 0, 0, s.z, 0, 0, 0, 0, 1);
 }
 
-Matrix3D Matrix3D::scaleXYZ(coord_t x, coord_t y, coord_t z) {
-    return Matrix3D(x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1);
+Matrix3D Matrix3D::scale(coord_t s) {
+    return Matrix3D(s, 0, 0, 0, 0, s, 0, 0, 0, 0, s, 0, 0, 0, 0, 1);
 }
 
 Matrix3D Matrix3D::yaw(coord_t theta) {
@@ -73,6 +73,7 @@ std::string printMatrix(const Matrix3D& m) {
 
 ModelPoint Vector3D::toCartesian() const {
     coord_t wf = 1.0 / w;
+    dynamic_assert(wf > 0, "negative w -- unexpected degenerate case");
     return ModelPoint(x * wf, y * wf, z * wf);
 }
 
@@ -84,7 +85,7 @@ Vector3D Vector3D::project(const Matrix3D& m) {
 }
 
 Matrix3D Renderer3D::getModelMatrix(ModelPoint p, Rotation3D r,
-                                    coord_t s) const {
+                                    ModelPoint s) const {
     /*Matrix3D wrld = view;*/
     Matrix3D wrld = Matrix3D::translate(p);
     wrld *= Matrix3D::rotate(r);
@@ -93,17 +94,17 @@ Matrix3D Renderer3D::getModelMatrix(ModelPoint p, Rotation3D r,
 }
 
 Renderer3D::Renderer3D() {
-    setCamera(ModelPoint(0, 0, 0), Rotation3D(0, 0, 0), 1);
+    setCamera(ModelPoint(0, 0, 0), Rotation3D(0, 0, 0), ModelPoint(1, 1, 1));
 }
 
 static coord_t computeFOV(coord_t a) { return 1.0 / std::tan(a / 2.0); }
 
-static const coord_t near = 1.0 / 10;
-static const coord_t far = 10;
+static const coord_t near = 1.0 / 256;
+static const coord_t far = 8;
 static const coord_t wherever_you_are = far / (far - near);
 static const coord_t s_fov = computeFOV(radians<coord_t>(90));
 
-void Renderer3D::setCamera(ModelPoint pos, Rotation3D rot, coord_t scale) {
+void Renderer3D::setCamera(ModelPoint pos, Rotation3D rot, ModelPoint scale) {
     // projection
     view = Matrix3D(s_fov, 0, 0, 0, 0, s_fov, 0, 0, 0, 0, wherever_you_are,
                     near * wherever_you_are, 0, 0, 1, 0);
@@ -116,7 +117,7 @@ void Renderer3D::setCamera(ModelPoint pos, Rotation3D rot, coord_t scale) {
 }
 
 void Renderer3D::renderModel(SplinterBuffer& buf, ModelPoint p, Rotation3D r,
-                             coord_t s, const Model& m) {
+                             ModelPoint s, const Model& m) {
     Matrix3D wrld = view * getModelMatrix(p, r, s);
     points_.clear();
     for (const ModelPoint& p : m.vertices)
@@ -124,11 +125,10 @@ void Renderer3D::renderModel(SplinterBuffer& buf, ModelPoint p, Rotation3D r,
     for (const ModelFragment& part : m.shapes) renderModelFragment(buf, part);
 }
 
-static const coord_t maxDist = 2;
-
 inline static int outcode(const Vector3D& v) {
     return ((v.x > v.w) << 0) | ((v.x < -v.w) << 1) | ((v.y > v.w) << 2) |
-           ((v.y < -v.w) << 3) | ((v.z > maxDist) << 4) | ((v.z < near) << 5);
+           ((v.y < -v.w) << 3) | ((v.z > viewDistance) << 4) |
+           ((v.w < near) << 5);
 }
 
 ModelPoint Renderer3D::clipPoint(const Vector3D& onScreen,
@@ -151,15 +151,8 @@ bool Renderer3D::clipLine(const Vector3D& v0, const Vector3D& v1,
     }
     if (o0 & o1) return false;
 
-    if (v0.z >= near)
-        p0 = v0.toCartesian();
-    else
-        p1 = clipPoint(v1, v0);
-
-    if (v1.z >= near)
-        p1 = v1.toCartesian();
-    else
-        p1 = clipPoint(v0, v1);
+    p0 = v0.w >= near ? v0.toCartesian() : clipPoint(v1, v0);
+    p1 = v1.w >= near ? v1.toCartesian() : clipPoint(v0, v1);
     return true;
 }
 

@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "assets.hh"
+#include "debugger.hh"
 #include "hbase.hh"
 #include "logger.hh"
 #include "logic.hh"
@@ -116,6 +117,7 @@ void never_(const std::string &file, unsigned line, const std::string &msg) {
         LOG_FAIL(fail_never_(file, line, msg));
     else
         std::cerr << fail_never_(file, line, msg) << std::endl;
+    debugger();
     std::terminate();
 }
 
@@ -126,6 +128,7 @@ void dynamic_assert_(const std::string &file, unsigned line, bool condition,
             LOG_FAIL(fail_assert_(file, line, msg));
         else
             std::cerr << fail_assert_(file, line, msg) << std::endl;
+        debugger();
         std::terminate();
     }
 }
@@ -140,9 +143,11 @@ static int main(int argc, char *argv[]) {
         game.run();
     } catch (std::exception &e) {
         LOG_FAIL(fail_exception_(e));
+        debugger();
         throw;
     } catch (...) {
         LOG_FAIL(fail_exception_u_());
+        debugger();
         throw;
     }
     return 0;

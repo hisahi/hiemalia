@@ -4,37 +4,30 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// game/player.hh: header file for the player object (game/player.cc)
+// game/box.hh: header file for simple box object
 
-#ifndef M_GAME_PLAYER_HH
-#define M_GAME_PLAYER_HH
+#ifndef M_GAME_BOX_HH
+#define M_GAME_BOX_HH
 
+#include "assets.hh"
 #include "controls.hh"
 #include "game/object.hh"
-#include "game/stage.hh"
 #include "model.hh"
 
 namespace hiemalia {
-class PlayerObject : public GameObject, ObjectDamageable {
+class Box : public GameObject {
    public:
-    PlayerObject();
-    void updateInput(ControlState& controls);
+    Box();
     bool update(GameWorld& w, float delta);
 
    private:
-    ControlState inputs;
-    ModelPoint vel{0, 0, 0};
-    void onDamage(float dmg);
-    void onDeath();
+    ModelPoint pmin{0, 0, 0};
+    ModelPoint pmax{0, 0, 0};
     bool collideLineInternal(const ModelPoint& p1, const ModelPoint& p2) const;
     bool collideCuboidInternal(const ModelPoint& c1,
                                const ModelPoint& c2) const;
     bool collideSphereInternal(const ModelPoint& p, coord_t r2) const;
-
-    void inputsVelocity(float delta);
-    void inputsAngles(const MoveRegion& r, float delta);
-    void checkBounds(const MoveRegion& r, GameWorld& w);
 };
 };  // namespace hiemalia
 
-#endif  // M_GAME_PLAYER_HH
+#endif  // M_GAME_BOX_HH

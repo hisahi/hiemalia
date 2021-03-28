@@ -17,6 +17,8 @@
 #include "sbuf.hh"
 
 namespace hiemalia {
+static const coord_t viewDistance = 2;
+
 struct Rotation3D {
     coord_t yaw;
     coord_t pitch;
@@ -101,7 +103,7 @@ struct Matrix3D {
 
     static Matrix3D translate(const ModelPoint& p);
     static Matrix3D rotate(const Rotation3D& r);
-    static Matrix3D scaleXYZ(coord_t x, coord_t y, coord_t z);
+    static Matrix3D scale(const ModelPoint& s);
     static Matrix3D scale(coord_t s);
     static Matrix3D yaw(coord_t theta);
     static Matrix3D pitch(coord_t theta);
@@ -213,10 +215,10 @@ std::string printMatrix(const Matrix3D& m);  // test.cc
 
 class Renderer3D {
    public:
-    Matrix3D getModelMatrix(ModelPoint p, Rotation3D r, coord_t s) const;
-    void renderModel(SplinterBuffer& buf, ModelPoint p, Rotation3D r, coord_t s,
-                     const Model& m);
-    void setCamera(ModelPoint pos, Rotation3D rot, coord_t scale);
+    Matrix3D getModelMatrix(ModelPoint p, Rotation3D r, ModelPoint s) const;
+    void renderModel(SplinterBuffer& buf, ModelPoint p, Rotation3D r,
+                     ModelPoint s, const Model& m);
+    void setCamera(ModelPoint pos, Rotation3D rot, ModelPoint scale);
     Renderer3D();
 
    private:

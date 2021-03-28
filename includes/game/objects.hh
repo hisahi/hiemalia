@@ -4,28 +4,19 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// models.hh: header file for model file name list
+// game/objects.hh: header file for game object spawns
 
-#ifndef M_MODELS_HH
-#define M_MODELS_HH
+#ifndef M_GAME_OBJECTS_HH
+#define M_GAME_OBJECTS_HH
 
-#include <array>
-#include <string>
+#include <memory>
 
-#include "array.hh"
+#include "game/object.hh"
 
 namespace hiemalia {
-enum class GameModel {
-    PlayerShip,
-    BoxModel,
-
-    EndOfModels
-};
-
-inline auto modelFileNames = hiemalia::to_array<std::string>({
-    "ship.3d", "box.3d",
-    // more
-});
+std::shared_ptr<GameObject> loadObjectSpawn(ModelPoint p,
+                                            const std::string& name,
+                                            const std::string& prop);
 };  // namespace hiemalia
 
-#endif  // M_MODELS_HH
+#endif  // M_GAME_OBJECTS_HH
