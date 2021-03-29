@@ -30,7 +30,7 @@ void ConfigStore::writeStream(std::ostream& stream) const {
 void Config::load(std::string filename) {
     store_.clear();
     LOG_TRACE("loading config from %s", filename);
-    std::ifstream f = std::move(openFileRead(filename, false));
+    std::ifstream f = openFileRead(filename, false);
     if (f.fail()) {
         LOG_ERROR("failed to read config file %s. will use defaults.",
                   filename);
@@ -43,7 +43,7 @@ void Config::load(std::string filename) {
 
 void Config::save(std::string filename) {
     for (auto& conf : confs_) conf->save(ConfigSectionStore(*conf, store_));
-    std::ofstream f = std::move(openFileWrite(filename, false));
+    std::ofstream f = openFileWrite(filename, false);
     store_.writeStream(f);
 }
 }  // namespace hiemalia

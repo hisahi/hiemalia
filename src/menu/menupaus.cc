@@ -51,6 +51,6 @@ MenuPause& MenuPause::operator=(MenuPause&& move) noexcept {
 
 MenuPause::MenuPause(MenuHandler& handler) : Menu(handler) {}
 
-MenuPause::~MenuPause() {}
+MenuPause::~MenuPause() noexcept {}
 
 }  // namespace hiemalia

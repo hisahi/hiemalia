@@ -18,7 +18,6 @@
 
 namespace hiemalia {
 static const coord_t maxSpeed = 1.5;
-static const coord_t maxZspeed = 0.75;
 static const coord_t maxRotation = 0.1875;
 
 static std::random_device random_device;

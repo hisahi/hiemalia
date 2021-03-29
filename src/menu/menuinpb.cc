@@ -79,10 +79,10 @@ MenuInputControls::MenuInputControls(MenuInputControls&& move) noexcept
 MenuInputControls& MenuInputControls::operator=(
     MenuInputControls&& move) noexcept {
     Menu::operator=(std::move(move));
-    holder_ = std::move(holder_);
+    holder_ = std::move(move.holder_);
     title_ = move.title_;
     device_ = move.device_;
-    module_ = std::move(module_);
+    module_ = std::move(move.module_);
     settingButton_ = move.settingButton_;
     return *this;
 }
@@ -96,6 +96,6 @@ MenuInputControls::MenuInputControls(
       device_(pair.value),
       module_(module) {}
 
-MenuInputControls::~MenuInputControls() {}
+MenuInputControls::~MenuInputControls() noexcept {}
 
 }  // namespace hiemalia

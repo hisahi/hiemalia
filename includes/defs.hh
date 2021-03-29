@@ -13,10 +13,12 @@
 #include <string>
 #include <vector>
 
+#ifndef NDEBUG
 #define NDEBUG 0
+#endif
 
 namespace hiemalia {
-static inline const std::string gameVersion = "v0.2";
+static inline const std::string gameVersion = "v0.3";
 static inline const std::string gameTitle = "Hiemalia " + gameVersion;
 
 using coord_t = double;

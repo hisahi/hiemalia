@@ -22,7 +22,7 @@ namespace hiemalia {
 
 enum class LogicMessageType { MainMenu, StartGame, PauseMenu };
 
-class ModuleHolder;
+struct ModuleHolder;
 
 struct LogicMessage {
     LogicMessageType type;

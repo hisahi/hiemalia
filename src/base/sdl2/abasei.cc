@@ -6,13 +6,14 @@
 /****************************************************************************/
 // base/sdl2/abasei.cc: SDL(_mixer) 2 audio module impl
 
+#include "base/sdl2/abasei.hh"
+
 #include <algorithm>
 #include <iostream>
 #include <memory>
 #include <vector>
 
 #include "base/sdl2.hh"
-#include "base/sdl2/abasei.hh"
 #include "base/sdl2/hbasei.hh"
 #include "defs.hh"
 #include "logger.hh"
@@ -38,7 +39,7 @@ SDLMixer &SDLMixer::operator=(SDLMixer &&move) noexcept {
 }
 
 AudioModuleSDLMixer2::AudioModuleSDLMixer2(std::shared_ptr<HostModule> host)
-    : host_(std::move(std::dynamic_pointer_cast<HostModuleSDL2>(host))) {
+    : host_(std::dynamic_pointer_cast<HostModuleSDL2>(host)) {
     dynamic_assert(host_ != nullptr, "must be HostModuleSDL2!!!");
     if (SDL_InitSubSystem(SDL_INIT_AUDIO))
         throw SDLException("could not initialize SDL2 audio subsystem");

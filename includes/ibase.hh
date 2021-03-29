@@ -57,11 +57,11 @@ class InputControlModule : public Module {
 
     InputControlModule(const InputControlModule& copy) = delete;
     InputControlModule& operator=(const InputControlModule& copy) = delete;
-    InputControlModule(InputControlModule&& move)
+    InputControlModule(InputControlModule&& move) noexcept
         : Module(std::move(move)),
           device_(move.device_),
           config_(std::move(move.config_)) {}
-    InputControlModule& operator=(InputControlModule&& move) {
+    InputControlModule& operator=(InputControlModule&& move) noexcept {
         Module::operator=(std::move(move));
         device_ = move.device_;
         config_ = std::move(move.config_);

@@ -50,13 +50,13 @@ struct c_ify_return<std::string> {
 };
 
 template <typename T>
-typename c_ify_return<T>::type c_ify(T x) {
+typename c_ify_return<T>::type c_ify(const T& x) {
     return x;
 }
 
 template <>
 inline typename c_ify_return<std::string>::type c_ify<std::string>(
-    std::string s) {
+    const std::string& s) {
     return s.c_str();
 }
 

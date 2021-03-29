@@ -1,0 +1,368 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\base\abase.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base\hbase.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base\ibase.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base\vbase.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\box.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\game.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\object.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\objects.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\player.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\sections.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\stage.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\world.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\assets.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\audio.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\buttons.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\collide.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\config.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\file.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\hiemalia.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\input.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\logger.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\logic.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\mholder.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\video.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menu\menu.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menu\menuaud.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menu\menuinp.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menu\menuinpb.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menu\menumain.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menu\menuopt.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menu\menupaus.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\load2d.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\load3d.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\rend2d.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\rend3d.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\rendtext.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base\sdl2\hbasei.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base\sdl2\abasei.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base\sdl2\ibasei.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base\sdl2\vbasei.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\explode.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="includes\abase.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\array.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\assetmod.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\assets.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\audio.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\basemacr.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\buttons.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\cbuffer.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\collide.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\config.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\controls.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\debugger.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\defs.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\file.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\font.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\hbase.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\helpers.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\hiemalia.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\ibase.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\inherit.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\input.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\lmodule.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\load2d.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\load3d.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\logger.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\logic.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\logicmsg.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\lvector.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\math.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\menu.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\menuaud.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\menuinp.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\menuinpb.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\menumain.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\menuopt.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\menupaus.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\mholder.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\model.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\models.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\module.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\msg.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\namepair.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\rend2d.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\rend3d.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\rendtext.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\sbuf.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\shape.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\sounds.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\state.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\str.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\symbol.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\vbase.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\video.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\base\sdl2.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\base\sdl2\abasei.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\base\sdl2\hbasei.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\base\sdl2\ibasei.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\base\sdl2\vbasei.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\box.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\game.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\gamemsg.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\object.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\objects.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\player.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\sections.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\stage.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\world.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\secure.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\base\Makefile.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\base\sdl2\Makefile.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\game\Makefile.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\main\Makefile.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\menu\Makefile.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\render\Makefile.inc">
+      <Filter>Header Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

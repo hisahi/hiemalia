@@ -57,7 +57,7 @@ MenuMain::MenuMain(MenuMain&& move) noexcept
 
 MenuMain& MenuMain::operator=(MenuMain&& move) noexcept {
     Menu::operator=(std::move(move));
-    holder_ = std::move(holder_);
+    holder_ = std::move(move.holder_);
     return *this;
 }
 
@@ -67,6 +67,6 @@ MenuMain::MenuMain(MenuHandler& handler,
     makeUncloseable();
 }
 
-MenuMain::~MenuMain() {}
+MenuMain::~MenuMain() noexcept {}
 
 }  // namespace hiemalia

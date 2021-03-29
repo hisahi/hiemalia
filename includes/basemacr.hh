@@ -15,7 +15,7 @@
 
 #define STRINGIFY_(x) #x
 #define STRINGIFY(x) STRINGIFY_(x)
-#define MAKE_MODULE(M, ...) std::move(Module::create<M>(__VA_ARGS__))
+#define MAKE_MODULE(M, ...) Module::create<M>(__VA_ARGS__)
 #define TRY_MODULE(T, M, ...)                                      \
     do {                                                           \
         try {                                                      \

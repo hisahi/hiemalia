@@ -32,7 +32,7 @@ void GameWorld::startNewStage() {
 
 void GameWorld::resetStage(coord_t t) {
     player = std::make_unique<PlayerObject>();
-    stage = std::make_unique<GameStage>(std::move(GameStage::load(stageNum)));
+    stage = std::make_unique<GameStage>(GameStage::load(stageNum));
     progress = 0;
     progress_f = 0;
     sections = 0;

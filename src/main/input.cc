@@ -16,7 +16,7 @@
 
 namespace hiemalia {
 InputEngine::InputEngine(std::shared_ptr<HostModule> host, GameState& state)
-    : input_(std::move(getInputModule(std::move(host)))) {
+    : input_(getInputModule(host)) {
     for (const auto& pair : inputDevices) {
         if (input_->hasInputDevice(pair.value)) {
             auto section = state.config.section<ButtonSetup>(*input_, pair);

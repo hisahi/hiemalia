@@ -8,7 +8,6 @@
 
 #include "load3d.hh"
 
-#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <optional>
@@ -18,14 +17,16 @@
 #include "load2d.hh"
 #include "logger.hh"
 #include "sbuf.hh"
+#include "secure.hh"
 #include "str.hh"
 
 namespace hiemalia {
 static ModelPoint parseModelPoint(std::string s, coord_t sx, coord_t sy,
                                   coord_t sz) {
     coord_t x = 0, y = 0, z = 0;
-    std::sscanf(s.c_str(), FMT_coord_t " " FMT_coord_t " " FMT_coord_t, &x, &y,
-                &z);
+    if (s_sscanf(s.c_str(), FMT_coord_t " " FMT_coord_t " " FMT_coord_t, &x, &y,
+                 &z) < 3)
+        never("Invalid model point");
     return ModelPoint(x * sx, y * sy, z * sz);
 }
 

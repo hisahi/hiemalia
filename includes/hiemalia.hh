@@ -54,8 +54,8 @@ class Hiemalia : MessageHandler<HostMessage> {
     ~Hiemalia();
     Hiemalia(const Hiemalia& copy) = delete;
     Hiemalia& operator=(const Hiemalia& copy) = delete;
-    Hiemalia(Hiemalia&& move);
-    Hiemalia& operator=(Hiemalia&& move);
+    Hiemalia(Hiemalia&& move) noexcept;
+    Hiemalia& operator=(Hiemalia&& move) noexcept;
 
     void gotMessage(const HostMessage& msg);
     void args(std::vector<std::string> args);

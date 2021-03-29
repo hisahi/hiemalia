@@ -6,11 +6,12 @@
 /****************************************************************************/
 // base/sdl2/vbasei.cc: implementation of base graphics library on SDL2
 
+#include "base/sdl2/vbasei.hh"
+
 #include <algorithm>
 
 #include "base/sdl2.hh"
 #include "base/sdl2/hbasei.hh"
-#include "base/sdl2/vbasei.hh"
 #include "defs.hh"
 #include "logger.hh"
 #include "sbuf.hh"
@@ -19,7 +20,7 @@ namespace hiemalia {
 static int round_down(int x) { return (x / 256) * 256; }
 
 VideoModuleSDL2::VideoModuleSDL2(std::shared_ptr<HostModule> host)
-    : host_(std::move(std::dynamic_pointer_cast<HostModuleSDL2>(host))) {
+    : host_(std::dynamic_pointer_cast<HostModuleSDL2>(host)) {
     dynamic_assert(host_ != nullptr, "must be HostModuleSDL2!!!");
     if (SDL_InitSubSystem(SDL_INIT_VIDEO))
         throw SDLException("could not initialize SDL2 video subsystem");
@@ -73,8 +74,8 @@ void VideoModuleSDL2::onResize() {
     int w, h;
     SDL_GetRendererOutputSize(renderer_, &w, &h);
     width_ = w;
-    cx_ = w * 0.5f;
-    cy_ = h * 0.5f;
+    cx_ = w * 0.5;
+    cy_ = h * 0.5;
     scale_ = std::min(cx_, cy_);
 }
 

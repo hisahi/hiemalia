@@ -38,6 +38,7 @@ struct Splinter {
     coord_t x;  // between -1.0 (left) ... 1.0 (right)
     coord_t y;  // between -1.0 (top)  ... 1.0 (bottom)
     union {
+        int sentinel{0};
         Color color;
     };
 
@@ -58,9 +59,9 @@ class SplinterBuffer {
     ~SplinterBuffer() = default;
     SplinterBuffer(const SplinterBuffer& copy) = delete;
     SplinterBuffer& operator=(const SplinterBuffer& copy) = delete;
-    SplinterBuffer(const SplinterBuffer&& move)
+    SplinterBuffer(SplinterBuffer&& move) noexcept
         : _splinters(std::move(move._splinters)) {}
-    SplinterBuffer& operator=(const SplinterBuffer&& move) {
+    SplinterBuffer& operator=(SplinterBuffer&& move) noexcept {
         _splinters = std::move(move._splinters);
         return *this;
     }

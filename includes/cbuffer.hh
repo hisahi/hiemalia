@@ -66,7 +66,7 @@ class circular_buffer {
     }
 
    private:
-    array_type data_;
+    array_type data_{};
     size_t begin_{0};
     size_t end_{0};
 

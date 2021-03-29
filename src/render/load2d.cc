@@ -8,7 +8,6 @@
 
 #include "load2d.hh"
 
-#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <optional>
@@ -17,6 +16,7 @@
 #include "file.hh"
 #include "logger.hh"
 #include "sbuf.hh"
+#include "secure.hh"
 #include "shape.hh"
 #include "str.hh"
 
@@ -24,14 +24,16 @@ namespace hiemalia {
 Color parseColor(std::string s) {
     uint8_t r = 255, g = 255, b = 255, a;
     float af = 1.0f;
-    std::sscanf(s.c_str(), "%hhu,%hhu,%hhu,%f", &r, &g, &b, &af);
+    if (s_sscanf(s.c_str(), "%hhu,%hhu,%hhu,%f", &r, &g, &b, &af) < 4)
+        never("Invalid color");
     a = static_cast<uint8_t>(af * 255);
     return Color{r, g, b, a};
 }
 
 static ShapePoint parseShapePoint(std::string s, coord_t scale) {
     coord_t x = 0, y = 0;
-    std::sscanf(s.c_str(), FMT_coord_t "," FMT_coord_t, &x, &y);
+    if (s_sscanf(s.c_str(), FMT_coord_t "," FMT_coord_t, &x, &y) < 2)
+        never("Invalid point");
     return ShapePoint(x * scale, y * scale);
 }
 
@@ -100,7 +102,7 @@ static Font loadStreamFont(std::istream& in) {
         } else if (command == "fontheight") {
             height = fromString<coord_t>(value);
         } else if (command == "fontmin") {
-            minChar = fromString<coord_t>(value);
+            minChar = static_cast<char>(fromString<int>(value));
         } else if (command == "fontend") {
             break;
         }

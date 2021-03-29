@@ -56,7 +56,7 @@ MenuAudioOptions::MenuAudioOptions(MenuAudioOptions&& move) noexcept
 MenuAudioOptions& MenuAudioOptions::operator=(
     MenuAudioOptions&& move) noexcept {
     Menu::operator=(std::move(move));
-    holder_ = std::move(holder_);
+    holder_ = std::move(move.holder_);
     return *this;
 }
 
@@ -64,6 +64,6 @@ MenuAudioOptions::MenuAudioOptions(MenuHandler& handler,
                                    const std::shared_ptr<ModuleHolder>& holder)
     : Menu(handler), holder_(holder) {}
 
-MenuAudioOptions::~MenuAudioOptions() {}
+MenuAudioOptions::~MenuAudioOptions() noexcept {}
 
 }  // namespace hiemalia

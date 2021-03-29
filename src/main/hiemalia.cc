@@ -25,19 +25,19 @@
 namespace hiemalia {
 
 Hiemalia::Hiemalia(const std::string &command)
-    : command_(command), host_(std::move(getHostModule())) {
+    : command_(command), host_(getHostModule()) {
     getAssets();
 }
 
 Hiemalia::~Hiemalia() {}
 
-Hiemalia::Hiemalia(Hiemalia &&move)
+Hiemalia::Hiemalia(Hiemalia &&move) noexcept
     : command_(move.command_),
       state_(std::move(move.state_)),
       host_(std::move(move.host_)),
       modules_(std::move(move.modules_)) {}
 
-Hiemalia &Hiemalia::operator=(Hiemalia &&move) {
+Hiemalia &Hiemalia::operator=(Hiemalia &&move) noexcept {
     command_ = move.command_;
     state_ = std::move(move.state_);
     host_ = std::move(move.host_);

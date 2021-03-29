@@ -13,6 +13,7 @@
 #include <iterator>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 namespace hiemalia {
@@ -176,11 +177,11 @@ class LimitedVector {
         return *this[index];
     }
 
-    reference operator[](size_type index) { return data[index]; }
+    reference operator[](size_type index) { return data_[index]; }
 
-    reference front() { return data[0]; }
+    reference front() { return data_[0]; }
 
-    reference back() { return data[count_ - 1]; }
+    reference back() { return data_[count_ - 1]; }
 
     pointer data() { return data_; }
 
@@ -371,7 +372,7 @@ class LimitedVector {
         for (j = i; j < i + n; ++j) {
             data_[j] = std::move(data_[j + n]);
         }
-        for (j = count_ - n; j <= count_; ++j) {
+        for (j = count_ - n; j < count_; ++j) {
             data_[j].~T();
         }
 
@@ -383,9 +384,34 @@ class LimitedVector {
     }
 
     template <typename vT, size_t vN, typename vAllocator>
-    friend void std::swap(LimitedVector<vT, vN, vAllocator> v1,
-                          LimitedVector<vT, vN, vAllocator> v2);
+    friend void swap(LimitedVector<vT, vN, vAllocator> v1,
+                     LimitedVector<vT, vN, vAllocator> v2);
 };
+
+template <typename T, size_t N, typename Allocator>
+void swap(LimitedVector<T, N, Allocator>& lhs,
+          LimitedVector<T, N, Allocator>& rhs) {
+    size_t i;
+
+    for (i = 0; i < std::min(lhs.count_, rhs.count_); ++i) {
+        swap(lhs[i], rhs[i]);
+    }
+
+    if (lhs.count_ < rhs.count_) {
+        for (i = lhs.count_; i < rhs.count_; ++i) {
+            new (&rhs.data_[i]) T(std::move(&lhs.data_[i]));
+            lhs.data_[i].~T();
+        }
+    } else if (rhs.count_ < lhs.count_) {
+        for (i = rhs.count_; i < lhs.count_; ++i) {
+            new (&lhs.data_[i]) T(std::move(&rhs.data_[i]));
+            rhs.data_[i].~T();
+        }
+    }
+
+    swap(lhs.alloc_, rhs.alloc_);
+    swap(lhs.count_, rhs.count_);
+}
 
 template <typename T>
 class LimitedVectorIterator {
@@ -488,32 +514,5 @@ class LimitedVectorIterator {
 };
 
 };  // namespace hiemalia
-
-namespace std {
-template <typename T, size_t N, typename Allocator>
-void swap(hiemalia::LimitedVector<T, N, Allocator>& lhs,
-          hiemalia::LimitedVector<T, N, Allocator>& rhs) {
-    size_t i;
-
-    for (i = 0; i < std::min(lhs.count_, rhs.count_); ++i) {
-        swap(lhs[i], rhs[i]);
-    }
-
-    if (lhs.count_ < rhs.count_) {
-        for (i = lhs.count_; i < rhs.count_; ++i) {
-            new (&rhs.data_[i]) T(std::move(&lhs.data_[i]));
-            lhs.data_[i].~T();
-        }
-    } else if (rhs.count_ < lhs.count_) {
-        for (i = rhs.count_; i < lhs.count_; ++i) {
-            new (&lhs.data_[i]) T(std::move(&rhs.data_[i]));
-            rhs.data_[i].~T();
-        }
-    }
-
-    swap(lhs.alloc_, rhs.alloc_);
-    swap(lhs.count_, rhs.count_);
-}
-}  // namespace std
 
 #endif  // M_LVECTOR_HH

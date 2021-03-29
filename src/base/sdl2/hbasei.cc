@@ -6,10 +6,11 @@
 /****************************************************************************/
 // base/sdl2/hbasei.cc: implementation of HostModuleSDL2
 
+#include "base/sdl2/hbasei.hh"
+
 #include <algorithm>
 
 #include "base/sdl2.hh"
-#include "base/sdl2/hbasei.hh"
 #include "base/sdl2/ibasei.hh"
 #include "base/sdl2/vbasei.hh"
 #include "helpers.hh"

@@ -12,14 +12,18 @@
 #include <cmath>
 
 namespace hiemalia {
+namespace numbers {
+inline const double PI = 3.14159265358979323846264338327950288419716939937510;
+}
+
 template <typename T>
 constexpr T radians(T degrees) {
-    return degrees * (M_PI / 180);
+    return degrees * (numbers::PI / 180);
 }
 
 template <typename T>
 constexpr T degrees(T radians) {
-    return radians * (180 / M_PI);
+    return radians * (180 / numbers::PI);
 }
 
 template <typename T>
@@ -34,7 +38,7 @@ constexpr T unlerp(T start, T x, T end) {
 
 template <typename Ti, typename Tf>
 Ti floatToWholeFrac(Tf& x) {
-    Ti i = std::floor(x);
+    Ti i = static_cast<Ti>(std::floor(x));
     x -= i;
     return i;
 }

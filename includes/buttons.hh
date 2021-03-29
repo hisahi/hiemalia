@@ -67,14 +67,14 @@ class ButtonSetup : public ConfigSection {
     }
 
    private:
-    control_t up;
-    control_t down;
-    control_t left;
-    control_t right;
-    control_t forward;
-    control_t back;
-    control_t fire;
-    control_t pause;
+    control_t up{};
+    control_t down{};
+    control_t left{};
+    control_t right{};
+    control_t forward{};
+    control_t back{};
+    control_t fire{};
+    control_t pause{};
     std::string name_;
     InputDevice device_;
 };

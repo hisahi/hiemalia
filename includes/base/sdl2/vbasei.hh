@@ -44,8 +44,6 @@ class VideoModuleSDL2 : public VideoModule {
     std::shared_ptr<HostModuleSDL2> host_;
     SDL_Window* window_{nullptr};
     SDL_Renderer* renderer_{nullptr};
-    SDL_Surface* surface_{nullptr};
-    SDL_Texture* screen_{nullptr};
     SDL_Rect rect_;
     std::vector<SDL_Point> points_;
 };

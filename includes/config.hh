@@ -72,6 +72,7 @@ class ConfigSection {
     virtual void load(ConfigSectionStore store) = 0;
     virtual void save(ConfigSectionStore store) const = 0;
     const std::string name;
+    virtual ~ConfigSection() {}
 
    protected:
     ConfigSection(std::string name) : name(name) {}

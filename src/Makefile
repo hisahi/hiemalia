@@ -1,4 +1,4 @@
-# backend config: 
+# backend config:
 
 # host backends (separated with spaces). must have at least one!
 HBACKEND=sdl2
@@ -11,8 +11,8 @@ ABACKEND=sdl2
 
 # main makefile
 
-CXX=g++
-LD=g++
+CXX=clang++
+LD=clang++
 RM=rm -f
 CXXFLAGS=-std=c++17 -g3 -O0 -Wall -Werror -MMD -MP
 LDFLAGS=

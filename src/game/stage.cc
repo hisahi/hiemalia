@@ -18,14 +18,16 @@
 #include "load3d.hh"
 #include "logger.hh"
 #include "math.hh"
+#include "secure.hh"
 #include "str.hh"
 
 namespace hiemalia {
 static MoveRegion parseMoveRegion(std::string s) {
     coord_t x0 = -1, x1 = 1, y0 = -1, y1 = 1;
-    std::sscanf(s.c_str(),
-                FMT_coord_t " " FMT_coord_t " " FMT_coord_t " " FMT_coord_t,
-                &x0, &x1, &y0, &y1);
+    if (s_sscanf(s.c_str(),
+                 FMT_coord_t " " FMT_coord_t " " FMT_coord_t " " FMT_coord_t,
+                 &x0, &x1, &y0, &y1) < 4)
+        never("Invalid move region");
     return MoveRegion{x0, x1, y0, y1};
 }
 
@@ -91,10 +93,10 @@ GameStage::GameStage(std::vector<section_t>&& sections, int loopLength,
 static ObjectSpawn parseObject(std::string v, coord_t dist, int lineNum) {
     coord_t r, x, y, z;
     unsigned n, q;
-    q = std::sscanf(v.c_str(),
-                    FMT_coord_t " " FMT_coord_t " " FMT_coord_t " " FMT_coord_t
-                                "%n",
-                    &r, &x, &y, &z, &n);
+    q = s_sscanf(v.c_str(),
+                 FMT_coord_t " " FMT_coord_t " " FMT_coord_t " " FMT_coord_t
+                             "%n",
+                 &r, &x, &y, &z, &n);
     if (q < 4)
         throw std::runtime_error("invalid object spawn on line number " +
                                  std::to_string(lineNum));
@@ -111,8 +113,7 @@ static ObjectSpawn parseObject(std::string v, coord_t dist, int lineNum) {
     unsigned u = floatToWholeFrac<unsigned>(f);
     f *= stageSectionLength;
     z += stageSpawnDistance;
-    return ObjectSpawn{
-        std::move(loadObjectSpawn(ModelPoint(x, y, z), name, prop)), u, f};
+    return ObjectSpawn{loadObjectSpawn(ModelPoint(x, y, z), name, prop), u, f};
 }
 
 GameStage GameStage::load(int stagenum) {

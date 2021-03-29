@@ -49,7 +49,7 @@ MenuInputDevices::MenuInputDevices(MenuInputDevices&& move) noexcept
 MenuInputDevices& MenuInputDevices::operator=(
     MenuInputDevices&& move) noexcept {
     Menu::operator=(std::move(move));
-    holder_ = std::move(holder_);
+    holder_ = std::move(move.holder_);
     return *this;
 }
 
@@ -57,6 +57,6 @@ MenuInputDevices::MenuInputDevices(MenuHandler& handler,
                                    const std::shared_ptr<ModuleHolder>& holder)
     : Menu(handler), holder_(holder) {}
 
-MenuInputDevices::~MenuInputDevices() {}
+MenuInputDevices::~MenuInputDevices() noexcept {}
 
 }  // namespace hiemalia

@@ -35,8 +35,10 @@ class GameObject {
     bool collideSphere(const ModelPoint& p, coord_t r2) const;
     bool isOffScreen() const;
 
+    virtual ~GameObject() {}
+
    private:
-    coord_t collideRadiusSquared;
+    coord_t collideRadiusSquared{0};
     virtual bool collideLineInternal(const ModelPoint& p1,
                                      const ModelPoint& p2) const {
         return true;

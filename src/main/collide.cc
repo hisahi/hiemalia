@@ -32,14 +32,6 @@ static inline ModelPoint lerpPoint(const ModelPoint& p1, coord_t t,
                       lerp(p1.z, t, p2.z));
 }
 
-static inline ModelPoint pointAdd(const ModelPoint& p1, const ModelPoint& p2) {
-    return ModelPoint(p1.x + p2.x, p1.y + p2.y, p1.z + p2.z);
-}
-
-static inline ModelPoint pointSub(const ModelPoint& p1, const ModelPoint& p2) {
-    return ModelPoint(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z);
-}
-
 static inline coord_t pointDot(const ModelPoint& p1, const ModelPoint& p2) {
     return p1.x * p2.x + p1.y * p2.y + p1.z * p2.z;
 }
@@ -59,11 +51,11 @@ static bool collidesRangeRange(coord_t x1, coord_t x2, coord_t y1, coord_t y2) {
 static coord_t closestDistanceToLineFromPoint(const ModelPoint& l1,
                                               const ModelPoint& l2,
                                               const ModelPoint& p) {
-    ModelPoint p1 = pointSub(l2, l1);
-    ModelPoint p2 = pointSub(p, l1);
+    ModelPoint p1 = l2 - l1;
+    ModelPoint p2 = p - l1;
     if (pointDot(p2, p1) <= 0) return lengthSquared(p2);
 
-    ModelPoint p3 = pointSub(p, l2);
+    ModelPoint p3 = p - l2;
     if (pointDot(p3, p1) >= 0) return lengthSquared(p3);
 
     return lengthSquared(pointCross(p1, p2)) / lengthSquared(p1);
@@ -135,10 +127,10 @@ bool collidesSphereSphere(const ModelPoint& c1, coord_t r1,
 bool collidesLineTri(const ModelPoint& l1, const ModelPoint& l2,
                      const ModelPoint& t1, const ModelPoint& t2,
                      const ModelPoint& t3) {
-    ModelPoint a = pointSub(l1, t1);
-    ModelPoint b = pointSub(l2, t1);
-    ModelPoint x = pointSub(t2, t1);
-    ModelPoint y = pointSub(t3, t1);
+    ModelPoint a = l1 - t1;
+    ModelPoint b = l2 - t1;
+    ModelPoint x = t2 - t1;
+    ModelPoint y = t3 - t1;
     ModelPoint z = pointCross(x, y);
 
     coord_t c1 = pointDot(a, z);

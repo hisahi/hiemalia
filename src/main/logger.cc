@@ -8,10 +8,10 @@
 
 #include "logger.hh"
 
-#include <ctime>
 #include <iomanip>
 
 #include "defs.hh"
+#include "secure.hh"
 
 namespace hiemalia {
 Logger logger{};
@@ -22,7 +22,7 @@ constexpr const char iso8601[] = "%FT%T%z";
 void Logger::log_(LogLevel level, const char *file, size_t line,
                   const std::string &s) {
     std::time_t t_now = std::time(nullptr);
-    std::tm tm_now = *std::localtime(&t_now);
+    std::tm tm_now = *s_localtime(&t_now);
     for (auto &handler : handlers_)
         handler->handle(level, tm_now, file, line, s);
 }

@@ -6,16 +6,17 @@
 /****************************************************************************/
 // base/sdl2/ibasei.cc: implementation of InputModuleSDL2
 
+#include "base/sdl2/ibasei.hh"
+
 #include <algorithm>
 
 #include "base/sdl2.hh"
 #include "base/sdl2/hbasei.hh"
-#include "base/sdl2/ibasei.hh"
 #include "logger.hh"
 
 namespace hiemalia {
 InputModuleSDL2::InputModuleSDL2(std::shared_ptr<HostModule> host)
-    : host_(std::move(std::dynamic_pointer_cast<HostModuleSDL2>(host))),
+    : host_(std::dynamic_pointer_cast<HostModuleSDL2>(host)),
       devices_(inputDevices.size()) {
     dynamic_assert(host_ != nullptr, "must be HostModuleSDL2!!!");
     if (SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER))

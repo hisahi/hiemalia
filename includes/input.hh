@@ -26,7 +26,7 @@ class InputEngine : public Module {
 
     InputEngine(InputEngine&& move) noexcept
         : Module(std::move(move)),
-          controlsmenu_(std::move(controlsmenu_)),
+          controlsmenu_(std::move(move.controlsmenu_)),
           input_(std::move(move.input_)) {}
     InputEngine& operator=(InputEngine&& move) noexcept {
         Module::operator=(std::move(move));

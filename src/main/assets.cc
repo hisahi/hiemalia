@@ -23,14 +23,13 @@ static GameAssets assets;
 const GameAssets& getAssets() {
     if (!assets_loaded) {
         assets_loaded = true;
-        assets.menuFont =
-            std::make_shared<Font>(std::move(loadFont("font.2d")));
+        assets.menuFont = std::make_shared<Font>(loadFont("font.2d"));
         assets.gameFont = assets.menuFont;
         assets.sectionData.insert(assets.sectionData.begin(),
                                   getSectionCount() + 1, nullptr);
         for (auto& it : sectionMap)
             assets.sectionData[static_cast<int>(it.second)] =
-                std::make_shared<GameSection>(std::move(loadSection(it.first)));
+                std::make_shared<GameSection>(loadSection(it.first));
     }
     return assets;
 }
@@ -41,8 +40,8 @@ std::shared_ptr<const Model> getGameModel(GameModel model) {
         assets.gameModels.insert(assets.gameModels.end(),
                                  assets.gameModels.size() - index + 1, nullptr);
     if (!assets.gameModels[index]) {
-        assets.gameModels[index] = std::make_shared<Model>(
-            std::move(load3D("models", modelFileNames[index])));
+        assets.gameModels[index] =
+            std::make_shared<Model>(load3D("models", modelFileNames[index]));
     }
     return assets.gameModels[index];
 }

@@ -74,8 +74,9 @@ class AudioModuleNull : public AudioModule {
     explicit AudioModuleNull(std::shared_ptr<HostModule> host) {}
     AudioModuleNull(const AudioModuleNull& copy) = delete;
     AudioModuleNull& operator=(const AudioModuleNull& copy) = delete;
-    AudioModuleNull(AudioModuleNull&& move) : AudioModule(std::move(move)) {}
-    AudioModuleNull& operator=(AudioModuleNull&& move) {
+    AudioModuleNull(AudioModuleNull&& move) noexcept
+        : AudioModule(std::move(move)) {}
+    AudioModuleNull& operator=(AudioModuleNull&& move) noexcept {
         AudioModule::operator=(std::move(move));
         return *this;
     }

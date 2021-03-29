@@ -51,7 +51,7 @@ struct MenuMessage {
 enum class MenuOptionType { Spacer, Button, Text, Select, Input };
 
 struct MenuOptionSelect {
-    int index;
+    int index{0};
     std::vector<std::string> options;
 };
 
@@ -152,9 +152,7 @@ class MenuHandler : public LogicModule, MessageHandler<MenuMessage> {
     MenuHandler();
     ~MenuHandler() noexcept {}
 
-    void openMenu(const std::shared_ptr<Menu>& menu) {
-        menus_.push(std::move(menu));
-    }
+    void openMenu(const std::shared_ptr<Menu>& menu) { menus_.push(menu); }
 
     template <typename T, typename... Ts>
     void newMenu(Ts&&... args) {

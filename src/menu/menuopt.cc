@@ -47,7 +47,7 @@ MenuOptions::MenuOptions(MenuOptions&& move) noexcept
 
 MenuOptions& MenuOptions::operator=(MenuOptions&& move) noexcept {
     Menu::operator=(std::move(move));
-    holder_ = std::move(holder_);
+    holder_ = std::move(move.holder_);
     return *this;
 }
 
@@ -55,6 +55,6 @@ MenuOptions::MenuOptions(MenuHandler& handler,
                          const std::shared_ptr<ModuleHolder>& holder)
     : Menu(handler), holder_(holder) {}
 
-MenuOptions::~MenuOptions() {}
+MenuOptions::~MenuOptions() noexcept {}
 
 }  // namespace hiemalia

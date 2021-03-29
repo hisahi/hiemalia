@@ -25,7 +25,7 @@ struct Font {
           width(width),
           height(height),
           minChar(minChar),
-          maxChar(minChar + shapes.count()) {}
+          maxChar(static_cast<char>(minChar + shapes.count())) {}
 };
 }  // namespace hiemalia
 

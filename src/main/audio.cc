@@ -25,7 +25,7 @@ void AudioConfig::save(ConfigSectionStore store) const {
 }
 
 AudioEngine::AudioEngine(std::shared_ptr<HostModule> host, GameState& state)
-    : audio_(std::move(getAudioModule(std::move(host)))),
+    : audio_(getAudioModule(host)),
       config_(state.config.section<AudioConfig>()) {}
 
 void AudioEngine::load() {
@@ -48,6 +48,9 @@ void AudioEngine::load() {
 
 static int getLoopCount(MusicTrack track) {
     switch (track) {
+        case MusicTrack::StageStart:
+        case MusicTrack::GameOver:
+            return 1;
         default:
             return 0;
     }

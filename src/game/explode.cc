@@ -85,7 +85,7 @@ Explosion::Explosion(const GameObject& o, coord_t xm, coord_t ym, coord_t zm)
 }
 
 bool Explosion::update(GameWorld& w, float delta) {
-    alpha -= delta * 0.4;
+    alpha -= delta * 0.4f;
     coord_t mul = std::pow(0.5, 1.0 / delta);
     for (ExplosionShard& shard : shards) {
         shard.pos += shard.dpos * delta;

@@ -13,7 +13,7 @@
 
 namespace hiemalia {
 VideoEngine::VideoEngine(std::shared_ptr<HostModule> host, GameState& state)
-    : video_(std::move(getVideoModule(std::move(host)))) {}
+    : video_(getVideoModule(host)) {}
 
 void VideoEngine::gotMessage(const VideoMessage& msg) {}
 
