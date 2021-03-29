@@ -11,6 +11,7 @@
 #include "assets.hh"
 #include "hiemalia.hh"
 #include "logic.hh"
+#include "math.hh"
 
 namespace hiemalia {
 
@@ -52,10 +53,20 @@ static void drawScore(SplinterBuffer& sbuf, RendererText& font, coord_t x,
     font.renderTextLine(sbuf, x - font.getTextWidth(s) / 2, y, white, s);
 }
 
+static void drawLives(SplinterBuffer& sbuf, RendererText& font, coord_t x,
+                      coord_t y, unsigned lives) {
+    std::string s = std::to_string(lives);
+    s.insert(s.begin(), 2 - s.size(), ' ');
+    font.renderTextLine(sbuf, x - font.charWidth() * 4, y, white, "LIVES");
+    font.renderTextLine(sbuf, x + font.charWidth() * 2, y, white, "*");
+    font.renderTextLine(sbuf, x + font.charWidth() * 3, y, white, s);
+}
+
 void GameMain::drawStatusBar() {
     statusbar_.clear();
     drawScore(statusbar_, font_, -0.5, -0.9375, world_->score);
     drawScore(statusbar_, font_, 0.5, -0.9375, world_->highScore);
+    drawLives(statusbar_, font_, -0.5, 0.9375, world_->lives);
 }
 
 void GameMain::positionCamera() {}
@@ -88,9 +99,14 @@ void GameMain::gotMessage(const GameMessage& msg) {
             shouldBePaused_ = false;
             break;
         case GameMessageType::ExitGame:
-            continue_ = false;
+            doExitGame();
             break;
     }
+}
+
+void GameMain::doExitGame() {
+    continue_ = false;
+    sendMessage(HostMessage::mainMenu());
 }
 
 void GameMain::gotMessage(const MenuMessage& msg) {
@@ -124,11 +140,22 @@ coord_t moveSpeed{0.5};
 bool GameMain::run(GameState& state, float interval) {
     static constexpr coord_t Y = 0.875;
     static const Rotation3D c_rot = Rotation3D(0, 0, 0);
+    static const Rotation3D c_trot = Rotation3D(
+        radians<coord_t>(-60), radians<coord_t>(30), radians<coord_t>(-30));
     static const ModelPoint c_scale = ModelPoint(0.25, 0.25, 0.25);
     if (!continue_) return false;
+    if (gameOver_) {
+        state.sbuf.append(statusbar_);
+        timer -= interval;
+        if (timer > 0) return true;
+        doExitGame();
+        return false;
+    }
 
-    if (world_->nextStage) {
-        world_->nextStage = false;
+    GameWorld& w = *world_;
+
+    if (w.nextStage) {
+        w.nextStage = false;
         startNewStage();
         drawStatusBar();
     }
@@ -136,30 +163,42 @@ bool GameMain::run(GameState& state, float interval) {
     paused_ = shouldBePaused_;
     if (!paused_ && state.controls.pause) pauseGame();
     if (!paused_) {
-        auto& plr = world_->player;
         state.sbuf.push(Splinter(SplinterType::BeginClipCenter, -Y, +Y));
-        plr->updateInput(state.controls);
-        updateMoveSpeedInput(state.controls, interval);
-        world_->moveForward(interval * moveSpeed);
-        world_->drawStage(state.sbuf, r3d_);
-        bool playerAlive = plr->update(*world_, interval);
-        ModelPoint p = plr->pos;
-        if (firstPerson) {  // first person view
-            r3d_.setCamera(ModelPoint(p.x, p.y - 0.01171875, p.z - 0.03515625),
-                           plr->rot, c_scale);
-            // crosshair
-            state.sbuf.push(Splinter(SplinterType::BeginShape, -0.03125,
-                                     -0.03125, Color{255, 255, 0, 160}));
-            state.sbuf.push(
-                Splinter(SplinterType::EndShapePoint, 0.03125, 0.03125));
-            state.sbuf.push(Splinter(SplinterType::BeginShape, 0.03125,
-                                     -0.03125, Color{255, 255, 0, 160}));
-            state.sbuf.push(
-                Splinter(SplinterType::EndShapePoint, -0.03125, 0.03125));
-        } else  // third person view
-            r3d_.setCamera(ModelPoint(p.x, p.y, -0.25 + world_->progress_f),
-                           c_rot, c_scale);
-        auto& obj = world_->objects;
+        if (w.isPlayerAlive()) {
+            auto& plr = w.player;
+            plr->updateInput(state.controls);
+            updateMoveSpeedInput(state.controls, interval);
+            w.moveSpeed = moveSpeed;
+            w.moveForward(interval * w.moveSpeed);
+        } else {
+            moveSpeed = defaultMoveSpeed;
+        }
+        bool playerAlive = w.runPlayer(interval);
+        const ModelPoint& p = w.getPlayerPosition();
+        w.drawStage(state.sbuf, r3d_);
+        if (w.isPlayerAlive()) {
+            auto& plr = w.player;
+            if (firstPerson) {  // first person view
+                r3d_.setCamera(
+                    ModelPoint(p.x, p.y - 0.01171875, p.z - 0.03515625),
+                    plr->rot, c_scale);
+                // crosshair
+                state.sbuf.push(Splinter(SplinterType::BeginShape, -0.03125,
+                                         -0.03125, Color{255, 255, 0, 160}));
+                state.sbuf.push(
+                    Splinter(SplinterType::EndShapePoint, 0.03125, 0.03125));
+                state.sbuf.push(Splinter(SplinterType::BeginShape, 0.03125,
+                                         -0.03125, Color{255, 255, 0, 160}));
+                state.sbuf.push(
+                    Splinter(SplinterType::EndShapePoint, -0.03125, 0.03125));
+            } else  // third person view
+                r3d_.setCamera(ModelPoint(p.x, p.y, -0.25 + w.progress_f),
+                               c_rot, c_scale);
+        } else {
+            r3d_.setCamera(ModelPoint(p.x + 0.25, p.y - 0.25, p.z - 0.25),
+                           c_trot, c_scale);
+        }
+        auto& obj = w.objects;
         auto it = obj.begin();
         while (it != obj.end()) {
             if ((*it)->update(*world_, interval)) {
@@ -170,9 +209,15 @@ bool GameMain::run(GameState& state, float interval) {
             }
         }
         if (playerAlive) {
-            plr->render(state.sbuf, r3d_);
-        } else {
-            // TODO: respawn
+            w.renderPlayer(state.sbuf, r3d_);
+        } else if (!w.respawn()) {
+            // game over
+            gameOver_ = true;
+            timer = 5;
+            std::string s = "GAME OVER";
+            font_.setScale(font_.scaleX() * 2, font_.scaleY() * 2);
+            font_.renderTextLine(statusbar_, -font_.getTextWidth(s) / 2, 0,
+                                 white, s);
         }
         state.sbuf.push(Splinter(SplinterType::EndClip, 0, 0));
     }

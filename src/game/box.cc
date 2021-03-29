@@ -8,6 +8,8 @@
 
 #include "game/box.hh"
 
+#include <cmath>
+
 #include "assets.hh"
 #include "collide.hh"
 #include "game/world.hh"
@@ -22,8 +24,19 @@ Box::Box() : GameObject() {
 bool Box::update(GameWorld& w, float delta) {
     pmin = pos - scale;
     pmax = pos + scale;
-    if (w.getPlayer().collideCuboid(pmin, pmax)) {
-        LOG_TRACE("hi");
+    if (w.isPlayerAlive() && w.getPlayer().collideCuboid(pmin, pmax)) {
+        const ModelPoint& ppos = w.getPlayer().pos;
+        coord_t dx = (ppos.x - pos.x) * scale.x;
+        coord_t dy = (ppos.y - pos.y) * scale.y;
+        coord_t dz = (ppos.z - pos.z) * scale.z;
+        if (std::abs(dz) >= std::abs(dx) && std::abs(dz) >= std::abs(dy))
+            dx = dy = 0;
+        else if (std::abs(dx) >= std::abs(dy) && std::abs(dx) >= std::abs(dz))
+            dy = dz = 0;
+        else if (std::abs(dy) >= std::abs(dx) && std::abs(dy) >= std::abs(dz))
+            dx = dz = 0;
+        w.getPlayer().damage(10, ModelPoint::average(ppos, pos));
+        // w.getPlayer().wallContact(dx, dy, dz);
     }
     return !isOffScreen();
 }

@@ -26,9 +26,36 @@ struct Rotation3D {
 
     Rotation3D(coord_t yaw, coord_t pitch, coord_t roll)
         : yaw(yaw), pitch(pitch), roll(roll) {}
-};
 
-struct Matrix3D;
+    inline Rotation3D& operator+=(const Rotation3D& r) {
+        yaw += r.yaw;
+        pitch += r.pitch;
+        roll += r.roll;
+        return *this;
+    }
+    inline Rotation3D& operator-=(const Rotation3D& r) {
+        yaw -= r.yaw;
+        pitch -= r.pitch;
+        roll -= r.roll;
+        return *this;
+    }
+    inline Rotation3D& operator*=(const coord_t& f) {
+        yaw *= f;
+        pitch *= f;
+        roll *= f;
+        return *this;
+    }
+
+    friend inline Rotation3D operator+(Rotation3D a, const Rotation3D& b) {
+        return a += b;
+    }
+    friend inline Rotation3D operator-(Rotation3D a, const Rotation3D& b) {
+        return a -= b;
+    }
+    friend inline Rotation3D operator*(Rotation3D a, const coord_t& f) {
+        return a *= f;
+    }
+};
 
 struct Vector3D {
     coord_t x;
@@ -79,8 +106,6 @@ struct Vector3D {
                         wf * a.x * b.z - wf * a.z * b.x,
                         wf * a.x * b.y - wf * a.y * b.x, 1);
     }
-
-    Vector3D project(const Matrix3D& m);
 };
 
 struct Matrix3D {
@@ -207,6 +232,9 @@ struct Matrix3D {
         r[15] = a[12] * b[3] + a[13] * b[7] + a[14] * b[11] + a[15] * b[15];
         return r;
     }
+
+    ModelPoint project(const ModelPoint& p);
+    Vector3D project(const Vector3D& v);
 };
 
 #if !NDEBUG
@@ -215,7 +243,7 @@ std::string printMatrix(const Matrix3D& m);  // test.cc
 
 class Renderer3D {
    public:
-    Matrix3D getModelMatrix(ModelPoint p, Rotation3D r, ModelPoint s) const;
+    static Matrix3D getModelMatrix(ModelPoint p, Rotation3D r, ModelPoint s);
     void renderModel(SplinterBuffer& buf, ModelPoint p, Rotation3D r,
                      ModelPoint s, const Model& m);
     void setCamera(ModelPoint pos, Rotation3D rot, ModelPoint scale);

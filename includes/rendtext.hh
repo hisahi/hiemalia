@@ -31,6 +31,7 @@ class RendererText : private Renderer2D {
     inline void setFont(const std::shared_ptr<Font>& font) { font_ = font; }
     inline coord_t scaleX() const { return scalex_; }
     inline coord_t scaleY() const { return scaley_; }
+    inline coord_t charWidth() const { return scalex_ * font_->width; }
     inline coord_t lineHeight() const { return scaley_ * font_->height; }
     void setScale(coord_t scalex, coord_t scaley);
 

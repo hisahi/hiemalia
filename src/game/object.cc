@@ -18,8 +18,11 @@ void GameObject::move(coord_t x, coord_t y, coord_t z) {
     pos += ModelPoint(x, y, z);
 }
 
-void GameObject::render(SplinterBuffer& sbuf, Renderer3D& r3d) const {
-    r3d.renderModel(sbuf, pos, rot, scale, *model);
+void GameObject::render(SplinterBuffer& sbuf, Renderer3D& r3d) {
+    if (model == nullptr)
+        renderSpecial(sbuf, r3d);
+    else
+        r3d.renderModel(sbuf, pos, rot, scale, *model);
 }
 
 void GameObject::setCollisionRadius(coord_t r) { collideRadiusSquared = r * r; }
@@ -44,10 +47,10 @@ bool GameObject::isOffScreen() const {
     return pos.z < 0 && pos.z * pos.z > collideRadiusSquared;
 }
 
-bool ObjectDamageable::damage(float damage) {
+bool ObjectDamageable::damage(float damage, const ModelPoint& pointOfContact) {
     bool dead = damage >= health;
     health -= damage;
-    onDamage(damage);
+    onDamage(damage, pointOfContact);
     if (dead) onDeath();
     return dead;
 }

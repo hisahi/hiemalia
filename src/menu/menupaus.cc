@@ -39,7 +39,6 @@ void MenuPause::end(GameState& state) {
         sendMessage(GameMessage::continueGame());
     } else {
         sendMessage(GameMessage::exitGame());
-        sendMessage(HostMessage::mainMenu());
     }
 }
 

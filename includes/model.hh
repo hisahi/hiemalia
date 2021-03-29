@@ -52,6 +52,11 @@ struct ModelPoint {
     friend inline ModelPoint operator*(ModelPoint a, const coord_t& f) {
         return a *= f;
     }
+
+    inline static ModelPoint average(const ModelPoint& a, const ModelPoint& b) {
+        return ModelPoint(0.5 * (a.x + b.x), 0.5 * (a.y + b.y),
+                          0.5 * (a.z + b.z));
+    }
 };
 
 struct ModelFragment {

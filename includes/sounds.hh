@@ -23,12 +23,21 @@ enum class MusicTrack {
     GameOver,
     HighScore
 };
-enum class SoundEffect { MenuSelect, MenuChange, Pause, EndOfSounds };
+enum class SoundEffect {
+    MenuSelect,
+    MenuChange,
+    Pause,
+    PlayerExplode,
+    PlayerHit,
+    EndOfSounds
+};
 
 inline auto soundEffectNames = hiemalia::to_array<NamePair<SoundEffect>>({
     {"mselect.wav", SoundEffect::MenuSelect},
     {"mmove.wav", SoundEffect::MenuChange},
     {"pause.wav", SoundEffect::Pause},
+    {"explode.wav", SoundEffect::PlayerExplode},
+    {"hit.wav", SoundEffect::PlayerHit},
 });
 
 };  // namespace hiemalia

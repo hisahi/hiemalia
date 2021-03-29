@@ -25,9 +25,10 @@ class GameObject {
 
     virtual void onSpawn(GameWorld& w) {}
     virtual bool update(GameWorld& w, float delta) { return false; }
+    virtual void renderSpecial(SplinterBuffer& sbuf, Renderer3D& r3d) {}
     void move(const ModelPoint& p);
     void move(coord_t x, coord_t y, coord_t z);
-    void render(SplinterBuffer& sbuf, Renderer3D& r3d) const;
+    void render(SplinterBuffer& sbuf, Renderer3D& r3d);
     void setCollisionRadius(coord_t r);
     bool collideLine(const ModelPoint& p1, const ModelPoint& p2) const;
     bool collideCuboid(const ModelPoint& c1, const ModelPoint& c2) const;
@@ -51,11 +52,11 @@ class GameObject {
 
 struct ObjectDamageable {
    public:
-    bool damage(float damage);
+    bool damage(float damage, const ModelPoint& pointOfContact);
 
    protected:
     float health{1};
-    virtual void onDamage(float damage) = 0;
+    virtual void onDamage(float damage, const ModelPoint& pointOfContact) = 0;
     virtual void onDeath() = 0;
 };
 };  // namespace hiemalia

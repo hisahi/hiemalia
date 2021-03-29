@@ -40,4 +40,8 @@ void dynamic_assert_(const std::string &file, unsigned line, bool condition,
     hiemalia::dynamic_assert_(__FILE__, __LINE__, cond, msg)
 #endif
 
+#if !NDEBUG
+#include "debugger.hh"
+#endif
+
 #endif  // M_DEFS_HH

@@ -77,16 +77,22 @@ ModelPoint Vector3D::toCartesian() const {
     return ModelPoint(x * wf, y * wf, z * wf);
 }
 
-Vector3D Vector3D::project(const Matrix3D& m) {
+ModelPoint Matrix3D::project(const ModelPoint& p) {
+    coord_t x = p.x, y = p.y, z = p.z;
+    return ModelPoint(x * m[0] + y * m[1] + z * m[2],
+                      x * m[4] + y * m[5] + z * m[6],
+                      x * m[8] + y * m[9] + z * m[10]);
+}
+
+Vector3D Matrix3D::project(const Vector3D& v) {
+    coord_t x = v.x, y = v.y, z = v.z, w = v.w;
     return Vector3D(x * m[0] + y * m[1] + z * m[2] + w * m[3],
                     x * m[4] + y * m[5] + z * m[6] + w * m[7],
                     x * m[8] + y * m[9] + z * m[10] + w * m[11],
                     x * m[12] + y * m[13] + z * m[14] + w * m[15]);
 }
 
-Matrix3D Renderer3D::getModelMatrix(ModelPoint p, Rotation3D r,
-                                    ModelPoint s) const {
-    /*Matrix3D wrld = view;*/
+Matrix3D Renderer3D::getModelMatrix(ModelPoint p, Rotation3D r, ModelPoint s) {
     Matrix3D wrld = Matrix3D::translate(p);
     wrld *= Matrix3D::rotate(r);
     wrld *= Matrix3D::scale(s);
@@ -121,7 +127,7 @@ void Renderer3D::renderModel(SplinterBuffer& buf, ModelPoint p, Rotation3D r,
     Matrix3D wrld = view * getModelMatrix(p, r, s);
     points_.clear();
     for (const ModelPoint& p : m.vertices)
-        points_.emplace_back<Vector3D>(Vector3D(p).project(wrld));
+        points_.emplace_back<Vector3D>(wrld.project(Vector3D(p)));
     for (const ModelFragment& part : m.shapes) renderModelFragment(buf, part);
 }
 

@@ -10,29 +10,38 @@
 #define M_GAME_PLAYER_HH
 
 #include "controls.hh"
+#include "game/explode.hh"
 #include "game/object.hh"
 #include "game/stage.hh"
 #include "model.hh"
 
 namespace hiemalia {
-class PlayerObject : public GameObject, ObjectDamageable {
+class PlayerObject : public GameObject, public ObjectDamageable {
    public:
     PlayerObject();
     void updateInput(ControlState& controls);
     bool update(GameWorld& w, float delta);
+    bool shouldCatchCheckpoints() const;
+    void wallContact(coord_t x, coord_t y, coord_t z);
 
    private:
     ControlState inputs;
     ModelPoint vel{0, 0, 0};
-    void onDamage(float dmg);
+    std::unique_ptr<Explosion> explodeObject;
+    bool woundedBird{false};
+    coord_t wbird_mul{0};
+    coord_t wbird_fr{0};
+    Rotation3D wbird_vel{0, 0, 0};
+
+    void onDamage(float dmg, const ModelPoint& pointOfContact);
     void onDeath();
     bool collideLineInternal(const ModelPoint& p1, const ModelPoint& p2) const;
     bool collideCuboidInternal(const ModelPoint& c1,
                                const ModelPoint& c2) const;
     bool collideSphereInternal(const ModelPoint& p, coord_t r2) const;
-
+    void doWoundedBird(float delta);
     void inputsVelocity(float delta);
-    void inputsAngles(const MoveRegion& r, float delta);
+    void inputsAngles(float delta);
     void checkBounds(const MoveRegion& r, GameWorld& w);
 };
 };  // namespace hiemalia
