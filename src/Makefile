@@ -11,8 +11,8 @@ ABACKEND=sdl2
 
 # main makefile
 
-CXX=clang++
-LD=clang++
+CXX ?= g++
+LD := $(CXX)
 RM=rm -f
 CXXFLAGS=-std=c++17 -g3 -O0 -Wall -Werror -MMD -MP
 LDFLAGS=
