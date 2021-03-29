@@ -14,7 +14,8 @@
 namespace hiemalia {
 namespace numbers {
 inline const double PI = 3.14159265358979323846264338327950288419716939937510;
-}
+inline const double TAU = 2 * PI;
+}  // namespace numbers
 
 template <typename T>
 constexpr T radians(T degrees) {
@@ -41,6 +42,11 @@ Ti floatToWholeFrac(Tf& x) {
     Ti i = static_cast<Ti>(std::floor(x));
     x -= i;
     return i;
+}
+
+template <typename T>
+constexpr T wrapAngle(T x) {
+    return std::fmod(x, numbers::TAU);
 }
 };  // namespace hiemalia
 

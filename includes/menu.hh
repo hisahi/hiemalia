@@ -184,6 +184,7 @@ class Menu {
     void option(MenuOption&& option) { options_.push_back(std::move(option)); }
     void gotMenuMessage(const MenuMessage& msg);
     void runMenu(GameState& state, float interval);
+    virtual void specialRender(SplinterBuffer& sbuf, float interval) {}
 
     DELETE_COPY(Menu);
     Menu(Menu&& move) noexcept;

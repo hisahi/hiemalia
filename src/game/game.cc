@@ -27,7 +27,9 @@ GameMain::GameMain(GameMain&& move) noexcept
       r2d_(std::move(move.r2d_)),
       r3d_(std::move(move.r3d_)),
       font_(std::move(move.font_)),
-      statusbar_(std::move(move.statusbar_)) {}
+      statusbar_(std::move(move.statusbar_)),
+      moveSpeed(move.moveSpeed),
+      timer(move.timer) {}
 
 GameMain& GameMain::operator=(GameMain&& move) noexcept {
     LogicModule::operator=(std::move(move));
@@ -42,6 +44,7 @@ GameMain& GameMain::operator=(GameMain&& move) noexcept {
 GameMain::GameMain() : world_(std::make_unique<GameWorld>()) {
     font_.setFont(getAssets().menuFont);
     moveSpeed = defaultMoveSpeed;
+    timer = 0;
 }
 
 GameMain::~GameMain() noexcept {}

@@ -9,11 +9,13 @@
 #ifndef M_MENUMAIN_HH
 #define M_MENUMAIN_HH
 
+#include <array>
 #include <string>
 
 #include "defs.hh"
 #include "menu.hh"
 #include "mholder.hh"
+#include "rend3d.hh"
 #include "symbol.hh"
 
 namespace hiemalia {
@@ -25,6 +27,7 @@ class MenuMain : public Menu {
     void begin(GameState& state);
     void select(int index, symbol_t id);
     void end(GameState& state);
+    void specialRender(SplinterBuffer& sbuf, float interval);
 
     DELETE_COPY(MenuMain);
     MenuMain(MenuMain&& move) noexcept;
@@ -35,6 +38,12 @@ class MenuMain : public Menu {
    private:
     static inline const std::string name_ = "MenuMain";
     std::shared_ptr<ModuleHolder> holder_;
+    std::shared_ptr<const Model> tube_;
+    Renderer2D rend2_;
+    Renderer3D rend_;
+    coord_t angle_{0};
+    std::array<coord_t, 512> rots_;
+    ShapeSheet logoSheet;
 };
 };  // namespace hiemalia
 

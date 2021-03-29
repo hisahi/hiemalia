@@ -201,6 +201,7 @@ void Menu::runMenu(GameState& state, float interval) {
                              menuTitleColor, t);
     }
 
+    specialRender(state.sbuf, interval);
     coord_t x1 = -0.75;
     coord_t x2 = 0.75;
     coord_t y = (-font_.lineHeight() * (options_.size() - 1)) / 2;

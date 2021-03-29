@@ -8,9 +8,12 @@
 
 #include "menumain.hh"
 
+#include "assets.hh"
 #include "defs.hh"
 #include "hiemalia.hh"
+#include "load2d.hh"
 #include "logic.hh"
+#include "math.hh"
 #include "menuopt.hh"
 
 namespace hiemalia {
@@ -24,6 +27,10 @@ enum Item : symbol_t {
 };
 
 void MenuMain::begin(GameState& state) {
+    option(MenuOption::spacer(symbol_none));
+    option(MenuOption::spacer(symbol_none));
+    option(MenuOption::spacer(symbol_none));
+    option(MenuOption::spacer(symbol_none));
     option(MenuOption::button(Item_Game, "GAME"));
     option(MenuOption::button(Item_Options, "OPTIONS"));
     option(MenuOption::button(Item_Scores, "HIGH SCORES"));
@@ -52,21 +59,51 @@ void MenuMain::select(int index, symbol_t id) {
 
 void MenuMain::end(GameState& state) {}
 
-MenuMain::MenuMain(MenuMain&& move) noexcept
-    : Menu(std::move(move)), holder_(std::move(move.holder_)) {}
+static const coord_t z_off = 0.125;
 
-MenuMain& MenuMain::operator=(MenuMain&& move) noexcept {
-    Menu::operator=(std::move(move));
-    holder_ = std::move(move.holder_);
-    return *this;
+void MenuMain::specialRender(SplinterBuffer& sbuf, float interval) {
+    std::copy_backward(rots_.begin(), rots_.end() - 1, rots_.end());
+    rots_[0] = wrapAngle(rots_[0] + (0.05 + 0.3 * std::sin(angle_)) * interval);
+    angle_ = wrapAngle(angle_ + interval * 0.25);
+    coord_t z = 0;
+    ModelPoint scale(1, 1, 1);
+    for (size_t i = 0; i < (rots_.size() >> 3); ++i) {
+        rend_.renderModel(sbuf, ModelPoint(0, 0, z),
+                          Rotation3D(0, 0, rots_[i << 3]), scale, *tube_);
+        z += z_off;
+    }
+    rend2_.renderShapeColor(
+        sbuf, 0, -0.5,
+        Color{255, 255, 255,
+              static_cast<std::uint8_t>(192 + 60 * std::sin(angle_))},
+        logoSheet[0]);
 }
 
 MenuMain::MenuMain(MenuHandler& handler,
                    const std::shared_ptr<ModuleHolder>& holder)
     : Menu(handler), holder_(holder) {
     makeUncloseable();
+    tube_ = getGameModel(GameModel::TitleCubeModel);
+    rend_.setCamera(ModelPoint(0, 0, 0), Rotation3D(0, 0, 0),
+                    ModelPoint(0.25, 0.25, 0.25));
+    for (size_t i = 0; i < rots_.size(); ++i) {
+        rots_[i] = i * (numbers::PI / 2048);
+    }
+    logoSheet = load2D("logo.2d");
 }
 
 MenuMain::~MenuMain() noexcept {}
+
+MenuMain::MenuMain(MenuMain&& move) noexcept
+    : Menu(std::move(move)),
+      holder_(std::move(move.holder_)),
+      tube_(std::move(move.tube_)) {}
+
+MenuMain& MenuMain::operator=(MenuMain&& move) noexcept {
+    Menu::operator=(std::move(move));
+    holder_ = std::move(move.holder_);
+    tube_ = std::move(move.tube_);
+    return *this;
+}
 
 }  // namespace hiemalia

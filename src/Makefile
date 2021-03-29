@@ -14,9 +14,10 @@ ABACKEND=sdl2
 CXX ?= g++
 LD := $(CXX)
 RM=rm -f
+
 CXXFLAGS=-std=c++17 -g3 -O0 -Wall -Werror -MMD -MP
 LDFLAGS=
-LDLIBS=
+LDLIBS=-lm
 OBJS=
 SUBDIRS=base render main menu game
 

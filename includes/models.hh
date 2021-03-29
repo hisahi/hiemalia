@@ -18,12 +18,13 @@ namespace hiemalia {
 enum class GameModel {
     PlayerShip,
     BoxModel,
+    TitleCubeModel,
 
     EndOfModels
 };
 
 inline auto modelFileNames = hiemalia::to_array<std::string>({
-    "ship.3d", "box.3d",
+    "ship.3d", "box.3d", "tcube.3d",
     // more
 });
 };  // namespace hiemalia

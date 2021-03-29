@@ -36,9 +36,9 @@ const GameAssets& getAssets() {
 
 std::shared_ptr<const Model> getGameModel(GameModel model) {
     int index = static_cast<int>(model);
-    if (index <= static_cast<int>(assets.gameModels.size()))
+    if (index >= static_cast<int>(assets.gameModels.size()))
         assets.gameModels.insert(assets.gameModels.end(),
-                                 assets.gameModels.size() - index + 1, nullptr);
+                                 index - assets.gameModels.size() + 1, nullptr);
     if (!assets.gameModels[index]) {
         assets.gameModels[index] =
             std::make_shared<Model>(load3D("models", modelFileNames[index]));
