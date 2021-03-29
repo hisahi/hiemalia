@@ -4,7 +4,7 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// base/sdl2/ibase.cc: implementation of InputModuleSDL2
+// base/sdl2/ibasei.cc: implementation of InputModuleSDL2
 
 #include <algorithm>
 

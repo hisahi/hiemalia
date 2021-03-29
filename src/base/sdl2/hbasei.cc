@@ -4,7 +4,7 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// base/sdl2/hbase.cc: implementation of HostModuleSDL2
+// base/sdl2/hbasei.cc: implementation of HostModuleSDL2
 
 #include <algorithm>
 

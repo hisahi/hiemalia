@@ -4,6 +4,7 @@ hiemalia.cfg
 *.d
 
 .vscode/
+libs/
 
 
 # FROM https://github.com/github/gitignore/blob/master/VisualStudio.gitignore

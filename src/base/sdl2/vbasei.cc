@@ -4,7 +4,7 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// base/sdl2/vbase.cc: implementation of base graphics library on SDL2
+// base/sdl2/vbasei.cc: implementation of base graphics library on SDL2
 
 #include <algorithm>
 
