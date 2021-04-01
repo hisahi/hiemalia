@@ -56,6 +56,15 @@ static int getLoopCount(MusicTrack track) {
     }
 }
 
+static int getSoundChannel(SoundEffect sfx) {
+    switch (sfx) {
+        case SoundEffect::PlayerFire:
+            return 1;
+        default:
+            return channelAny;
+    }
+}
+
 void AudioEngine::tick() {}
 
 void AudioEngine::gotMessage(const AudioMessage& msg) {
@@ -64,7 +73,9 @@ void AudioEngine::gotMessage(const AudioMessage& msg) {
             if (!config_->sound) return;
             const AudioMessageSoundEffect& e = msg.getSound();
             sound_t s = getAssets().sounds.at(static_cast<size_t>(e.sound));
-            if (s != -1) audio_->playSound(s, e.volume, e.pan, 1, channelAny);
+            if (s != -1)
+                audio_->playSound(s, e.volume, e.pan, 1,
+                                  getSoundChannel(e.sound));
             break;
         }
         case AudioMessageType::StopSounds:
@@ -79,6 +90,9 @@ void AudioEngine::gotMessage(const AudioMessage& msg) {
                 audio_->playMusic(tracks[i], getLoopCount(m));
             break;
         }
+        case AudioMessageType::FadeOutMusic:
+            audio_->fadeOutMusic();
+            break;
         case AudioMessageType::StopMusic:
             audio_->stopMusic();
             break;

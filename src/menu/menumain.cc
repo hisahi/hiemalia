@@ -61,10 +61,14 @@ void MenuMain::end(GameState& state) {}
 
 static const coord_t z_off = 0.125;
 
-void MenuMain::specialRender(SplinterBuffer& sbuf, float interval) {
+void MenuMain::progress(float interval) {
     std::copy_backward(rots_.begin(), rots_.end() - 1, rots_.end());
     rots_[0] = wrapAngle(rots_[0] + (0.05 + 0.3 * std::sin(angle_)) * interval);
     angle_ = wrapAngle(angle_ + interval * 0.25);
+}
+
+void MenuMain::specialRender(SplinterBuffer& sbuf, float interval) {
+    progress(interval);
     coord_t z = 0;
     ModelPoint scale(1, 1, 1);
     for (size_t i = 0; i < (rots_.size() >> 3); ++i) {
@@ -87,7 +91,7 @@ MenuMain::MenuMain(MenuHandler& handler,
     rend_.setCamera(ModelPoint(0, 0, 0), Rotation3D(0, 0, 0),
                     ModelPoint(0.25, 0.25, 0.25));
     for (size_t i = 0; i < rots_.size(); ++i) {
-        rots_[i] = i * (numbers::PI / 2048);
+        progress(tickInterval);
     }
     logoSheet = load2D("logo.2d");
 }
@@ -97,12 +101,14 @@ MenuMain::~MenuMain() noexcept {}
 MenuMain::MenuMain(MenuMain&& move) noexcept
     : Menu(std::move(move)),
       holder_(std::move(move.holder_)),
-      tube_(std::move(move.tube_)) {}
+      tube_(std::move(move.tube_)),
+      rots_(std::move(move.rots_)) {}
 
 MenuMain& MenuMain::operator=(MenuMain&& move) noexcept {
     Menu::operator=(std::move(move));
     holder_ = std::move(move.holder_);
     tube_ = std::move(move.tube_);
+    rots_ = std::move(move.rots_);
     return *this;
 }
 

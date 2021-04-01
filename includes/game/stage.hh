@@ -22,6 +22,7 @@ namespace hiemalia {
 using section_t = unsigned;
 constexpr unsigned stageVisibility = 22;
 constexpr unsigned stageDivision = 4;
+constexpr int stageSectionOffset = -2;
 inline const coord_t stageSectionLength = 1.0 / stageDivision;
 constexpr unsigned stageSpawnDistance = 4;
 

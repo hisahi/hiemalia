@@ -26,15 +26,17 @@ struct ExplosionShard {
 
 class Explosion : public GameObject {
    public:
-    Explosion(const GameObject& o, coord_t xm, coord_t ym, coord_t zm);
+    Explosion(const GameObject& o, coord_t xm, coord_t ym, coord_t zm,
+              float explspeed);
     bool update(GameWorld& w, float delta);
     void renderSpecial(SplinterBuffer& sbuf, Renderer3D& r3d);
     void adjustSpeed(coord_t s);
 
    private:
-    std::vector<ExplosionShard> shards;
-    Model tempModel;
-    float alpha{1};
+    std::vector<ExplosionShard> shards_;
+    Model tempModel_;
+    float alpha_{1};
+    float explspeed_{1};
     inline bool collideLineInternal(const ModelPoint& p1,
                                     const ModelPoint& p2) const {
         return false;

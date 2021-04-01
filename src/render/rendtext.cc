@@ -8,6 +8,8 @@
 
 #include "rendtext.hh"
 
+#include <algorithm>
+
 #include "font.hh"
 #include "logger.hh"
 
@@ -37,7 +39,7 @@ void RendererText::setScale(coord_t scalex, coord_t scaley) {
 }
 
 coord_t RendererText::getTextWidth(std::string s) const {
-    return s.length() * font_->width * scalex_;
+    return (s.empty() ? 0 : s.length() - 1) * font_->width * scalex_;
 }
 
 void RendererText::renderText(SplinterBuffer& buf, coord_t x, coord_t y,
@@ -51,6 +53,49 @@ void RendererText::renderText(SplinterBuffer& buf, coord_t x, coord_t y,
         }
         renderCharacter(buf, x, y, clr, c);
         x += font_->width * scalex_;
+    }
+}
+
+void RendererText::drawTextLineLeft(SplinterBuffer& buf, coord_t x, coord_t y,
+                                    const Color& clr, std::string s,
+                                    coord_t scale) {
+    if (scale != 1) {
+        coord_t sx = scalex_, sy = scaley_;
+        setScale(sx * scale, sy * scale);
+        renderTextLine(buf, x, y, clr, s);
+        setScale(sx, sy);
+    } else {
+        renderTextLine(buf, x, y, clr, s);
+    }
+}
+
+void RendererText::drawTextLineCenter(SplinterBuffer& buf, coord_t x, coord_t y,
+                                      const Color& clr, std::string s,
+                                      coord_t scale) {
+    if (scale != 1) {
+        coord_t sx = scalex_, sy = scaley_;
+        setScale(sx * scale, sy * scale);
+        x -= getTextWidth(s) / 2;
+        renderTextLine(buf, x, y, clr, s);
+        setScale(sx, sy);
+    } else {
+        x -= getTextWidth(s) / 2;
+        renderTextLine(buf, x, y, clr, s);
+    }
+}
+
+void RendererText::drawTextLineRight(SplinterBuffer& buf, coord_t x, coord_t y,
+                                     const Color& clr, std::string s,
+                                     coord_t scale) {
+    if (scale != 1) {
+        coord_t sx = scalex_, sy = scaley_;
+        setScale(sx * scale, sy * scale);
+        x -= getTextWidth(s);
+        renderTextLine(buf, x, y, clr, s);
+        setScale(sx, sy);
+    } else {
+        x -= getTextWidth(s);
+        renderTextLine(buf, x, y, clr, s);
     }
 }
 }  // namespace hiemalia

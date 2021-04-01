@@ -25,6 +25,7 @@ enum class AudioMessageType {
     PlaySound,
     StopSounds,
     PlayMusic,
+    FadeOutMusic,
     StopMusic,
     Pause,
     Resume
@@ -49,6 +50,9 @@ struct AudioMessage {
     }
     inline static AudioMessage stopSounds() {
         return AudioMessage(AudioMessageType::StopSounds);
+    }
+    inline static AudioMessage fadeOutMusic() {
+        return AudioMessage(AudioMessageType::FadeOutMusic);
     }
     inline static AudioMessage stopMusic() {
         return AudioMessage(AudioMessageType::StopMusic);

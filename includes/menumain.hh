@@ -44,6 +44,8 @@ class MenuMain : public Menu {
     coord_t angle_{0};
     std::array<coord_t, 512> rots_;
     ShapeSheet logoSheet;
+
+    void progress(float interval);
 };
 };  // namespace hiemalia
 

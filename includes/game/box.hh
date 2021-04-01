@@ -12,21 +12,13 @@
 #include "assets.hh"
 #include "controls.hh"
 #include "game/object.hh"
+#include "mbox.hh"
 #include "model.hh"
 
 namespace hiemalia {
-class Box : public GameObject {
+class Box : public ScalableBox {
    public:
     Box();
-    bool update(GameWorld& w, float delta);
-
-   private:
-    ModelPoint pmin{0, 0, 0};
-    ModelPoint pmax{0, 0, 0};
-    bool collideLineInternal(const ModelPoint& p1, const ModelPoint& p2) const;
-    bool collideCuboidInternal(const ModelPoint& c1,
-                               const ModelPoint& c2) const;
-    bool collideSphereInternal(const ModelPoint& p, coord_t r2) const;
 };
 };  // namespace hiemalia
 

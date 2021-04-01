@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "defs.hh"
+#include "math.hh"
 #include "sbuf.hh"
 
 namespace hiemalia {
@@ -49,6 +50,9 @@ struct ModelPoint {
     friend inline ModelPoint operator-(ModelPoint a, const ModelPoint& b) {
         return a -= b;
     }
+    friend inline ModelPoint operator*(const coord_t& f, ModelPoint a) {
+        return a *= f;
+    }
     friend inline ModelPoint operator*(ModelPoint a, const coord_t& f) {
         return a *= f;
     }
@@ -58,6 +62,17 @@ struct ModelPoint {
                           0.5 * (a.z + b.z));
     }
 };
+
+inline ModelPoint lerpPoint(const ModelPoint& a, coord_t t,
+                            const ModelPoint& b) {
+    return ModelPoint(lerp(a.x, t, b.x), lerp(a.y, t, b.y), lerp(a.z, t, b.z));
+}
+
+inline ModelPoint sqerpPoint(const ModelPoint& a, coord_t t,
+                             const ModelPoint& b) {
+    return ModelPoint(sqerp(a.x, t, b.x), sqerp(a.y, t, b.y),
+                      sqerp(a.z, t, b.z));
+}
 
 struct ModelFragment {
     Color color;

@@ -65,6 +65,9 @@ class circular_buffer {
         return data_.begin() + end_;
     }
 
+    T& front() { return data_[begin_]; }
+    T& back() { return data_[end_ - 1]; }
+
    private:
     array_type data_{};
     size_t begin_{0};

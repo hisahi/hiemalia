@@ -24,7 +24,7 @@ namespace hiemalia {
 
 std::shared_ptr<HostModule> getHostModule() {
 #ifdef HBACKEND_sdl2
-    TRY_MODULE("host", HostModuleSDL2);
+    TRY_MODULE("host", HostModuleSDL2, );
 #endif
     never("no available host module!");
 }

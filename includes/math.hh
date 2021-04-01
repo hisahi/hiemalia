@@ -9,6 +9,7 @@
 #ifndef M_MATH_HH
 #define M_MATH_HH
 
+#include <algorithm>
 #include <cmath>
 
 namespace hiemalia {
@@ -29,12 +30,29 @@ constexpr T degrees(T radians) {
 
 template <typename T>
 constexpr T lerp(T start, T x, T end) {
-    return x * end + (1 - x) * start;
+    return start + x * (end - start);
+}
+
+template <typename T>
+constexpr T sqerp(T start, T x, T end) {
+    return start +
+           (x >= 0.5 ? 1 - (2 * (1 - x) * (1 - x)) : 2 * x * x) * (end - start);
 }
 
 template <typename T>
 constexpr T unlerp(T start, T x, T end) {
     return (x - start) / (end - start);
+}
+
+template <typename T>
+constexpr T clamp(T min, T x, T max) {
+    dynamic_assert(min <= max, "invalid clamp");
+    return std::clamp(x, min, max);
+}
+
+template <typename T>
+T frac(const T& x) {
+    return x - std::floor(x);
 }
 
 template <typename Ti, typename Tf>

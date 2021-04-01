@@ -70,7 +70,7 @@ void GameStage::nextSection() {
 
 void GameStage::drawStage(SplinterBuffer& sbuf, Renderer3D& r3d,
                           coord_t offset) {
-    int i = -2;
+    int i = stageSectionOffset;
     static const Rotation3D r = Rotation3D(0, 0, 0);
     static const ModelPoint s = ModelPoint(1, 1, 1);
     for (auto section : visible)
@@ -104,8 +104,8 @@ static ObjectSpawn parseObject(std::string v, coord_t dist, int lineNum) {
     std::string prop = "";
     size_t i = name.find_first_of(" \t");
     if (i != std::string::npos) {
-        name = name.substr(0, i);
         prop = name.substr(i + 1);
+        name = name.substr(0, i);
     }
 
     coord_t f = dist + r;

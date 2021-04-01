@@ -25,16 +25,17 @@ class PlayerObject : public GameObject, public ObjectDamageable {
     void wallContact(coord_t x, coord_t y, coord_t z);
 
    private:
-    ControlState inputs;
+    ControlState inputs_;
     ModelPoint vel{0, 0, 0};
-    std::unique_ptr<Explosion> explodeObject;
-    bool woundedBird{false};
-    coord_t wbird_mul{0};
-    coord_t wbird_fr{0};
-    Rotation3D wbird_vel{0, 0, 0};
+    std::unique_ptr<Explosion> explodeObject_;
+    float fireInterval_{0};
+    bool woundedBird_{false};
+    coord_t wbird_mul_{0};
+    coord_t wbird_fr_{0};
+    Rotation3D wbird_vel_{0, 0, 0};
 
-    void onDamage(float dmg, const ModelPoint& pointOfContact);
-    void onDeath();
+    void onDamage(GameWorld& w, float dmg, const ModelPoint& pointOfContact);
+    void onDeath(GameWorld& w);
     bool collideLineInternal(const ModelPoint& p1, const ModelPoint& p2) const;
     bool collideCuboidInternal(const ModelPoint& c1,
                                const ModelPoint& c2) const;
@@ -43,6 +44,7 @@ class PlayerObject : public GameObject, public ObjectDamageable {
     void inputsVelocity(float delta);
     void inputsAngles(float delta);
     void checkBounds(const MoveRegion& r, GameWorld& w);
+    void doFire(GameWorld& w);
 };
 };  // namespace hiemalia
 

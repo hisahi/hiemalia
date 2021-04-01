@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include "logger.hh"
 #include "math.hh"
 
 namespace hiemalia {
@@ -26,12 +27,6 @@ static inline coord_t distanceSquared(const ModelPoint& p1,
     return x * x + y * y + z * z;
 }
 
-static inline ModelPoint lerpPoint(const ModelPoint& p1, coord_t t,
-                                   const ModelPoint& p2) {
-    return ModelPoint(lerp(p1.x, t, p2.x), lerp(p1.y, t, p2.y),
-                      lerp(p1.z, t, p2.z));
-}
-
 static inline coord_t pointDot(const ModelPoint& p1, const ModelPoint& p2) {
     return p1.x * p2.x + p1.y * p2.y + p1.z * p2.z;
 }
@@ -40,6 +35,11 @@ static inline ModelPoint pointCross(const ModelPoint& p1,
                                     const ModelPoint& p2) {
     return ModelPoint(p1.y * p2.z - p1.z * p1.y, p1.x * p2.z - p1.z * p1.x,
                       p1.x * p2.y - p1.y * p1.x);
+}
+
+static bool collidesPointRange(coord_t x, coord_t y1, coord_t y2) {
+    if (y1 > y2) std::swap(y1, y2);
+    return y1 <= x && x <= y2;
 }
 
 static bool collidesRangeRange(coord_t x1, coord_t x2, coord_t y1, coord_t y2) {
@@ -72,23 +72,39 @@ bool collidesLineSphere(const ModelPoint& l1, const ModelPoint& l2,
 
 bool collidesPointCuboid(const ModelPoint& p, const ModelPoint& c1,
                          const ModelPoint& c2) {
-    return p.x >= std::min(c1.x, c2.x) && p.x <= std::max(c1.x, c2.x) &&
-           p.y >= std::min(c1.y, c2.y) && p.y <= std::max(c1.y, c2.y) &&
-           p.z >= std::min(c1.z, c2.z) && p.z <= std::max(c1.z, c2.z);
+    return collidesPointRange(p.x, c1.x, c2.x) &&
+           collidesPointRange(p.y, c1.y, c2.y) &&
+           collidesPointRange(p.z, c1.z, c2.z);
 }
 
 bool collidesLineCuboid(const ModelPoint& l1, const ModelPoint& l2,
                         const ModelPoint& c1, const ModelPoint& c2) {
-    coord_t lx1 = (std::min(c1.x, c2.x) - l1.x) / (l2.x - l1.x);
-    coord_t lx2 = (std::max(c1.x, c2.x) - l1.x) / (l2.x - l1.x);
-    coord_t ly1 = (std::min(c1.y, c2.y) - l1.y) / (l2.y - l1.y);
-    coord_t ly2 = (std::max(c1.y, c2.y) - l1.y) / (l2.y - l1.y);
-    coord_t lz1 = (std::min(c1.z, c2.z) - l1.z) / (l2.z - l1.z);
-    coord_t lz2 = (std::max(c1.z, c2.z) - l1.z) / (l2.z - l1.z);
+    coord_t lx1 = unlerp(c1.x, l1.x, c2.x);
+    coord_t lx2 = unlerp(c1.x, l2.x, c2.x);
+    coord_t ly1 = unlerp(c1.y, l1.y, c2.y);
+    coord_t ly2 = unlerp(c1.y, l2.y, c2.y);
+    coord_t lz1 = unlerp(c1.z, l1.z, c2.z);
+    coord_t lz2 = unlerp(c1.z, l2.z, c2.z);
 
-    coord_t a1 = std::max({lx1, ly1, lz1});
-    coord_t a2 = std::min({lx2, ly2, lz2});
-    return a1 <= a2 && a1 <= 1 && a2 >= 0;
+    if (0 <= lx1 && lx1 <= 1 &&
+        collidesPointCuboid(lerpPoint(l1, lx1, l2), c1, c2))
+        return true;
+    if (0 <= lx2 && lx2 <= 1 &&
+        collidesPointCuboid(lerpPoint(l1, lx2, l2), c1, c2))
+        return true;
+    if (0 <= ly1 && ly1 <= 1 &&
+        collidesPointCuboid(lerpPoint(l1, ly1, l2), c1, c2))
+        return true;
+    if (0 <= ly2 && ly2 <= 1 &&
+        collidesPointCuboid(lerpPoint(l1, ly2, l2), c1, c2))
+        return true;
+    if (0 <= lz1 && lz1 <= 1 &&
+        collidesPointCuboid(lerpPoint(l1, lz1, l2), c1, c2))
+        return true;
+    if (0 <= lz2 && lz2 <= 1 &&
+        collidesPointCuboid(lerpPoint(l1, lz2, l2), c1, c2))
+        return true;
+    return false;
 }
 
 bool collidesSphereCuboid(const ModelPoint& c, coord_t r2, const ModelPoint& c1,
@@ -149,4 +165,33 @@ bool collidesSphereTri(const ModelPoint& c, coord_t r2, const ModelPoint& t1,
            collidesLineSphere(t1, t3, c, r2) &&
            collidesLineSphere(t2, t3, c, r2);
 }
+
+ModelPoint collidesLineSphereWhere(const ModelPoint& l1, const ModelPoint& l2,
+                                   const ModelPoint& sc, coord_t r2) {
+    coord_t a = pointDot(l2, l2);
+    coord_t b = 2 * pointDot(l2, l1 - sc);
+    coord_t c = pointDot(l1 - sc, l1 - sc) - r2;
+    coord_t d = b * b - 4 * a * c;
+    if (d < 0) {
+        LOG_WARN("tried to find intersection point, but there is none");
+        return l1;
+    }
+    coord_t q = 0.5 / a;
+    d = std::sqrt(d);
+    return lerpPoint(l1, std::min(q * (-b + d), q * (-b - d)), l2);
+}
+
+static coord_t validateCuboidUnlerp(coord_t x) { return x < 0 ? 1 : x; }
+
+ModelPoint collidesLineCuboidWhere(const ModelPoint& l1, const ModelPoint& l2,
+                                   const ModelPoint& c1, const ModelPoint& c2) {
+    coord_t tx = validateCuboidUnlerp(l2.x > l1.x ? unlerp(l1.x, c1.x, l2.x)
+                                                  : unlerp(l1.x, c2.x, l2.x));
+    coord_t ty = validateCuboidUnlerp(l2.y > l1.y ? unlerp(l1.y, c1.y, l2.y)
+                                                  : unlerp(l1.y, c2.y, l2.y));
+    coord_t tz = validateCuboidUnlerp(l2.z > l1.z ? unlerp(l1.z, c1.z, l2.z)
+                                                  : unlerp(l1.z, c2.z, l2.z));
+    return lerpPoint(l1, std::min({tx, ty, tz}), l2);
+}
+
 }  // namespace hiemalia

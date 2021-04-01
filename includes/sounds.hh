@@ -20,6 +20,7 @@ enum class MusicTrack {
     Stage1,
     Stage2,
     Stage3,
+    Stage4,
     GameOver,
     HighScore
 };
@@ -29,6 +30,7 @@ enum class SoundEffect {
     Pause,
     PlayerExplode,
     PlayerHit,
+    PlayerFire,
     EndOfSounds
 };
 
@@ -38,6 +40,7 @@ inline auto soundEffectNames = hiemalia::to_array<NamePair<SoundEffect>>({
     {"pause.wav", SoundEffect::Pause},
     {"explode.wav", SoundEffect::PlayerExplode},
     {"hit.wav", SoundEffect::PlayerHit},
+    {"fire.wav", SoundEffect::PlayerFire},
 });
 
 };  // namespace hiemalia

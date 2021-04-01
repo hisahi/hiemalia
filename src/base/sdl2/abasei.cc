@@ -88,6 +88,10 @@ void AudioModuleSDLMixer2::playMusic(const std::string &filename,
     }
 }
 
+void AudioModuleSDLMixer2::fadeOutMusic(unsigned int duration) {
+    Mix_FadeOutMusic(duration);
+}
+
 void AudioModuleSDLMixer2::stopMusic() { Mix_HaltMusic(); }
 
 bool AudioModuleSDLMixer2::isMusicPlaying() {

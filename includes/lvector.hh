@@ -64,15 +64,15 @@ class LimitedVector {
     }
 
     LimitedVector(const LimitedVector& copy)
-        : count_(copy.count), alloc_(copy.alloc_), data_(alloc_.allocate(N)) {
+        : count_(copy.count_), alloc_(copy.alloc_), data_(alloc_.allocate(N)) {
         for (size_type i = 0; i < count_; ++i) {
             new (&data_[i]) T(copy.data_[i]);
         }
     }
 
-    LimitedVector(LimitedVector&& move)
-        : count_(move.count), alloc_(std::move(move.alloc_)) {
-        std::swap(data_, move.data_);
+    LimitedVector(LimitedVector&& move) noexcept
+        : count_(move.count_), alloc_(std::move(move.alloc_)) {
+        data_ = std::exchange(move.data_, nullptr);
     }
 
     LimitedVector& operator=(const LimitedVector& copy) {
@@ -99,22 +99,18 @@ class LimitedVector {
         return *this;
     }
 
-    LimitedVector& operator=(LimitedVector&& move) {
+    LimitedVector& operator=(LimitedVector&& move) noexcept(
+        std::is_nothrow_destructible_v<LimitedVector<T, N, Allocator>>) {
         if (&move != this) {
-            for (size_t i = 0; i < count_; ++i) {
-                data_[i].~T();
-            }
-            alloc_.deallocate(data_, N);
-
+            ~LimitedVector();
             alloc_ = move.alloc_;
             count_ = move.count_;
-            data_ = move.data_;
-            move.data_ = nullptr;
+            data_ = std::exchange(move.data_, nullptr);
         }
         return *this;
     }
 
-    ~LimitedVector() {
+    ~LimitedVector() noexcept(std::is_nothrow_destructible_v<T>) {
         if (data_ != nullptr) {
             for (size_t i = 0; i < count_; ++i) {
                 data_[i].~T();
@@ -170,7 +166,7 @@ class LimitedVector {
         assign(list.begin(), list.end());
     }
 
-    allocator_type get_allocator() const { return alloc_; }
+    allocator_type get_allocator() const noexcept { return alloc_; }
 
     reference at(size_type index) {
         if (index >= count_) throw std::out_of_range("index");
@@ -179,11 +175,17 @@ class LimitedVector {
 
     reference operator[](size_type index) { return data_[index]; }
 
-    reference front() { return data_[0]; }
+    reference front() {
+        dynamic_assert(count_ > 0, "front() on empty LimitedVector");
+        return data_[0];
+    }
 
-    reference back() { return data_[count_ - 1]; }
+    reference back() {
+        dynamic_assert(count_ > 0, "back() on empty LimitedVector");
+        return data_[count_ - 1];
+    }
 
-    pointer data() { return data_; }
+    pointer data() noexcept { return data_; }
 
     iterator begin() noexcept { return get_iterator_(0); }
 
@@ -197,16 +199,24 @@ class LimitedVector {
 
     const_iterator cend() const noexcept { return get_const_iterator_(count_); }
 
-    reverse_iterator rbegin() noexcept { return reverse_iterator(begin()); }
+    reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
 
     const_reverse_iterator rbegin() const noexcept {
+        return const_reverse_iterator(end());
+    }
+
+    const_reverse_iterator crbegin() const noexcept {
+        return const_reverse_iterator(cend());
+    }
+
+    reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
+
+    const_reverse_iterator rend() const noexcept {
         return const_reverse_iterator(begin());
     }
 
-    reverse_iterator rend() noexcept { return reverse_iterator(end()); }
-
-    const_reverse_iterator rend() const noexcept {
-        return const_reverse_iterator(end());
+    const_reverse_iterator crend() const noexcept {
+        return const_reverse_iterator(cbegin());
     }
 
     bool empty() const noexcept { return count_ == 0; }
@@ -217,7 +227,7 @@ class LimitedVector {
 
     size_type capacity() const noexcept { return N; }
 
-    void clear() noexcept {
+    void clear() noexcept(std::is_nothrow_destructible_v<T>) {
         for (size_type i = 0; i < count_; ++i) data_[i].~T();
         count_ = 0;
     }
@@ -240,7 +250,7 @@ class LimitedVector {
     iterator insert(const_iterator pos, InputIt begin, InputIt end) {
         size_type i = get_index_(pos), s = i;
         InputIt it = begin;
-        move_forward_(i, end - begin);
+        move_forward_(i, std::distance(begin, end));
         while (it != end) new (&data_[i++]) T(*it++);
         return get_iterator_(s);
     }
@@ -264,7 +274,7 @@ class LimitedVector {
     }
 
     iterator erase(const_iterator first, const_iterator last) {
-        size_type i = get_index_(first), n = last - first;
+        size_type i = get_index_(first), n = std::distance(first, last);
         move_back_(i, n);
         return get_iterator_(i);
     }
@@ -287,7 +297,10 @@ class LimitedVector {
         return data_[i];
     }
 
-    void pop_back() { data_[--count_].~T(); }
+    void pop_back() {
+        dynamic_assert(count_ > 0, "pop_back() on empty LimitedVector");
+        data_[--count_].~T();
+    }
 
     void resize(size_type count) {
         size_t i;
@@ -311,7 +324,7 @@ class LimitedVector {
             for (i = count; i < count_; ++i) {
                 data_[i].~T();
             }
-        } else if (count_ < count) {
+        } else if (count > count_) {
             for (i = count_; i < count; ++i) {
                 new (&data_[i]) T(value);
             }
@@ -337,20 +350,50 @@ class LimitedVector {
         return false;
     }
 
+    void swap(LimitedVector<T, N, Allocator> v) noexcept(
+        std::is_nothrow_swappable_v<T>&& std::is_nothrow_move_constructible_v<
+            T>&& std::is_nothrow_swappable_v<Allocator>) {
+        using std::swap;
+        size_t i;
+
+        for (i = 0; i < std::min(count_, v.count_); ++i) {
+            swap(data_[i], v.data_[i]);
+        }
+
+        if (count_ > v.count_) {
+            for (i = v.count_; i < count_; ++i) {
+                new (&v.data_[i]) T(std::move(&data_[i]));
+                data_[i].~T();
+            }
+        } else if (count_ < v.count_) {
+            for (i = count_; i < v.count_; ++i) {
+                new (&data_[i]) T(std::move(&v.data_[i]));
+                v.data_[i].~T();
+            }
+        }
+
+        swap(alloc_, v.alloc_);
+        swap(count_, v.count_);
+    }
+
    private:
     size_type count_{0};
     allocator_type alloc_;
     T* data_{nullptr};
 
-    iterator get_iterator_(size_type index) { return iterator(data_ + index); }
+    iterator get_iterator_(size_type index) noexcept {
+        return iterator(data_ + index);
+    }
 
-    const_iterator get_const_iterator_(size_type index) {
+    const_iterator get_const_iterator_(size_type index) const noexcept {
         return const_iterator(data_ + index);
     }
 
-    size_t get_index_(iterator it) { return it.ptr_ - data_; }
+    size_t get_index_(iterator it) noexcept { return it.ptr_ - data_; }
 
-    size_t get_index_(const_iterator it) { return it.ptr_ - data_; }
+    size_t get_index_(const_iterator it) const noexcept {
+        return it.ptr_ - data_;
+    }
 
     void move_forward_(size_type i, size_type n) {
         if (n == 0) return;
@@ -365,11 +408,16 @@ class LimitedVector {
         count_ += n;
     }
 
-    void move_back_(size_type i, size_type n) {
+    void move_back_(size_type i, size_type n) noexcept(
+        std::is_nothrow_move_assignable_v<T>&&
+            std::is_nothrow_destructible_v<T>) {
         if (n == 0) return;
+
         size_type j;
 
-        for (j = i; j < i + n; ++j) {
+        dynamic_assert(i + n <= count_,
+                       "moving back LimitedVector by too much!");
+        for (j = i; j < count_ - n; ++j) {
             data_[j] = std::move(data_[j + n]);
         }
         for (j = count_ - n; j < count_; ++j) {
@@ -389,28 +437,10 @@ class LimitedVector {
 };
 
 template <typename T, size_t N, typename Allocator>
-void swap(LimitedVector<T, N, Allocator>& lhs,
-          LimitedVector<T, N, Allocator>& rhs) {
-    size_t i;
-
-    for (i = 0; i < std::min(lhs.count_, rhs.count_); ++i) {
-        swap(lhs[i], rhs[i]);
-    }
-
-    if (lhs.count_ < rhs.count_) {
-        for (i = lhs.count_; i < rhs.count_; ++i) {
-            new (&rhs.data_[i]) T(std::move(&lhs.data_[i]));
-            lhs.data_[i].~T();
-        }
-    } else if (rhs.count_ < lhs.count_) {
-        for (i = rhs.count_; i < lhs.count_; ++i) {
-            new (&lhs.data_[i]) T(std::move(&rhs.data_[i]));
-            rhs.data_[i].~T();
-        }
-    }
-
-    swap(lhs.alloc_, rhs.alloc_);
-    swap(lhs.count_, rhs.count_);
+void swap(
+    LimitedVector<T, N, Allocator>& lhs,
+    LimitedVector<T, N, Allocator>& rhs) noexcept(noexcept(lhs.swap(rhs))) {
+    lhs.swap(rhs);
 }
 
 template <typename T>
@@ -426,31 +456,31 @@ class LimitedVectorIterator {
     using pointer = T*;
     using const_pointer = const T*;
 
-    LimitedVectorIterator() : ptr_(nullptr) {}
-    LimitedVectorIterator(pointer ptr) : ptr_(ptr) {}
-    LimitedVectorIterator(const iterator& copy) : ptr_(copy.ptr_) {}
-    LimitedVectorIterator(iterator&& move) : ptr_(move.ptr_) {}
-    inline operator LimitedVectorIterator<const T>() {
+    LimitedVectorIterator() noexcept : ptr_(nullptr) {}
+    LimitedVectorIterator(pointer ptr) noexcept : ptr_(ptr) {}
+    LimitedVectorIterator(const iterator& copy) noexcept : ptr_(copy.ptr_) {}
+    LimitedVectorIterator(iterator&& move) noexcept : ptr_(move.ptr_) {}
+    inline operator LimitedVectorIterator<const T>() noexcept {
         return LimitedVectorIterator<const T>(ptr_);
     }
 
-    inline iterator& operator=(pointer ptr) {
+    inline iterator& operator=(pointer ptr) noexcept {
         ptr_ = ptr;
         return *this;
     }
-    inline iterator& operator=(const iterator& copy) {
+    inline iterator& operator=(const iterator& copy) noexcept {
         ptr_ = copy.ptr_;
         return *this;
     }
-    inline iterator& operator=(iterator&& move) {
+    inline iterator& operator=(iterator&& move) noexcept {
         ptr_ = move.ptr_;
         return *this;
     }
-    inline iterator& operator+=(const difference_type& rhs) {
+    inline iterator& operator+=(const difference_type& rhs) noexcept {
         ptr_ += rhs;
         return *this;
     }
-    inline iterator& operator-=(const difference_type& rhs) {
+    inline iterator& operator-=(const difference_type& rhs) noexcept {
         ptr_ -= rhs;
         return *this;
     }
@@ -460,52 +490,64 @@ class LimitedVectorIterator {
         return ptr_[rhs];
     }
 
-    inline difference_type operator+(const iterator& rhs) {
+    inline difference_type operator+(const iterator& rhs) noexcept {
         return ptr_ + rhs.ptr_;
     }
-    inline difference_type operator-(const iterator& rhs) {
+    inline difference_type operator-(const iterator& rhs) noexcept {
         return ptr_ - rhs.ptr_;
     }
-    inline iterator operator+(const difference_type& rhs) {
+    inline iterator operator+(const difference_type& rhs) noexcept {
         return iterator(ptr_ + rhs);
     }
-    inline iterator operator-(const difference_type& rhs) {
+    inline iterator operator-(const difference_type& rhs) noexcept {
         return iterator(ptr_ - rhs);
     }
     friend inline iterator operator+(const difference_type& lhs,
-                                     const iterator& rhs) {
+                                     const iterator& rhs) noexcept {
         return iterator(lhs + rhs.ptr_);
     }
     friend inline iterator operator-(const difference_type& lhs,
-                                     const iterator& rhs) {
+                                     const iterator& rhs) noexcept {
         return iterator(lhs - rhs.ptr_);
     }
 
-    inline iterator& operator++() {
+    inline iterator& operator++() noexcept {
         ++ptr_;
         return *this;
     }
-    inline iterator& operator--() {
+    inline iterator& operator--() noexcept {
         --ptr_;
         return *this;
     }
-    inline iterator& operator++(int) {
+    inline iterator& operator++(int) noexcept {
         iterator tmp(*this);
         ++ptr_;
         return tmp;
     }
-    inline iterator& operator--(int) {
+    inline iterator& operator--(int) noexcept {
         iterator tmp(*this);
         --ptr_;
         return tmp;
     }
 
-    inline bool operator==(const iterator& rhs) { return ptr_ == rhs.ptr_; }
-    inline bool operator!=(const iterator& rhs) { return ptr_ != rhs.ptr_; }
-    inline bool operator>(const iterator& rhs) { return ptr_ > rhs.ptr_; }
-    inline bool operator>=(const iterator& rhs) { return ptr_ >= rhs.ptr_; }
-    inline bool operator<(const iterator& rhs) { return ptr_ < rhs.ptr_; }
-    inline bool operator<=(const iterator& rhs) { return ptr_ <= rhs.ptr_; }
+    inline bool operator==(const iterator& rhs) noexcept {
+        return ptr_ == rhs.ptr_;
+    }
+    inline bool operator!=(const iterator& rhs) noexcept {
+        return ptr_ != rhs.ptr_;
+    }
+    inline bool operator>(const iterator& rhs) noexcept {
+        return ptr_ > rhs.ptr_;
+    }
+    inline bool operator>=(const iterator& rhs) noexcept {
+        return ptr_ >= rhs.ptr_;
+    }
+    inline bool operator<(const iterator& rhs) noexcept {
+        return ptr_ < rhs.ptr_;
+    }
+    inline bool operator<=(const iterator& rhs) noexcept {
+        return ptr_ <= rhs.ptr_;
+    }
 
    private:
     pointer ptr_;

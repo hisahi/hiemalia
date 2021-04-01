@@ -138,6 +138,27 @@
     <ClCompile Include="src\game\explode.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\mbox.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\enemy.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\bullet.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\pbullet.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\script.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\checkpnt.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\stageend.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\abase.hh">
@@ -342,6 +363,30 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\secure.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\mbox.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\enemy.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\bullet.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\explode.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\pbullet.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\script.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\checkpnt.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\stageend.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

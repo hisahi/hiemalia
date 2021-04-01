@@ -8,6 +8,8 @@
 
 #include "game/world.hh"
 
+#include <cmath>
+
 #include "assets.hh"
 #include "game/gamemsg.hh"
 #include "game/stage.hh"
@@ -17,17 +19,47 @@
 
 namespace hiemalia {
 
-MoveRegion GameWorld::getPlayerMoveRegion() {
-    const MoveRegion& s0 = getSectionById(stage->visible[0]).region;
-    const MoveRegion& s1 = getSectionById(stage->visible[1]).region;
-    return {lerp(s0.x0, progress_f, s1.x0), lerp(s0.x1, progress_f, s1.x1),
-            lerp(s0.y0, progress_f, s1.y0), lerp(s0.y1, progress_f, s1.y1)};
+MoveRegion GameWorld::getMoveRegionForZ(coord_t z) const {
+    coord_t fz = z * stageDivision + stageSectionOffset;
+    auto u = floatToWholeFrac<int>(fz);
+    if (u < 0) return getSectionById(stage->visible.front()).region;
+    if (u + 1 >= static_cast<int>(stage->visible.size()))
+        return getSectionById(stage->visible.back()).region;
+    const MoveRegion& s0 = getSectionById(stage->visible[u]).region;
+    const MoveRegion& s1 = getSectionById(stage->visible[u + 1]).region;
+    return {lerp(s0.x0, fz, s1.x0), lerp(s0.x1, fz, s1.x1),
+            lerp(s0.y0, fz, s1.y0), lerp(s0.y1, fz, s1.y1)};
+}
+
+MoveRegion GameWorld::getPlayerMoveRegion() const {
+    return getMoveRegionForZ(player->pos.z);
 }
 
 void GameWorld::startNewStage() {
     ++stageNum;
+    if (stageNum > stageCount) {
+        ++cycle;
+        stageNum = 1;
+    }
     checkpoint = 0;
     resetStage(0);
+}
+
+static void playStageMusic(int stageNum) {
+    switch (stageNum) {
+        case 1:
+            sendMessage(AudioMessage::playMusic(MusicTrack::Stage1));
+            break;
+        case 2:
+            sendMessage(AudioMessage::playMusic(MusicTrack::Stage2));
+            break;
+        case 3:
+            sendMessage(AudioMessage::playMusic(MusicTrack::Stage3));
+            break;
+        case 4:
+            sendMessage(AudioMessage::playMusic(MusicTrack::Stage4));
+            break;
+    }
 }
 
 void GameWorld::resetStage(coord_t t) {
@@ -41,6 +73,7 @@ void GameWorld::resetStage(coord_t t) {
         moveForward(t);
         objects.clear();
     }
+    playStageMusic(stageNum);
 }
 
 void GameWorld::addScore(unsigned int p) {
@@ -51,7 +84,7 @@ void GameWorld::addScore(unsigned int p) {
 }
 
 void GameWorld::drawStage(SplinterBuffer& sbuf, Renderer3D& r3d) {
-    stage->drawStage(sbuf, r3d, progress_f);
+    stage->drawStage(sbuf, r3d, 0);
 }
 
 void GameWorld::moveForward(coord_t dist) {
@@ -60,10 +93,11 @@ void GameWorld::moveForward(coord_t dist) {
     progress_f += dist;
     player->move(0, 0, dist);
     while (progress_f >= stageSectionLength) {
+        const coord_t moveDist = -stageSectionLength;
         progress_f -= stageSectionLength;
         ++sections;
-        player->move(0, 0, -stageSectionLength);
-        for (auto& obj : objects) obj->move(0, 0, -stageSectionLength);
+        player->move(0, 0, moveDist);
+        for (auto& obj : objects) obj->move(0, 0, moveDist);
         stage->nextSection();
     }
 
@@ -104,8 +138,13 @@ std::unique_ptr<PlayerObject>&& GameWorld::explodePlayer(
     playerExplosion = std::move(expl);
     playerExplosion->adjustSpeed(moveSpeed);
     dynamic_assert(playerExplosion != nullptr, "null explosion");
+    sendMessage(AudioMessage::stopMusic());
     sendMessage(AudioMessage::playSound(SoundEffect::PlayerExplode));
     return std::move(player);
+}
+
+void GameWorld::explodeBullet(BulletObject& b) {
+    objects.push_back(std::make_shared<Explosion>(b, 0.0, 0.0, 0.0, 8.0f));
 }
 
 const ModelPoint& GameWorld::getPlayerPosition() {
@@ -124,5 +163,19 @@ bool GameWorld::respawn() {
     sendMessage(GameMessage::updateStatus());
     return true;
 }
+
+void GameWorld::setCheckpoint() {
+    if (!isPlayerAlive() || !player->shouldCatchCheckpoints()) return;
+    checkpoint = player->pos.z;
+}
+
+void GameWorld::endStage() {
+    if (!isPlayerAlive() || !player->shouldCatchCheckpoints()) return;
+    sendMessage(GameMessage::stageComplete());
+}
+
+const BulletList& GameWorld::getPlayerBullets() const { return playerBullets; }
+
+const BulletList& GameWorld::getEnemyBullets() const { return enemyBullets; }
 
 }  // namespace hiemalia

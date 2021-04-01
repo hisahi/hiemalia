@@ -18,6 +18,7 @@ enum class GameMessageType {
     UpdateStatus,
     PauseGame,
     ContinueGame,
+    StageComplete,
     ExitGame
 };
 
@@ -42,6 +43,10 @@ struct GameMessage {
 
     inline static GameMessage continueGame() {
         return GameMessage(GameMessageType::ContinueGame);
+    }
+
+    inline static GameMessage stageComplete() {
+        return GameMessage(GameMessageType::StageComplete);
     }
 
     inline static GameMessage exitGame() {

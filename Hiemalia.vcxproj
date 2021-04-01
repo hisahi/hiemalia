@@ -81,6 +81,7 @@
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ConformanceMode>false</ConformanceMode>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -97,6 +98,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -105,6 +108,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -117,13 +121,20 @@
     <ClCompile Include="src\base\sdl2\vbasei.cc" />
     <ClCompile Include="src\base\vbase.cc" />
     <ClCompile Include="src\game\box.cc" />
+    <ClCompile Include="src\game\bullet.cc" />
+    <ClCompile Include="src\game\checkpnt.cc" />
+    <ClCompile Include="src\game\enemy.cc" />
     <ClCompile Include="src\game\explode.cc" />
     <ClCompile Include="src\game\game.cc" />
+    <ClCompile Include="src\game\mbox.cc" />
     <ClCompile Include="src\game\object.cc" />
     <ClCompile Include="src\game\objects.cc" />
+    <ClCompile Include="src\game\pbullet.cc" />
     <ClCompile Include="src\game\player.cc" />
+    <ClCompile Include="src\game\script.cc" />
     <ClCompile Include="src\game\sections.cc" />
     <ClCompile Include="src\game\stage.cc" />
+    <ClCompile Include="src\game\stageend.cc" />
     <ClCompile Include="src\game\world.cc" />
     <ClCompile Include="src\main\assets.cc" />
     <ClCompile Include="src\main\audio.cc" />
@@ -172,13 +183,21 @@
     <ClInclude Include="includes\file.hh" />
     <ClInclude Include="includes\font.hh" />
     <ClInclude Include="includes\game\box.hh" />
+    <ClInclude Include="includes\game\bullet.hh" />
+    <ClInclude Include="includes\game\checkpnt.hh" />
+    <ClInclude Include="includes\game\enemy.hh" />
+    <ClInclude Include="includes\game\explode.hh" />
     <ClInclude Include="includes\game\game.hh" />
     <ClInclude Include="includes\game\gamemsg.hh" />
+    <ClInclude Include="includes\game\mbox.hh" />
     <ClInclude Include="includes\game\object.hh" />
     <ClInclude Include="includes\game\objects.hh" />
+    <ClInclude Include="includes\game\pbullet.hh" />
     <ClInclude Include="includes\game\player.hh" />
+    <ClInclude Include="includes\game\script.hh" />
     <ClInclude Include="includes\game\sections.hh" />
     <ClInclude Include="includes\game\stage.hh" />
+    <ClInclude Include="includes\game\stageend.hh" />
     <ClInclude Include="includes\game\world.hh" />
     <ClInclude Include="includes\hbase.hh" />
     <ClInclude Include="includes\helpers.hh" />

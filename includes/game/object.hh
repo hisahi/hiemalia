@@ -26,19 +26,27 @@ class GameObject {
     virtual void onSpawn(GameWorld& w) {}
     virtual bool update(GameWorld& w, float delta) { return false; }
     virtual void renderSpecial(SplinterBuffer& sbuf, Renderer3D& r3d) {}
+    virtual void onSetPosition() {}
+    void setPosition(const ModelPoint& p);
+    void setPosition(coord_t x, coord_t y, coord_t z);
     void move(const ModelPoint& p);
     void move(coord_t x, coord_t y, coord_t z);
     void render(SplinterBuffer& sbuf, Renderer3D& r3d);
-    void setCollisionRadius(coord_t r);
     bool collideLine(const ModelPoint& p1, const ModelPoint& p2) const;
     bool collideCuboid(const ModelPoint& c1, const ModelPoint& c2) const;
     bool collideSphere(const ModelPoint& p, coord_t r2) const;
     bool isOffScreen() const;
+    Matrix3D getObjectModelMatrix() const;
 
     virtual ~GameObject() {}
 
+   protected:
+    coord_t getCollisionRadiusSquared() const;
+    coord_t getCollisionRadius() const;
+    void setCollisionRadius(coord_t r);
+
    private:
-    coord_t collideRadiusSquared{0};
+    coord_t collideRadiusSquared_{0};
     virtual bool collideLineInternal(const ModelPoint& p1,
                                      const ModelPoint& p2) const {
         return true;
@@ -54,12 +62,16 @@ class GameObject {
 
 struct ObjectDamageable {
    public:
-    bool damage(float damage, const ModelPoint& pointOfContact);
+    bool damage(GameWorld& w, float damage, const ModelPoint& pointOfContact);
+    float getHealth() const;
 
    protected:
-    float health{1};
-    virtual void onDamage(float damage, const ModelPoint& pointOfContact) = 0;
-    virtual void onDeath() = 0;
+    virtual void onDamage(GameWorld& w, float damage,
+                          const ModelPoint& pointOfContact) = 0;
+    virtual void onDeath(GameWorld& w) = 0;
+
+   private:
+    float health_{1};
 };
 };  // namespace hiemalia
 

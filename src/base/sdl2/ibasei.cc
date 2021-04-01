@@ -22,7 +22,7 @@ InputModuleSDL2::InputModuleSDL2(std::shared_ptr<HostModule> host)
     if (SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER))
         subsystem_ = true;
     else
-        LOG_WARN(
+        LOG_ERROR(
             "could not initialize SDL2 joystick / game controller "
             "subsystems: " +
             std::string(SDL_GetError()));
@@ -120,6 +120,8 @@ void InputModuleSDL2::handle(const SDL_Event& event) {
         case SDL_CONTROLLERBUTTONUP:
             device = InputDevice::Gamepad;
             break;
+        default:
+            return;
     }
     std::unique_ptr<InputControlModuleSDL2>& module =
         devices_.at(static_cast<int>(device));
@@ -278,6 +280,8 @@ void InputControlModuleSDL2::handle(ControlState& state,
             down = event.type == SDL_CONTROLLERBUTTONDOWN;
             button = static_cast<control_t>(event.cbutton.button);
             break;
+        default:
+            return;
     }
 
     if (down && setting_key_) {

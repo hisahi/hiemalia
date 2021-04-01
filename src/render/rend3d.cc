@@ -76,20 +76,16 @@ ModelPoint Vector3D::toCartesian() const {
     dynamic_assert(wf > 0, "negative w -- unexpected degenerate case");
     return ModelPoint(x * wf, y * wf, z * wf);
 }
-
-ModelPoint Matrix3D::project(const ModelPoint& p) {
-    coord_t x = p.x, y = p.y, z = p.z;
-    return ModelPoint(x * m[0] + y * m[1] + z * m[2],
-                      x * m[4] + y * m[5] + z * m[6],
-                      x * m[8] + y * m[9] + z * m[10]);
-}
-
 Vector3D Matrix3D::project(const Vector3D& v) {
     coord_t x = v.x, y = v.y, z = v.z, w = v.w;
     return Vector3D(x * m[0] + y * m[1] + z * m[2] + w * m[3],
                     x * m[4] + y * m[5] + z * m[6] + w * m[7],
                     x * m[8] + y * m[9] + z * m[10] + w * m[11],
                     x * m[12] + y * m[13] + z * m[14] + w * m[15]);
+}
+
+ModelPoint Matrix3D::project(const ModelPoint& p) {
+    return project(Vector3D(p)).toCartesian();
 }
 
 Matrix3D Renderer3D::getModelMatrix(ModelPoint p, Rotation3D r, ModelPoint s) {

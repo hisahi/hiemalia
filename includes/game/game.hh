@@ -9,6 +9,7 @@
 #ifndef M_GAME_GAME_HH
 #define M_GAME_GAME_HH
 
+#include <algorithm>
 #include <string>
 
 #include "defs.hh"
@@ -52,19 +53,45 @@ class GameMain : public LogicModule,
     Renderer3D r3d_;
     RendererText font_;
     SplinterBuffer statusbar_;
+    SplinterBuffer textscreen_;
     bool continue_{true};
     bool shouldBePaused_{false};
+    bool stageComplete_{false};
     bool paused_{false};
     bool gameOver_{false};
     coord_t moveSpeed;
     float timer;
+    float stageStartTimer{0};
 
     void startNewStage();
     void drawStatusBar();
     void positionCamera();
     void updateMoveSpeedInput(ControlState& controls, float delta);
     void pauseGame();
+    void doStageStart();
+    void doStageStartTick(GameState& state, float interval);
+    void doStageComplete();
+    void doStageCompleteTick(GameState& state, float interval);
     void doExitGame();
+    void doGameOver();
+    void drawObject(GameState& state, float interval, const ObjectPtr& obj);
+    bool updateObject(GameState& state, float interval, const ObjectPtr& obj);
+
+    template <typename T>
+    void drawObjects(GameState& state, float interval, ObjectListBase<T>& v) {
+        std::for_each(v.begin(), v.end(), [&](const ObjectPtr& obj) -> void {
+            drawObject(state, interval, obj);
+        });
+    }
+    template <typename T>
+    void processObjects(GameState& state, float interval,
+                        ObjectListBase<T>& v) {
+        v.erase(std::remove_if(v.begin(), v.end(),
+                               [&](const ObjectPtr& obj) -> bool {
+                                   return !updateObject(state, interval, obj);
+                               }),
+                v.end());
+    }
 };
 };  // namespace hiemalia
 

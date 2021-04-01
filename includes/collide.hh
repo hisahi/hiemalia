@@ -42,6 +42,14 @@ struct CollisionSphere {
     ModelPoint center;
     coord_t radius2;
 };
+
+ModelPoint collidesLineSphereWhere(const ModelPoint& line1,
+                                   const ModelPoint& line2,
+                                   const ModelPoint& center, coord_t radius2);
+ModelPoint collidesLineCuboidWhere(const ModelPoint& line1,
+                                   const ModelPoint& line2,
+                                   const ModelPoint& cuboid1,
+                                   const ModelPoint& cuboid2);
 };  // namespace hiemalia
 
 #endif  // M_COLLIDE_HH

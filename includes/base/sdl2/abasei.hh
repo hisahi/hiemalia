@@ -23,8 +23,10 @@ struct SDLSoundClip {
     SDLSoundClip(Mix_Chunk* chunk) : sdl(chunk) {}
 
     DELETE_COPY(SDLSoundClip);
-    SDLSoundClip(SDLSoundClip&& move) : sdl(move.sdl) { move.sdl = nullptr; }
-    SDLSoundClip& operator=(SDLSoundClip&& move) {
+    SDLSoundClip(SDLSoundClip&& move) noexcept : sdl(move.sdl) {
+        move.sdl = nullptr;
+    }
+    SDLSoundClip& operator=(SDLSoundClip&& move) noexcept {
         if (sdl != move.sdl) {
             if (sdl) Mix_FreeChunk(sdl);
             sdl = move.sdl;
@@ -59,6 +61,7 @@ class AudioModuleSDLMixer2 : public AudioModule {
     void resume();
 
     void playMusic(const std::string& filename, size_t loopCount);
+    void fadeOutMusic(unsigned int duration = defaultFadeoutDuration);
     void stopMusic();
     bool isMusicPlaying();
 

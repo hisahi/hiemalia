@@ -24,29 +24,28 @@ static const Color menuItemSelectedColor{255, 255, 255, 255};
 static const Color menuItemColor{255, 255, 255, 160};
 static const Color menuItemDisabledColor{255, 255, 255, 96};
 
-void MenuOption::redraw(coord_t x1, coord_t x2, coord_t y,
-                        const RendererText& font, const Color& color) {
+void MenuOption::redraw(coord_t x1, coord_t x2, coord_t y, RendererText& font,
+                        const Color& color) {
     sbuf.clear();
     switch (type) {
         case MenuOptionType::Spacer:
             break;
         case MenuOptionType::Text:
-            font.renderTextLine(sbuf, x1, y, color, text);
+            font.drawTextLineLeft(sbuf, x1, y, color, text);
             break;
         case MenuOptionType::Button:
-            font.renderTextLine(sbuf, (x1 + x2 - font.getTextWidth(text)) / 2,
-                                y, color, text);
+            font.drawTextLineCenter(sbuf, (x1 + x2) / 2, y, color, text);
             break;
         case MenuOptionType::Select: {
             std::string v = asSelect().options.at(asSelect().index);
-            font.renderTextLine(sbuf, x1, y, color, text);
-            font.renderTextLine(sbuf, x2 - font.getTextWidth(v), y, color, v);
+            font.drawTextLineLeft(sbuf, x1, y, color, text);
+            font.drawTextLineRight(sbuf, x2, y, color, v);
             break;
         }
         case MenuOptionType::Input: {
             std::string v = asInput().value;
-            font.renderTextLine(sbuf, x1, y, color, text);
-            font.renderTextLine(sbuf, x2 - font.getTextWidth(v), y, color, v);
+            font.drawTextLineLeft(sbuf, x1, y, color, text);
+            font.drawTextLineRight(sbuf, x2, y, color, v);
             break;
         }
     }

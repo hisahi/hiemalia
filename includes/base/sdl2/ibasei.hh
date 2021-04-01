@@ -71,7 +71,7 @@ class InputControlModuleSDL2 : public InputControlModule {
     SDL_Joystick* joy_{nullptr};
     InputModuleSDL2& host_;
     bool setting_key_{false};
-    ControlInput set_next_;
+    ControlInput set_next_{ControlInput::Up};
     friend InputControlModule& InputModuleSDL2::addInputDevice(
         InputDevice, const ConfigSectionPtr<ButtonSetup>&);
 };

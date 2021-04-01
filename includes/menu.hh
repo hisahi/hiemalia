@@ -104,7 +104,7 @@ class MenuOption {
         return type != MenuOptionType::Spacer && type != MenuOptionType::Text;
     }
 
-    void redraw(coord_t x1, coord_t x2, coord_t y, const RendererText& font,
+    void redraw(coord_t x1, coord_t x2, coord_t y, RendererText& font,
                 const Color& color);
 
    private:

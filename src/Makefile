@@ -15,7 +15,7 @@ CXX ?= g++
 LD := $(CXX)
 RM=rm -f
 
-CXXFLAGS=-std=c++17 -g3 -O0 -Wall -Werror -MMD -MP
+CXXFLAGS=-std=c++17 -g3 -O0 -Wall -Wextra -Werror -Wno-unused-parameter -pedantic -MMD -MP
 LDFLAGS=
 LDLIBS=-lm
 OBJS=
