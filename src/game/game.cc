@@ -15,9 +15,6 @@
 
 namespace hiemalia {
 
-static const coord_t defaultMoveSpeed = 1;
-static const coord_t minimumMoveSpeed = 0.25;
-static const coord_t maximumMoveSpeed = 2.5;
 static const Color white{255, 255, 255, 255};
 static const bool firstPerson = true;
 
@@ -28,8 +25,8 @@ GameMain::GameMain(GameMain&& move) noexcept
       r3d_(std::move(move.r3d_)),
       font_(std::move(move.font_)),
       statusbar_(std::move(move.statusbar_)),
-      moveSpeed(move.moveSpeed),
-      timer(move.timer) {}
+      timer(move.timer),
+      objectLateZ(farObjectBackPlane) {}
 
 GameMain& GameMain::operator=(GameMain&& move) noexcept {
     LogicModule::operator=(std::move(move));
@@ -38,16 +35,35 @@ GameMain& GameMain::operator=(GameMain&& move) noexcept {
     r3d_ = std::move(move.r3d_);
     font_ = std::move(move.font_);
     statusbar_ = std::move(move.statusbar_);
+    objectLateZ = std::move(move.objectLateZ);
     return *this;
 }
 
-GameMain::GameMain() : world_(std::make_unique<GameWorld>()) {
+GameMain::GameMain()
+    : world_(std::make_unique<GameWorld>()),
+      timer(0),
+      objectLateZ(farObjectBackPlane) {
     font_.setFont(getAssets().menuFont);
-    moveSpeed = defaultMoveSpeed;
-    timer = 0;
 }
 
 GameMain::~GameMain() noexcept {}
+
+static void playStageMusic(int stageNum) {
+    switch (stageNum) {
+        case 1:
+            sendMessage(AudioMessage::playMusic(MusicTrack::Stage1));
+            break;
+        case 2:
+            sendMessage(AudioMessage::playMusic(MusicTrack::Stage2));
+            break;
+        case 3:
+            sendMessage(AudioMessage::playMusic(MusicTrack::Stage3));
+            break;
+        case 4:
+            sendMessage(AudioMessage::playMusic(MusicTrack::Stage4));
+            break;
+    }
+}
 
 static void drawScore(SplinterBuffer& sbuf, RendererText& font, coord_t x,
                       coord_t y, unsigned score) {
@@ -78,9 +94,14 @@ void GameMain::startNewStage() { world_->startNewStage(); }
 
 void GameMain::pauseGame() {
     if (!paused_) {
+        if (gameOver_) {
+            doExitGame();
+            return;
+        }
         shouldBePaused_ = true;
         paused_ = true;
         sendMessage(LogicMessage::pauseMenu());
+        sendMessage(AudioMessage::pause());
         sendMessage(AudioMessage::playSound(SoundEffect::Pause));
     }
 }
@@ -99,6 +120,7 @@ void GameMain::gotMessage(const GameMessage& msg) {
             pauseGame();
             break;
         case GameMessageType::ContinueGame:
+            sendMessage(AudioMessage::resume());
             shouldBePaused_ = false;
             break;
         case GameMessageType::StageComplete:
@@ -112,6 +134,8 @@ void GameMain::gotMessage(const GameMessage& msg) {
 
 void GameMain::doExitGame() {
     continue_ = false;
+    sendMessage(AudioMessage::stopMusic());
+    sendMessage(AudioMessage::stopSounds());
     sendMessage(HostMessage::mainMenu());
 }
 
@@ -121,31 +145,9 @@ void GameMain::gotMessage(const MenuMessage& msg) {
     }
 }
 
-void GameMain::updateMoveSpeedInput(ControlState& inputs, float delta) {
-    if (inputs.back) {
-        moveSpeed = std::max<coord_t>(
-            moveSpeed + (minimumMoveSpeed - defaultMoveSpeed) * delta,
-            minimumMoveSpeed);
-    } else if (inputs.forward) {
-        moveSpeed = std::min<coord_t>(
-            moveSpeed + (maximumMoveSpeed - defaultMoveSpeed) * delta * 2,
-            maximumMoveSpeed);
-    } else if (moveSpeed < defaultMoveSpeed) {
-        moveSpeed = std::min<coord_t>(
-            defaultMoveSpeed,
-            moveSpeed + (defaultMoveSpeed - minimumMoveSpeed) * delta * 2);
-    } else if (moveSpeed > defaultMoveSpeed) {
-        moveSpeed = std::max<coord_t>(
-            defaultMoveSpeed,
-            moveSpeed + (defaultMoveSpeed - maximumMoveSpeed) * delta);
-    }
-}
-
-coord_t moveSpeed{0.5};
-
 void GameMain::drawObject(GameState& state, float interval,
                           const ObjectPtr& obj) {
-    obj->render(state.sbuf, r3d_);
+    if (obj->pos.z < objectLateZ) obj->render(state.sbuf, r3d_);
 }
 
 bool GameMain::updateObject(GameState& state, float interval,
@@ -170,8 +172,8 @@ static bool timerCrosses(float timer, float interval, float threshold) {
 
 static const ModelPoint c_scale = ModelPoint(0.25, 0.25, 0.25);
 static const coord_t p_fpx = 0;
-static const coord_t p_fpy = -0.01171875;
-static const coord_t p_fpz = -0.03515625;
+static const coord_t p_fpy = -0.017578125;
+static const coord_t p_fpz = -0.052734375;
 
 void GameMain::doStageStartTick(GameState& state, float interval) {
     GameWorld& w = *world_;
@@ -185,7 +187,7 @@ void GameMain::doStageStartTick(GameState& state, float interval) {
                            w.getPlayer().rot, c_scale);
         } else {
             float radius = 1 - prog;
-            float angle = static_cast<float>(prog * numbers::TAU);
+            float angle = prog * numbers::TAU<float>;
             float r2 = radius * radius;
             float s = std::sin(angle);
             float c = std::cos(angle);
@@ -203,7 +205,7 @@ void GameMain::doStageStartTick(GameState& state, float interval) {
                 c_scale);
         }
         w.drawStage(state.sbuf, r3d_);
-        w.renderPlayer(state.sbuf, r3d_);
+        w.renderPlayer(state.sbuf, r3d_, {0, 0, 0});
     }
     if (timerCrosses(stageStartTimer, interval, 1)) {
         font_.drawTextLineCenter(textscreen_, 0, 0.25, white, "START!", 2);
@@ -211,20 +213,23 @@ void GameMain::doStageStartTick(GameState& state, float interval) {
     stageStartTimer -= interval;
     if (stageStartTimer <= 0) {
         textscreen_.clear();
+        playStageMusic(w.stageNum);
     }
 }
 
 void GameMain::doStageComplete() {
+    GameWorld& w = *world_;
     timer = 8;
     stageStartTimer = 0;
     stageComplete_ = true;
+    objectLateZ = w.getObjectBackPlane();
     sendMessage(AudioMessage::fadeOutMusic());
 }
 
 void GameMain::doStageCompleteTick(GameState& state, float interval) {
     GameWorld& w = *world_;
     w.drawStage(state.sbuf, r3d_);
-    w.renderPlayer(state.sbuf, r3d_);
+    w.renderPlayer(state.sbuf, r3d_, {0, 0, 0});
     drawObjects(state, interval, w.objects);
     drawObjects(state, interval, w.enemyBullets);
     drawObjects(state, interval, w.playerBullets);
@@ -246,11 +251,19 @@ void GameMain::doGameOver() {
     stageComplete_ = false;
 }
 
+void GameMain::doInit(GameState& state) {
+    GameWorld& w = *world_;
+    w.highScore = state.highScores.getTopScore();
+    drawStatusBar();
+    init_ = true;
+}
+
 bool GameMain::run(GameState& state, float interval) {
     static constexpr coord_t Y = 0.875;
     static const Rotation3D c_rot = Rotation3D(0, 0, 0);
     static const Rotation3D c_trot = Rotation3D(
         radians<coord_t>(-60), radians<coord_t>(30), radians<coord_t>(-30));
+    if (!init_) doInit(state);
     if (!continue_) return false;
     if (gameOver_) {
         state.sbuf.append(textscreen_);
@@ -274,6 +287,8 @@ bool GameMain::run(GameState& state, float interval) {
     if (!paused_ && state.controls.pause) pauseGame();
     if (paused_) {
         // I am paused
+        state.sbuf.append(statusbar_);
+        return true;
     } else if (stageStartTimer > 0) {
         state.sbuf.push(Splinter(SplinterType::BeginClipCenter, -Y, +Y));
         doStageStartTick(state, interval);
@@ -284,24 +299,22 @@ bool GameMain::run(GameState& state, float interval) {
         state.sbuf.push(Splinter(SplinterType::EndClip, 0, 0));
     } else {
         state.sbuf.push(Splinter(SplinterType::BeginClipCenter, -Y, +Y));
+        Rotation3D envRot{0, 0, 0};
+        w.updateMoveSpeedInput(state.controls, interval);
         if (w.isPlayerAlive()) {
-            auto& plr = w.player;
-            plr->updateInput(state.controls);
-            updateMoveSpeedInput(state.controls, interval);
-            w.moveSpeed = moveSpeed;
-            w.moveForward(interval * w.moveSpeed);
-        } else {
-            moveSpeed = defaultMoveSpeed;
+            w.player->updateInput(state.controls);
+            w.go(interval);
         }
         bool playerAlive = w.runPlayer(interval);
         const ModelPoint& p = w.getPlayerPosition();
         w.drawStage(state.sbuf, r3d_);
         if (w.isPlayerAlive()) {
             auto& plr = w.player;
+            envRot = w.getSectionRotation();
             if (firstPerson) {  // first person view
                 r3d_.setCamera(
-                    ModelPoint(p.x + p_fpx, p.y + p_fpy, p.z + p_fpz), plr->rot,
-                    c_scale);
+                    ModelPoint(p.x + p_fpx, p.y + p_fpy, p.z + p_fpz),
+                    plr->rot + envRot, c_scale);
                 // crosshair
                 state.sbuf.push(Splinter(SplinterType::BeginShape, -0.03125,
                                          -0.03125, Color{255, 255, 0, 160}));
@@ -318,12 +331,16 @@ bool GameMain::run(GameState& state, float interval) {
             r3d_.setCamera(ModelPoint(p.x + 0.25, p.y - 0.25, p.z - 0.25),
                            c_trot, c_scale);
         }
+        objectLateZ = w.getObjectBackPlane();
         processObjects(state, interval, w.objects);
+        objectLateZ = farObjectBackPlane;
         processObjects(state, interval, w.enemyBullets);
         processObjects(state, interval, w.playerBullets);
         if (playerAlive) {
-            w.renderPlayer(state.sbuf, r3d_);
-        } else if (!w.respawn()) {
+            w.renderPlayer(state.sbuf, r3d_, envRot);
+        } else if (w.respawn()) {
+            playStageMusic(w.stageNum);
+        } else {
             doGameOver();
         }
         state.sbuf.push(Splinter(SplinterType::EndClip, 0, 0));

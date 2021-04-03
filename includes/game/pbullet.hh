@@ -4,7 +4,7 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// game/pbullet.hh: header file for bullet objects (game/pbullet.cc)
+// game/pbullet.hh: header file for player bullets (game/pbullet.cc)
 
 #ifndef M_GAME_PBULLET_HH
 #define M_GAME_PBULLET_HH

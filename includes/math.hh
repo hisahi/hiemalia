@@ -13,19 +13,62 @@
 #include <cmath>
 
 namespace hiemalia {
+template <typename T>
+constexpr T abs(T x) {
+    return std::abs(x);
+}
+
+template <typename T>
+constexpr T sqrt(T x) {
+    return std::sqrt(x);
+}
+
+template <typename T>
+constexpr T sin(T x) {
+    return std::sin(x);
+}
+
+template <typename T>
+constexpr T cos(T x) {
+    return std::cos(x);
+}
+
+template <typename T>
+constexpr T tan(T x) {
+    return std::tan(x);
+}
+
+template <typename T>
+constexpr T pow(T x, T y) {
+    return std::pow(x, y);
+}
+
+template <typename T>
+constexpr T acos(T x) {
+    return std::acos(x);
+}
+
 namespace numbers {
-inline const double PI = 3.14159265358979323846264338327950288419716939937510;
-inline const double TAU = 2 * PI;
+template <typename T = double>
+inline const T PI = static_cast<T>(
+    3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679);
+template <typename T = double>
+inline const T TAU = 2 * PI<T>;
+template <typename T = double>
+inline const T SQRT2 = static_cast<T>(
+    1.4142135623730950488016887242096980785696718753769480731766797379907324784621070388503875343276415727);
+template <typename T = double>
+inline const T ISQRT2 = 1 / SQRT2<T>;
 }  // namespace numbers
 
 template <typename T>
 constexpr T radians(T degrees) {
-    return degrees * (numbers::PI / 180);
+    return degrees * (numbers::PI<T> / 180);
 }
 
 template <typename T>
 constexpr T degrees(T radians) {
-    return radians * (180 / numbers::PI);
+    return radians * (180 / numbers::PI<T>);
 }
 
 template <typename T>
@@ -64,7 +107,7 @@ Ti floatToWholeFrac(Tf& x) {
 
 template <typename T>
 constexpr T wrapAngle(T x) {
-    return std::fmod(x, numbers::TAU);
+    return std::fmod(x, numbers::TAU<T>);
 }
 };  // namespace hiemalia
 

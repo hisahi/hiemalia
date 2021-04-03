@@ -9,6 +9,7 @@
 #ifndef M_ARRAY_HH
 #define M_ARRAY_HH
 
+#include <algorithm>
 #include <array>
 #include <type_traits>
 
@@ -37,6 +38,11 @@ constexpr std::array<std::remove_cv_t<T>, N> to_array(T (&arr)[N]) {
 template <typename T, std::size_t N>
 constexpr std::array<std::remove_cv_t<T>, N> to_array(T(&&arr)[N]) {
     return to_array_(std::move(arr), std::make_index_sequence<N>{});
+}
+
+template <typename T, size_t N>
+bool arrayContains(const std::array<T, N>& arr, const T& val) {
+    return std::find(arr.begin(), arr.end(), val) != arr.end();
 }
 }  // namespace hiemalia
 

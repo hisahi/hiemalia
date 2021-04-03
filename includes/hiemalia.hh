@@ -20,6 +20,7 @@
 #include "logic.hh"
 #include "menu.hh"
 #include "msg.hh"
+#include "scores.hh"
 #include "video.hh"
 
 namespace hiemalia {

@@ -43,7 +43,7 @@ static ModelFragment parseModelFragment(std::string s, size_t n, Color color) {
     return ModelFragment(color, start, std::move(points));
 }
 
-static Model loadStream3D(std::istream& in) {
+static Model loadStream3D(std::istream& in, ModelCollisionRadius* col) {
     std::vector<ModelPoint> vertices;
     std::vector<ModelFragment> fragments;
     coord_t scale = 1;
@@ -76,6 +76,52 @@ static Model loadStream3D(std::istream& in) {
             scaleY = fromString<coord_t>(value);
         } else if (command == "sz") {
             scaleZ = fromString<coord_t>(value);
+        } else if (command == "cr" && col) {
+            col->hitRadius = fromString<coord_t>(value) * scale;
+        } else if (command == "cp" && col) {
+            std::istringstream in(value);
+            int a;
+            in >> a;
+            if (a < 0) a += vertices.size();
+            col->shapes.push_back(CollisionShape::point(vertices[a]));
+        } else if (command == "cl" && col) {
+            std::istringstream in(value);
+            int a, b;
+            in >> a >> b;
+            if (a < 0) a += vertices.size();
+            if (b < 0) b += vertices.size();
+            col->shapes.push_back(
+                CollisionShape::line(vertices[a], vertices[b]));
+        } else if (command == "cc" && col) {
+            std::istringstream in(value);
+            int a, b;
+            in >> a >> b;
+            if (a < 0) a += vertices.size();
+            if (b < 0) b += vertices.size();
+            ModelPoint c1{std::min(vertices[a].x, vertices[b].x),
+                          std::min(vertices[a].y, vertices[b].y),
+                          std::min(vertices[a].z, vertices[b].z)};
+            ModelPoint c2{std::max(vertices[a].x, vertices[b].x),
+                          std::max(vertices[a].y, vertices[b].y),
+                          std::max(vertices[a].z, vertices[b].z)};
+            col->shapes.push_back(CollisionShape::cuboid(c1, c2));
+        } else if (command == "cs" && col) {
+            std::istringstream in(value);
+            int a;
+            coord_t r;
+            in >> a >> r;
+            if (a < 0) a += vertices.size();
+            r *= scale;
+            col->shapes.push_back(CollisionShape::sphere(vertices[a], r));
+        } else if (command == "ct" && col) {
+            std::istringstream in(value);
+            int a, b, c;
+            in >> a >> b >> c;
+            if (a < 0) a += vertices.size();
+            if (b < 0) b += vertices.size();
+            if (c < 0) c += vertices.size();
+            col->shapes.push_back(
+                CollisionShape::tri(vertices[a], vertices[b], vertices[c]));
         }
     }
 
@@ -87,7 +133,7 @@ Model load3D(const std::string& filename) {
     std::ifstream stream = openAssetFileRead(filename, false);
     if (stream.fail()) throw std::runtime_error("failed to open model file");
     stream.exceptions(std::ifstream::badbit);
-    return loadStream3D(stream);
+    return loadStream3D(stream, nullptr);
 }
 
 Model load3D(const std::string& folder, const std::string& filename) {
@@ -96,6 +142,28 @@ Model load3D(const std::string& folder, const std::string& filename) {
     std::ifstream stream = openFileRead(f, false);
     if (stream.fail()) throw std::runtime_error("failed to open model file");
     stream.exceptions(std::ifstream::badbit);
-    return loadStream3D(stream);
+    return loadStream3D(stream, nullptr);
+}
+
+ModelWithCollision load3DWithCollision(const std::string& filename) {
+    LOG_TRACE("loading 3D model from assets/%s", filename);
+    std::ifstream stream = openAssetFileRead(filename, false);
+    if (stream.fail()) throw std::runtime_error("failed to open model file");
+    stream.exceptions(std::ifstream::badbit);
+    ModelCollisionRadius col;
+    Model model = loadStream3D(stream, &col);
+    return {model, ModelCollision(std::move(col.shapes)), col.hitRadius};
+}
+
+ModelWithCollision load3DWithCollision(const std::string& folder,
+                                       const std::string& filename) {
+    std::string f = buildAssetFilePath(folder, filename);
+    LOG_TRACE("loading 3D model from %s", f);
+    std::ifstream stream = openFileRead(f, false);
+    if (stream.fail()) throw std::runtime_error("failed to open model file");
+    stream.exceptions(std::ifstream::badbit);
+    ModelCollisionRadius col;
+    Model model = loadStream3D(stream, &col);
+    return {model, ModelCollision(std::move(col.shapes)), col.hitRadius};
 }
 }  // namespace hiemalia

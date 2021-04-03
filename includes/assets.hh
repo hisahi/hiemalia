@@ -23,18 +23,23 @@
 #include "sounds.hh"
 
 namespace hiemalia {
+struct LoadedGameModel {
+    std::shared_ptr<Model> model;
+    std::shared_ptr<ModelCollision> collision;
+    coord_t radius;
+};
 
 struct GameAssets {
     std::shared_ptr<Font> gameFont;
     std::shared_ptr<Font> menuFont;
     std::vector<sound_t> sounds;
     std::vector<std::string> musicTracks;
-    std::vector<std::shared_ptr<Model>> gameModels;
+    std::vector<LoadedGameModel> gameModels;
     std::vector<std::shared_ptr<GameSection>> sectionData;
 };
 
 const GameAssets& getAssets();
-std::shared_ptr<const Model> getGameModel(GameModel model);
+const LoadedGameModel& getGameModel(GameModel model);
 const GameSection& getSectionById(size_t id);
 
 }  // namespace hiemalia

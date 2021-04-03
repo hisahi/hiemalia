@@ -76,7 +76,7 @@ ModelPoint Vector3D::toCartesian() const {
     dynamic_assert(wf > 0, "negative w -- unexpected degenerate case");
     return ModelPoint(x * wf, y * wf, z * wf);
 }
-Vector3D Matrix3D::project(const Vector3D& v) {
+Vector3D Matrix3D::project(const Vector3D& v) const {
     coord_t x = v.x, y = v.y, z = v.z, w = v.w;
     return Vector3D(x * m[0] + y * m[1] + z * m[2] + w * m[3],
                     x * m[4] + y * m[5] + z * m[6] + w * m[7],
@@ -84,7 +84,7 @@ Vector3D Matrix3D::project(const Vector3D& v) {
                     x * m[12] + y * m[13] + z * m[14] + w * m[15]);
 }
 
-ModelPoint Matrix3D::project(const ModelPoint& p) {
+ModelPoint Matrix3D::project(const ModelPoint& p) const {
     return project(Vector3D(p)).toCartesian();
 }
 
@@ -99,7 +99,7 @@ Renderer3D::Renderer3D() {
     setCamera(ModelPoint(0, 0, 0), Rotation3D(0, 0, 0), ModelPoint(1, 1, 1));
 }
 
-static coord_t computeFOV(coord_t a) { return 1.0 / std::tan(a / 2.0); }
+static coord_t computeFOV(coord_t a) { return 1.0 / tan(a / 2.0); }
 
 static const coord_t near = 1.0 / 256;
 static const coord_t far = 8;

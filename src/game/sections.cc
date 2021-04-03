@@ -14,6 +14,7 @@ namespace hiemalia {
 
 const std::unordered_map<std::string, section_t> sectionMap = {
     {"plain", 0},
+    {"plaintr", 1},
 };
 
 int getSectionCount() {

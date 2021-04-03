@@ -6,7 +6,7 @@
 /****************************************************************************/
 // menuinpb.cc: implementation of input control menu
 
-#include "menuinpb.hh"
+#include "menu/menuinpb.hh"
 
 #include "controls.hh"
 #include "defs.hh"

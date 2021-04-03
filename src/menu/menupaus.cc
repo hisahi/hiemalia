@@ -6,7 +6,7 @@
 /****************************************************************************/
 // menupaus.cc: implementation of MenuPause
 
-#include "menupaus.hh"
+#include "menu/menupaus.hh"
 
 #include "defs.hh"
 #include "game/gamemsg.hh"

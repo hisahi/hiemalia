@@ -15,6 +15,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "defs.hh"
+
 namespace hiemalia {
 template <typename T>
 T canFromString(const std::string& s) {
@@ -74,6 +76,12 @@ inline std::string trimLeft(std::string s) {
             std::find_if_not(s.begin(), s.end(),
                              [](unsigned char c) { return std::isspace(c); }));
     return s;
+}
+
+inline std::string substring(const std::string& s, size_t left, size_t right) {
+    dynamic_assert(left <= right, "invalid substring begin/end");
+    return right == std::string::npos ? s.substr(left)
+                                      : s.substr(left, right - left);
 }
 };  // namespace hiemalia
 

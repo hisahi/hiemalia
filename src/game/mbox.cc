@@ -17,24 +17,28 @@
 
 namespace hiemalia {
 ScalableBox::ScalableBox(coord_t x, coord_t y, coord_t z) : GameObject() {
-    model = getGameModel(GameModel::BoxModel);
+    useGameModel(GameModel::BoxModel, false);
     scale = ModelPoint(x, y, z);
-    setCollisionRadius(std::max({x, y, z}));
+    noCollision();  // because we override hits
+}
+
+bool ScalableBox::hits(const GameObject& obj) const {
+    return collidesCuboidObject(pmin_, pmax_, obj);
 }
 
 void ScalableBox::absorbBullets(GameWorld& w, const BulletList& list) {
     for (auto& bptr : list) {
-        if (bptr->hitsCuboid(pmin, pmax)) {
-            bptr->backtrackCuboid(pmin, pmax);
+        if (hits(*bptr)) {
+            bptr->backtrackCuboid(pmin_, pmax_);
             bptr->impact(w, false);
         }
     }
 }
 
 bool ScalableBox::update(GameWorld& w, float delta) {
-    pmin = pos - scale;
-    pmax = pos + scale;
-    if (w.isPlayerAlive() && w.getPlayer().collideCuboid(pmin, pmax)) {
+    pmin_ = pos - scale;
+    pmax_ = pos + scale;
+    if (w.isPlayerAlive() && hits(w.getPlayer())) {
         const ModelPoint& ppos = w.getPlayer().pos;
         coord_t dx = (ppos.x - pos.x) / scale.x;
         coord_t dy = (ppos.y - pos.y) / scale.y;
@@ -50,20 +54,6 @@ bool ScalableBox::update(GameWorld& w, float delta) {
     absorbBullets(w, w.getPlayerBullets());
     absorbBullets(w, w.getEnemyBullets());
     return !isOffScreen();
-}
-
-bool ScalableBox::collideLineInternal(const ModelPoint& p1,
-                                      const ModelPoint& p2) const {
-    return collidesLineCuboid(p1, p2, pmin, pmax);
-}
-
-bool ScalableBox::collideCuboidInternal(const ModelPoint& c1,
-                                        const ModelPoint& c2) const {
-    return collidesCuboidCuboid(c1, c2, pmin, pmax);
-}
-
-bool ScalableBox::collideSphereInternal(const ModelPoint& p, coord_t r2) const {
-    return collidesSphereCuboid(p, r2, pmin, pmax);
 }
 
 }  // namespace hiemalia

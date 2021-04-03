@@ -8,70 +8,34 @@
 
 #include "game/player.hh"
 
-#include <random>
-
 #include "assets.hh"
 #include "audio.hh"
 #include "collide.hh"
 #include "game/pbullet.hh"
 #include "game/world.hh"
 #include "hiemalia.hh"
+#include "random.hh"
 
 namespace hiemalia {
 static const coord_t maxSpeed = 1.5;
 static const coord_t maxRotation = 0.1875;
-static const coord_t shipRadius = 0.125;
 
-static std::random_device random_device;
-static std::default_random_engine random_engine{random_device()};
 static std::uniform_real_distribution<coord_t> rd_rotmul(0.5, 1.0);
 static std::uniform_real_distribution<coord_t> rd_yawmul(-0.5, 1.0);
 
-#define R(x) ((x) * (x))
-static const auto hitSpheres = hiemalia::to_array<CollisionSphere>(
-    {{{0, 0, 0}, R(0.046875)}, {{0, 0, 0.03125}, R(0.015625)}});
-#undef R
-
 PlayerObject::PlayerObject() : GameObject() {
-    model = getGameModel(GameModel::PlayerShip);
-    setCollisionRadius(shipRadius);
-}
-
-bool PlayerObject::collideLineInternal(const ModelPoint& p1,
-                                       const ModelPoint& p2) const {
-    return std::any_of(hitSpheres.begin(), hitSpheres.end(),
-                       [&](const CollisionSphere& sphere) {
-                           return collidesLineSphere(
-                               p1, p2, pos + sphere.center, sphere.radius2);
-                       });
-}
-
-bool PlayerObject::collideCuboidInternal(const ModelPoint& c1,
-                                         const ModelPoint& c2) const {
-    return std::any_of(hitSpheres.begin(), hitSpheres.end(),
-                       [&](const CollisionSphere& sphere) {
-                           return collidesCuboidSphere(
-                               c1, c2, pos + sphere.center, sphere.radius2);
-                       });
-}
-
-bool PlayerObject::collideSphereInternal(const ModelPoint& p,
-                                         coord_t r2) const {
-    return std::any_of(hitSpheres.begin(), hitSpheres.end(),
-                       [&](const CollisionSphere& sphere) {
-                           return collidesSphereSphere(
-                               p, r2, pos + sphere.center, sphere.radius2);
-                       });
+    useGameModel(GameModel::PlayerShip);
+    shipRadius_ = getCollisionRadius();
 }
 
 void PlayerObject::onDamage(GameWorld& w, float damage,
                             const ModelPoint& contact) {
     if (woundedBird_) return;
-    wbird_vel_.yaw = (contact.x - pos.x) * -16 * rd_yawmul(random_engine);
-    wbird_vel_.pitch = (contact.z - pos.z) * 32 * rd_rotmul(random_engine);
-    wbird_vel_.roll = (contact.x - pos.x) * 64 * rd_rotmul(random_engine);
+    wbird_vel_.yaw = (contact.x - pos.x) * -8 * random(rd_yawmul);
+    wbird_vel_.pitch = (contact.z - pos.z) * 12 * random(rd_rotmul);
+    wbird_vel_.roll = (contact.x - pos.x) * 32 * random(rd_rotmul);
     wbird_fr_ = 0;
-    wbird_mul_ = std::max(0.25, 0.25 + (contact.z - pos.z) * 12) * 0.5;
+    wbird_mul_ = std::max(0.25, 0.25 + (contact.z - pos.z) * 12) * 0.125;
 }
 
 void PlayerObject::onDeath(GameWorld& w) {
@@ -79,6 +43,8 @@ void PlayerObject::onDeath(GameWorld& w) {
     sendMessage(AudioMessage::playSound(SoundEffect::PlayerHit));
     woundedBird_ = true;
 }
+
+void PlayerObject::enemyContact() { wallContact(0, 0, 0); }
 
 void PlayerObject::wallContact(coord_t x, coord_t y, coord_t z) {
     explodeObject_ = std::make_unique<Explosion>(*this, x, y, z, 1.0f);
@@ -135,22 +101,22 @@ void PlayerObject::inputsAngles(float delta) {
 }
 
 void PlayerObject::checkBounds(const MoveRegion& r, GameWorld& w) {
-    if (pos.y - shipRadius < r.y0) {
+    if (pos.y - shipRadius_ < r.y0) {
         if (vel.y < 0) vel.y = 0;
         pos.y = r.y0;
         wallContact(0, 1, 0);
         return;
-    } else if (pos.y + shipRadius > r.y1) {
+    } else if (pos.y + shipRadius_ > r.y1) {
         if (vel.y > 0) vel.y = 0;
         pos.y = r.y1;
         wallContact(0, -1, 0);
         return;
-    } else if (pos.x - shipRadius < r.x0) {
+    } else if (pos.x - shipRadius_ < r.x0) {
         if (vel.x < 0) vel.x = 0;
         pos.x = r.x0;
         wallContact(1, 0, 0);
         return;
-    } else if (pos.x + shipRadius > r.x1) {
+    } else if (pos.x + shipRadius_ > r.x1) {
         if (vel.x > 0) vel.x = 0;
         pos.x = r.x1;
         wallContact(-1, 0, 0);
@@ -158,7 +124,7 @@ void PlayerObject::checkBounds(const MoveRegion& r, GameWorld& w) {
     }
 }
 
-bool PlayerObject::shouldCatchCheckpoints() const { return !woundedBird_; }
+bool PlayerObject::playerInControl() const { return !woundedBird_; }
 
 void PlayerObject::doWoundedBird(float delta) {
     wbird_fr_ += delta;
@@ -172,8 +138,9 @@ void PlayerObject::doFire(GameWorld& w) {
     Matrix3D mat = getObjectModelMatrix();
     ModelPoint leftTurret = mat.project(ModelPoint(-2, 0.0625, 0.25) * 0.0625);
     ModelPoint rightTurret = mat.project(ModelPoint(2, 0.0625, 0.25) * 0.0625);
-    w.firePlayerBullet<PlayerBullet>(leftTurret, ModelPoint(0.125, 0, 4));
-    w.firePlayerBullet<PlayerBullet>(rightTurret, ModelPoint(-0.125, 0, 4));
+    w.firePlayerBullet<PlayerBullet>(leftTurret, ModelPoint(0.125, 0, 4) * 1.5);
+    w.firePlayerBullet<PlayerBullet>(rightTurret,
+                                     ModelPoint(-0.125, 0, 4) * 1.5);
 }
 
 bool PlayerObject::update(GameWorld& w, float delta) {

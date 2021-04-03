@@ -34,14 +34,21 @@ const GameAssets& getAssets() {
     return assets;
 }
 
-std::shared_ptr<const Model> getGameModel(GameModel model) {
+static LoadedGameModel loadGameModel(int index) {
+    ModelWithCollision mc =
+        load3DWithCollision("models", modelFileNames[index]);
+    return LoadedGameModel{
+        std::make_shared<Model>(std::move(mc.model)),
+        std::make_shared<ModelCollision>(std::move(mc.collision)), mc.radius};
+}
+
+const LoadedGameModel& getGameModel(GameModel model) {
     int index = static_cast<int>(model);
     if (index >= static_cast<int>(assets.gameModels.size()))
         assets.gameModels.insert(assets.gameModels.end(),
-                                 index - assets.gameModels.size() + 1, nullptr);
-    if (!assets.gameModels[index]) {
-        assets.gameModels[index] =
-            std::make_shared<Model>(load3D("models", modelFileNames[index]));
+                                 index - assets.gameModels.size() + 1, {});
+    if (!assets.gameModels[index].model) {
+        assets.gameModels[index] = loadGameModel(index);
     }
     return assets.gameModels[index];
 }

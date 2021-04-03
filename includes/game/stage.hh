@@ -44,6 +44,7 @@ struct MoveRegion {
 struct GameSection {
     Model model;
     MoveRegion region;
+    Rotation3D rotation;
 };
 
 GameSection loadSection(const std::string& name);
@@ -54,14 +55,16 @@ struct GameStage {
     std::deque<ObjectSpawn> spawns;
     circular_buffer<section_t, stageVisibility> visible;
 
-    void loadStage();
     void nextSection();
     void drawStage(SplinterBuffer& sbuf, Renderer3D& r3d, coord_t offset);
+    coord_t getObjectBackPlane(coord_t offset) const;
     static GameStage load(int stagenum);
 
    private:
     GameStage(std::vector<section_t>&& sections, int loopLength,
               std::deque<ObjectSpawn>&& spawns);
+    static void processSectionCommand(std::vector<section_t>& sections,
+                                      std::string s);
     size_t nextSection_{0};
     size_t nextSectionLoop_{0};
 };

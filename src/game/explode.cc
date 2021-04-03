@@ -9,17 +9,15 @@
 #include "game/explode.hh"
 
 #include <cmath>
-#include <random>
 
 #include "assets.hh"
 #include "collide.hh"
 #include "game/world.hh"
 #include "model.hh"
+#include "random.hh"
 #include "rend3d.hh"
 
 namespace hiemalia {
-static std::random_device random_device;
-static std::default_random_engine random_engine{random_device()};
 static std::uniform_real_distribution<coord_t> rd_negative(-0.5, 0.0);
 static std::uniform_real_distribution<coord_t> rd_positive(0.0, 0.5);
 static std::uniform_real_distribution<coord_t> rd_both(-0.5, 0.5);
@@ -42,27 +40,31 @@ static ModelPoint getRandomVelocity(coord_t xm, coord_t ym, coord_t zm) {
     auto& yr = pick_distribution(ym);
     auto& zr = pick_distribution(zm);
     do {
-        x = xr(random_engine);
-        y = yr(random_engine);
-        z = zr(random_engine);
+        x = random(xr);
+        y = random(yr);
+        z = random(zr);
     } while (x == 0 && y == 0 && z == 0 && i++ < 50);
 
     if (!(x == 0 && y == 0 && z == 0)) {
         coord_t v = 1.0 / std::sqrt(x * x + y * y + z * z);
-        x *= rd_speed(random_engine) * v;
-        y *= rd_speed(random_engine) * v;
-        z *= rd_speed(random_engine) * v;
+        x *= random(rd_speed) * v;
+        y *= random(rd_speed) * v;
+        z *= random(rd_speed) * v;
     }
     return ModelPoint(x, y, z);
 }
 
 static Rotation3D getRandomRotation(coord_t xm, coord_t ym, coord_t zm) {
-    return Rotation3D{rd_rotation(random_engine), rd_rotation(random_engine),
-                      rd_rotation(random_engine)};
+    return Rotation3D{random(rd_rotation), random(rd_rotation),
+                      random(rd_rotation)};
 }
 
 Explosion::Explosion(const GameObject& o, coord_t xm, coord_t ym, coord_t zm,
                      float explspeed)
+    : Explosion(o, o.model(), xm, ym, zm, explspeed) {}
+
+Explosion::Explosion(const GameObject& o, const Model& model, coord_t xm,
+                     coord_t ym, coord_t zm, float explspeed)
     : GameObject(), explspeed_(explspeed) {
     float explspeedinv = 1.0f / explspeed;
     tempModel_.vertices.push_back(ModelPoint(0, 0, 0));
@@ -71,7 +73,6 @@ Explosion::Explosion(const GameObject& o, coord_t xm, coord_t ym, coord_t zm,
     pos = o.pos;
     rot = o.rot;
     scale = o.scale;
-    const Model& model = *o.model;
     for (const ModelFragment& f : model.shapes) {
         const ModelPoint* prev = &(model.vertices[f.start]);
         for (size_t pi : f.points) {
@@ -108,10 +109,15 @@ void Explosion::renderSpecial(SplinterBuffer& sbuf, Renderer3D& r3d) {
 }
 
 void Explosion::adjustSpeed(coord_t s) {
-    s *= 4;
     for (ExplosionShard& shard : shards_) {
         shard.dpos *= s;
         shard.drot *= s;
+    }
+}
+
+void Explosion::move(const ModelPoint& p) {
+    for (ExplosionShard& shard : shards_) {
+        shard.pos += p;
     }
 }
 

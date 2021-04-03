@@ -6,7 +6,7 @@
 /****************************************************************************/
 // menuinp.cc: implementation of input device menu
 
-#include "menuaud.hh"
+#include "menu/menuaud.hh"
 
 #include "audio.hh"
 #include "controls.hh"
@@ -14,7 +14,7 @@
 #include "hiemalia.hh"
 #include "input.hh"
 #include "logger.hh"
-#include "menuinpb.hh"
+#include "menu/menuinp.hh"
 
 namespace hiemalia {
 

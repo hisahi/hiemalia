@@ -14,7 +14,6 @@
 #include "ibase.hh"
 #include "logger.hh"
 #include "logic.hh"
-#include "menumain.hh"
 #include "vbase.hh"
 
 namespace hiemalia {

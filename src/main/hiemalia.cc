@@ -19,8 +19,8 @@
 #include "hbase.hh"
 #include "logger.hh"
 #include "logic.hh"
-#include "menumain.hh"
 #include "mholder.hh"
+#include "scores.hh"
 
 namespace hiemalia {
 
@@ -67,6 +67,7 @@ void Hiemalia::run() {
     modules_ = std::make_unique<ModuleHolder>(host_, state_);
     ModuleHolder &m = *modules_;
     m.loadAssets();
+    state_.highScores = loadHighscores();
 
     host_->begin();
     sendMessage(HostMessage::mainMenu());
@@ -81,6 +82,7 @@ void Hiemalia::run() {
     }
     LOG_DEBUG("Finishing up");
     host_->finish();
+    saveHighscores(state_.highScores);
 
     state_.config.save(configFileName);
 }

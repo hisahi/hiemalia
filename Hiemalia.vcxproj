@@ -85,7 +85,7 @@
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -123,7 +123,11 @@
     <ClCompile Include="src\game\box.cc" />
     <ClCompile Include="src\game\bullet.cc" />
     <ClCompile Include="src\game\checkpnt.cc" />
+    <ClCompile Include="src\game\diffic.cc" />
+    <ClCompile Include="src\game\ebullet.cc" />
     <ClCompile Include="src\game\enemy.cc" />
+    <ClCompile Include="src\game\enemy\gunboat.cc" />
+    <ClCompile Include="src\game\enemy\shard.cc" />
     <ClCompile Include="src\game\explode.cc" />
     <ClCompile Include="src\game\game.cc" />
     <ClCompile Include="src\game\mbox.cc" />
@@ -133,6 +137,7 @@
     <ClCompile Include="src\game\player.cc" />
     <ClCompile Include="src\game\script.cc" />
     <ClCompile Include="src\game\sections.cc" />
+    <ClCompile Include="src\game\setspeed.cc" />
     <ClCompile Include="src\game\stage.cc" />
     <ClCompile Include="src\game\stageend.cc" />
     <ClCompile Include="src\game\world.cc" />
@@ -147,6 +152,8 @@
     <ClCompile Include="src\main\logger.cc" />
     <ClCompile Include="src\main\logic.cc" />
     <ClCompile Include="src\main\mholder.cc" />
+    <ClCompile Include="src\main\random.cc" />
+    <ClCompile Include="src\main\scores.cc" />
     <ClCompile Include="src\main\video.cc" />
     <ClCompile Include="src\menu\menu.cc" />
     <ClCompile Include="src\menu\menuaud.cc" />
@@ -185,7 +192,12 @@
     <ClInclude Include="includes\game\box.hh" />
     <ClInclude Include="includes\game\bullet.hh" />
     <ClInclude Include="includes\game\checkpnt.hh" />
+    <ClInclude Include="includes\game\diffic.hh" />
+    <ClInclude Include="includes\game\ebullet.hh" />
     <ClInclude Include="includes\game\enemy.hh" />
+    <ClInclude Include="includes\game\enemy\all.hh" />
+    <ClInclude Include="includes\game\enemy\gunboat.hh" />
+    <ClInclude Include="includes\game\enemy\shard.hh" />
     <ClInclude Include="includes\game\explode.hh" />
     <ClInclude Include="includes\game\game.hh" />
     <ClInclude Include="includes\game\gamemsg.hh" />
@@ -196,6 +208,7 @@
     <ClInclude Include="includes\game\player.hh" />
     <ClInclude Include="includes\game\script.hh" />
     <ClInclude Include="includes\game\sections.hh" />
+    <ClInclude Include="includes\game\setspeed.hh" />
     <ClInclude Include="includes\game\stage.hh" />
     <ClInclude Include="includes\game\stageend.hh" />
     <ClInclude Include="includes\game\world.hh" />
@@ -212,24 +225,27 @@
     <ClInclude Include="includes\logic.hh" />
     <ClInclude Include="includes\logicmsg.hh" />
     <ClInclude Include="includes\lvector.hh" />
+    <ClInclude Include="includes\mstream.hh" />
     <ClInclude Include="includes\math.hh" />
     <ClInclude Include="includes\menu.hh" />
-    <ClInclude Include="includes\menuaud.hh" />
-    <ClInclude Include="includes\menuinp.hh" />
-    <ClInclude Include="includes\menuinpb.hh" />
-    <ClInclude Include="includes\menumain.hh" />
-    <ClInclude Include="includes\menuopt.hh" />
-    <ClInclude Include="includes\menupaus.hh" />
+    <ClInclude Include="includes\menu\menuaud.hh" />
+    <ClInclude Include="includes\menu\menuinp.hh" />
+    <ClInclude Include="includes\menu\menuinpb.hh" />
+    <ClInclude Include="includes\menu\menumain.hh" />
+    <ClInclude Include="includes\menu\menuopt.hh" />
+    <ClInclude Include="includes\menu\menupaus.hh" />
     <ClInclude Include="includes\mholder.hh" />
     <ClInclude Include="includes\model.hh" />
     <ClInclude Include="includes\models.hh" />
     <ClInclude Include="includes\module.hh" />
     <ClInclude Include="includes\msg.hh" />
     <ClInclude Include="includes\namepair.hh" />
+    <ClInclude Include="includes\random.hh" />
     <ClInclude Include="includes\rend2d.hh" />
     <ClInclude Include="includes\rend3d.hh" />
     <ClInclude Include="includes\rendtext.hh" />
     <ClInclude Include="includes\sbuf.hh" />
+    <ClInclude Include="includes\scores.hh" />
     <ClInclude Include="includes\secure.hh" />
     <ClInclude Include="includes\shape.hh" />
     <ClInclude Include="includes\sounds.hh" />

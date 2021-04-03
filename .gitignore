@@ -1,5 +1,6 @@
 hiemalia
 hiemalia.cfg
+scores.dat
 *.o
 *.d
 

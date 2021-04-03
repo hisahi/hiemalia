@@ -21,7 +21,8 @@ class PlayerObject : public GameObject, public ObjectDamageable {
     PlayerObject();
     void updateInput(ControlState& controls);
     bool update(GameWorld& w, float delta);
-    bool shouldCatchCheckpoints() const;
+    bool playerInControl() const;
+    void enemyContact();
     void wallContact(coord_t x, coord_t y, coord_t z);
 
    private:
@@ -33,13 +34,10 @@ class PlayerObject : public GameObject, public ObjectDamageable {
     coord_t wbird_mul_{0};
     coord_t wbird_fr_{0};
     Rotation3D wbird_vel_{0, 0, 0};
+    coord_t shipRadius_;
 
     void onDamage(GameWorld& w, float dmg, const ModelPoint& pointOfContact);
     void onDeath(GameWorld& w);
-    bool collideLineInternal(const ModelPoint& p1, const ModelPoint& p2) const;
-    bool collideCuboidInternal(const ModelPoint& c1,
-                               const ModelPoint& c2) const;
-    bool collideSphereInternal(const ModelPoint& p, coord_t r2) const;
     void doWoundedBird(float delta);
     void inputsVelocity(float delta);
     void inputsAngles(float delta);

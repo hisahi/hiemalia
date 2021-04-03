@@ -4,39 +4,49 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// menuinp.hh: header file for menuinp.cc (input device menu)
+// menu/menumain.hh: header file for menumain.cc (main menu)
 
-#ifndef M_MENUINP_HH
-#define M_MENUINP_HH
+#ifndef M_MENUMAIN_HH
+#define M_MENUMAIN_HH
 
+#include <array>
 #include <string>
 
 #include "defs.hh"
 #include "menu.hh"
 #include "mholder.hh"
+#include "rend3d.hh"
 #include "symbol.hh"
 
 namespace hiemalia {
-class MenuInputDevices : public Menu {
+class MenuMain : public Menu {
    public:
     std::string name() const noexcept { return name_; }
-    std::string title() const noexcept { return "Input"; }
+    std::string title() const noexcept { return ""; }
 
     void begin(GameState& state);
     void select(int index, symbol_t id);
     void end(GameState& state);
+    void specialRender(SplinterBuffer& sbuf, float interval);
 
-    DELETE_COPY(MenuInputDevices);
-    MenuInputDevices(MenuInputDevices&& move) noexcept;
-    MenuInputDevices& operator=(MenuInputDevices&& move) noexcept;
-    MenuInputDevices(MenuHandler& handler,
-                     const std::shared_ptr<ModuleHolder>& holder);
-    ~MenuInputDevices() noexcept;
+    DELETE_COPY(MenuMain);
+    MenuMain(MenuMain&& move) noexcept;
+    MenuMain& operator=(MenuMain&& move) noexcept;
+    MenuMain(MenuHandler& handler, const std::shared_ptr<ModuleHolder>& holder);
+    ~MenuMain() noexcept;
 
    private:
-    static inline const std::string name_ = "MenuInputDevices";
+    static inline const std::string name_ = "MenuMain";
     std::shared_ptr<ModuleHolder> holder_;
+    std::shared_ptr<const Model> tube_;
+    Renderer2D rend2_;
+    Renderer3D rend_;
+    coord_t angle_{0};
+    std::array<coord_t, 512> rots_;
+    ShapeSheet logoSheet;
+
+    void progress(float interval);
 };
 };  // namespace hiemalia
 
-#endif  // M_MENUINP_HH
+#endif  // M_MENUMAIN_HH

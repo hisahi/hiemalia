@@ -4,7 +4,7 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// menuinpb.hh: header file for menuinp.cc (input controls menu)
+// menu/menuinpb.hh: header file for menuinp.cc (input controls menu)
 
 #ifndef M_MENUINPB_HH
 #define M_MENUINPB_HH

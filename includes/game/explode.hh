@@ -28,9 +28,12 @@ class Explosion : public GameObject {
    public:
     Explosion(const GameObject& o, coord_t xm, coord_t ym, coord_t zm,
               float explspeed);
+    Explosion(const GameObject& o, const Model& m, coord_t xm, coord_t ym,
+              coord_t zm, float explspeed);
     bool update(GameWorld& w, float delta);
     void renderSpecial(SplinterBuffer& sbuf, Renderer3D& r3d);
     void adjustSpeed(coord_t s);
+    void move(const ModelPoint& p);
 
    private:
     std::vector<ExplosionShard> shards_;

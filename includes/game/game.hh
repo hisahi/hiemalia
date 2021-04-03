@@ -54,19 +54,20 @@ class GameMain : public LogicModule,
     RendererText font_;
     SplinterBuffer statusbar_;
     SplinterBuffer textscreen_;
+    bool init_{false};
     bool continue_{true};
     bool shouldBePaused_{false};
     bool stageComplete_{false};
     bool paused_{false};
     bool gameOver_{false};
-    coord_t moveSpeed;
     float timer;
+    coord_t objectLateZ;
     float stageStartTimer{0};
 
+    void doInit(GameState& state);
     void startNewStage();
     void drawStatusBar();
     void positionCamera();
-    void updateMoveSpeedInput(ControlState& controls, float delta);
     void pauseGame();
     void doStageStart();
     void doStageStartTick(GameState& state, float interval);

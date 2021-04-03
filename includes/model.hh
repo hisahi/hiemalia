@@ -61,6 +61,13 @@ struct ModelPoint {
         return ModelPoint(0.5 * (a.x + b.x), 0.5 * (a.y + b.y),
                           0.5 * (a.z + b.z));
     }
+    inline coord_t lengthSquared() { return x * x + y * y + z * z; }
+    inline coord_t length() { return sqrt(lengthSquared()); }
+    inline ModelPoint normalize() {
+        dynamic_assert(x != 0 || y != 0 || z != 0,
+                       "attempt to normalize zero vector!");
+        return *this * (1 / sqrt(lengthSquared()));
+    }
 };
 
 inline ModelPoint lerpPoint(const ModelPoint& a, coord_t t,

@@ -4,40 +4,38 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// menuaud.hh: header file for menuaud.cc (audio option menu)
+// menu/menupaus.hh: header file for menupaus.cc (pause menu)
 
-#ifndef M_MENUAUD_HH
-#define M_MENUAUD_HH
+#ifndef M_MENUPAUS_HH
+#define M_MENUPAUS_HH
 
 #include <string>
 
-#include "audio.hh"
 #include "defs.hh"
 #include "menu.hh"
 #include "mholder.hh"
 #include "symbol.hh"
 
 namespace hiemalia {
-class MenuAudioOptions : public Menu {
+class MenuPause : public Menu {
    public:
     std::string name() const noexcept { return name_; }
-    std::string title() const noexcept { return "Audio"; }
+    std::string title() const noexcept { return "Paused"; }
 
     void begin(GameState& state);
     void select(int index, symbol_t id);
     void end(GameState& state);
 
-    DELETE_COPY(MenuAudioOptions);
-    MenuAudioOptions(MenuAudioOptions&& move) noexcept;
-    MenuAudioOptions& operator=(MenuAudioOptions&& move) noexcept;
-    MenuAudioOptions(MenuHandler& handler,
-                     const std::shared_ptr<ModuleHolder>& holder);
-    ~MenuAudioOptions() noexcept;
+    DELETE_COPY(MenuPause);
+    MenuPause(MenuPause&& move) noexcept;
+    MenuPause& operator=(MenuPause&& move) noexcept;
+    MenuPause(MenuHandler& handler);
+    ~MenuPause() noexcept;
 
    private:
-    static inline const std::string name_ = "MenuAudioOptions";
-    std::shared_ptr<ModuleHolder> holder_;
+    static inline const std::string name_ = "MenuPause";
+    bool unpause_{true};
 };
 };  // namespace hiemalia
 
-#endif  // M_MENUAUD_HH
+#endif  // M_MENUPAUS_HH

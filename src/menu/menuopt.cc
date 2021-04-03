@@ -6,11 +6,11 @@
 /****************************************************************************/
 // menuopt.cc: implementation of MenuOptions
 
-#include "menuopt.hh"
+#include "menu/menuopt.hh"
 
 #include "defs.hh"
-#include "menuaud.hh"
-#include "menuinp.hh"
+#include "menu/menuaud.hh"
+#include "menu/menuinp.hh"
 
 namespace hiemalia {
 

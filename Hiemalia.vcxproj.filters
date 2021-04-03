@@ -159,6 +159,27 @@
     <ClCompile Include="src\game\stageend.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\main\scores.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\enemy\shard.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\setspeed.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\enemy\gunboat.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\random.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\ebullet.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\diffic.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\abase.hh">
@@ -251,22 +272,22 @@
     <ClInclude Include="includes\menu.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\menuaud.hh">
+    <ClInclude Include="includes\menu\menuaud.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\menuinp.hh">
+    <ClInclude Include="includes\menu\menuinp.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\menuinpb.hh">
+    <ClInclude Include="includes\menu\menuinpb.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\menumain.hh">
+    <ClInclude Include="includes\menu\menumain.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\menuopt.hh">
+    <ClInclude Include="includes\menu\menuopt.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\menupaus.hh">
+    <ClInclude Include="includes\menu\menupaus.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\mholder.hh">
@@ -387,6 +408,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\game\stageend.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\scores.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\mstream.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\enemy\all.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\enemy\shard.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\setspeed.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\enemy\gunboat.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\random.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\ebullet.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\diffic.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

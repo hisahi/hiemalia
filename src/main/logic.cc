@@ -10,8 +10,8 @@
 
 #include "defs.hh"
 #include "game/game.hh"
-#include "menumain.hh"
-#include "menupaus.hh"
+#include "menu/menumain.hh"
+#include "menu/menupaus.hh"
 
 namespace hiemalia {
 void LogicEngine::gotMessage(const LogicMessage& msg) {

@@ -12,8 +12,7 @@
 
 namespace hiemalia {
 PlayerBullet::PlayerBullet(const ModelPoint& v) {
-    model = getGameModel(GameModel::Tetrahedron);
-    setCollisionRadius(1.0 / 32);
+    useGameModel(GameModel::BulletPlayer);
     vel = v;
     rotvel = Rotation3D(1.8, 1.2, 0.6) * 16;
 }

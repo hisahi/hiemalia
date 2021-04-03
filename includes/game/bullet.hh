@@ -22,11 +22,9 @@ class BulletObject : public GameObject {
     virtual bool doBulletTick(GameWorld& w, float delta) = 0;
     virtual void impact(GameWorld& w, bool enemy) = 0;
     virtual bool firedByPlayer() const = 0;
-    virtual bool hitsObject(const GameObject& obj) const;
-    virtual bool hitsCuboid(const ModelPoint& c1, const ModelPoint& c2) const;
-    virtual bool hitsSphere(const ModelPoint& p, coord_t r2) const;
     virtual void onSetPosition();
     virtual float getDamage() const = 0;
+    virtual bool hitsInternal(const GameObject& obj) const;
     ModelPoint lerp(coord_t p) const;
     void backtrackCuboid(const ModelPoint& c1, const ModelPoint& c2);
     void backtrackSphere(const ModelPoint& p, coord_t r2);

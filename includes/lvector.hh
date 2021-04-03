@@ -16,6 +16,8 @@
 #include <utility>
 #include <vector>
 
+#include "defs.hh"
+
 namespace hiemalia {
 
 template <typename T>
@@ -351,8 +353,9 @@ class LimitedVector {
     }
 
     void swap(LimitedVector<T, N, Allocator> v) noexcept(
-        std::is_nothrow_swappable_v<T>&& std::is_nothrow_move_constructible_v<
-            T>&& std::is_nothrow_swappable_v<Allocator>) {
+        std::is_nothrow_swappable<T>::value&&
+            std::is_nothrow_move_constructible<T>::value&&
+                std::is_nothrow_swappable<Allocator>::value) {
         using std::swap;
         size_t i;
 

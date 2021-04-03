@@ -22,6 +22,58 @@
 #include "str.hh"
 
 namespace hiemalia {
+GameStage::GameStage(std::vector<section_t>&& sections, int loopLength,
+                     std::deque<ObjectSpawn>&& spawns)
+    : sections(std::move(sections)), spawns(std::move(spawns)) {
+    dynamic_assert(loopLength > 0, "must have loop!");
+    auto& s = this->sections;
+    dynamic_assert(loopLength <= static_cast<int>(s.size()), "loop too long!");
+    for (int e = s.size(), i = e - loopLength; i < e; ++i)
+        sectionsLoop.push_back(s[i]);
+    for (unsigned i = 0; i < stageVisibility; ++i) nextSection();
+}
+
+void GameStage::nextSection() {
+    if (nextSection_ >= sections.size()) {
+        visible.push_back(sectionsLoop[nextSectionLoop_]);
+        nextSectionLoop_ = (nextSectionLoop_ + 1) % sectionsLoop.size();
+    } else
+        visible.push_back(sections[nextSection_++]);
+}
+
+coord_t GameStage::getObjectBackPlane(coord_t offset) const {
+    int i = -stageSectionOffset;
+    for (auto section : visible) {
+        const GameSection& sec = getSectionById(section);
+        if (!sec.rotation.isZero()) return i * stageSectionLength - offset;
+        ++i;
+    }
+    return farObjectBackPlane;
+}
+
+void GameStage::drawStage(SplinterBuffer& sbuf, Renderer3D& r3d,
+                          coord_t offset) {
+    int i = stageSectionOffset;
+    ModelPoint p =
+        ModelPoint(0, 0, stageSectionOffset * stageSectionLength - offset);
+    ModelPoint v = ModelPoint(0, 0, stageSectionLength);
+    Rotation3D r = Rotation3D(0, 0, 0);
+    Matrix3D m;
+    static const ModelPoint s = ModelPoint(1, 1, 1);
+    for (auto section : visible) {
+        const GameSection& sec = getSectionById(section);
+        m = Matrix3D::rotate(r);
+        r3d.renderModel(sbuf, p, r, s, sec.model);
+        if (i < 0)
+            p += v;
+        else {
+            p += m.project(v);
+            r += sec.rotation;
+        }
+        ++i;
+    }
+}
+
 static MoveRegion parseMoveRegion(std::string s) {
     coord_t x0 = -1, x1 = 1, y0 = -1, y1 = 1;
     if (s_sscanf(s.c_str(),
@@ -29,6 +81,14 @@ static MoveRegion parseMoveRegion(std::string s) {
                  &x0, &x1, &y0, &y1) < 4)
         never("Invalid move region");
     return MoveRegion{x0, x1, y0, y1};
+}
+
+static Rotation3D parseRotation3D(std::string s) {
+    coord_t y = 0, p = 0, r = 0;
+    if (s_sscanf(s.c_str(), FMT_coord_t " " FMT_coord_t " " FMT_coord_t, &y, &p,
+                 &r) < 3)
+        never("Invalid rotation");
+    return Rotation3D{y, p, r};
 }
 
 GameSection loadSection(const std::string& name) {
@@ -39,6 +99,7 @@ GameSection loadSection(const std::string& name) {
         throw std::runtime_error("cannot open section file " + filename);
     std::string modelFile = "";
     MoveRegion moveRegion = {-1, 1, -1, 1};
+    Rotation3D turn = {0, 0, 0};
 
     for (std::string line; std::getline(in, line);) {
         if (line.empty() || line[0] == '#') continue;
@@ -52,42 +113,14 @@ GameSection loadSection(const std::string& name) {
             modelFile = value;
         } else if (command == "move") {
             moveRegion = parseMoveRegion(value);
+        } else if (command == "turn") {
+            turn = parseRotation3D(value);
         }
     }
 
     dynamic_assert(!modelFile.empty(), "must have model file in section");
 
-    return GameSection{load3D("smodels", modelFile), moveRegion};
-}
-
-void GameStage::nextSection() {
-    if (nextSection_ >= sections.size()) {
-        visible.push_back(sectionsLoop[nextSectionLoop_]);
-        nextSectionLoop_ = (nextSectionLoop_ + 1) % sectionsLoop.size();
-    } else
-        visible.push_back(sections[nextSection_++]);
-}
-
-void GameStage::drawStage(SplinterBuffer& sbuf, Renderer3D& r3d,
-                          coord_t offset) {
-    int i = stageSectionOffset;
-    static const Rotation3D r = Rotation3D(0, 0, 0);
-    static const ModelPoint s = ModelPoint(1, 1, 1);
-    for (auto section : visible)
-        r3d.renderModel(sbuf,
-                        ModelPoint(0, 0, i++ * stageSectionLength - offset), r,
-                        s, getSectionById(section).model);
-}
-
-GameStage::GameStage(std::vector<section_t>&& sections, int loopLength,
-                     std::deque<ObjectSpawn>&& spawns)
-    : sections(std::move(sections)), spawns(std::move(spawns)) {
-    dynamic_assert(loopLength > 0, "must have loop!");
-    auto& s = this->sections;
-    dynamic_assert(loopLength >= static_cast<int>(s.size()), "loop too long!");
-    for (int e = s.size(), i = e - loopLength; i < e; ++i)
-        sectionsLoop.push_back(s[i]);
-    for (unsigned i = 0; i < stageVisibility; ++i) nextSection();
+    return GameSection{load3D("smodels", modelFile), moveRegion, turn};
 }
 
 static ObjectSpawn parseObject(std::string v, coord_t dist, int lineNum) {
@@ -116,6 +149,28 @@ static ObjectSpawn parseObject(std::string v, coord_t dist, int lineNum) {
     return ObjectSpawn{loadObjectSpawn(ModelPoint(x, y, z), name, prop), u, f};
 }
 
+void GameStage::processSectionCommand(std::vector<section_t>& sections,
+                                      std::string s) {
+    static const decltype(std::string::npos) npos = std::string::npos;
+    std::string::size_type prev = 0, next = 0;
+    int i;
+    section_t sec;
+    do {
+        next = s.find(' ', prev);
+        std::string::size_type mult = s.find('*', prev);
+        int times = 1;
+        if (mult != npos && (next == npos || mult < next)) {
+            times = std::atoi(substring(s, prev, mult).c_str());
+            ++mult;
+        } else {
+            mult = prev;
+        }
+        sec = getSectionIdByName(substring(s, mult, next));
+        for (i = 0; i < times; ++i) sections.push_back(sec);
+        prev = next == npos ? next : next + 1;
+    } while (prev != npos);
+}
+
 GameStage GameStage::load(int stagenum) {
     std::string name = "stage" + std::to_string(stagenum) + ".s";
     LOG_DEBUG("loading stage %s", name);
@@ -136,7 +191,7 @@ GameStage GameStage::load(int stagenum) {
         }
 
         if (command == "s") {  // s <section>
-            sections.push_back(getSectionIdByName(value));
+            processSectionCommand(sections, value);
         } else if (command == "l") {  // l <loopLength>
             loopLength = std::atoi(value.c_str());
         } else if (command == "o") {  // o <reldist> <x> <y> <z> <name> [prop]

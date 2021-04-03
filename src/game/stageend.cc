@@ -14,7 +14,7 @@ namespace hiemalia {
 bool StageEndScript::run(GameWorld& w) {
     if (w.isPlayerAlive()) {
         PlayerObject& p = w.getPlayer();
-        if (p.shouldCatchCheckpoints() && p.pos.z >= pos.z) {
+        if (p.playerInControl() && p.pos.z >= pos.z) {
             w.endStage();
         }
         return p.pos.z < pos.z;

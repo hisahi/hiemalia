@@ -55,7 +55,17 @@ struct Rotation3D {
     friend inline Rotation3D operator*(Rotation3D a, const coord_t& f) {
         return a *= f;
     }
+
+    inline bool isZero() const noexcept {
+        return yaw == 0 && pitch == 0 && roll == 0;
+    }
+
+    static Rotation3D atScreen;
+    static Rotation3D atPlayer;
 };
+
+inline Rotation3D Rotation3D::atScreen = Rotation3D{0, 0, 0};
+inline Rotation3D Rotation3D::atPlayer = Rotation3D{numbers::PI<coord_t>, 0, 0};
 
 struct Vector3D {
     coord_t x;
@@ -233,8 +243,8 @@ struct Matrix3D {
         return r;
     }
 
-    ModelPoint project(const ModelPoint& p);
-    Vector3D project(const Vector3D& v);
+    ModelPoint project(const ModelPoint& p) const;
+    Vector3D project(const Vector3D& v) const;
 };
 
 #if !NDEBUG

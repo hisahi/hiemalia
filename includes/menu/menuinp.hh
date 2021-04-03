@@ -4,10 +4,10 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// menuopt.hh: header file for menuopt.cc (option menu)
+// menu/menuinp.hh: header file for menuinp.cc (input device menu)
 
-#ifndef M_MENUOPT_HH
-#define M_MENUOPT_HH
+#ifndef M_MENUINP_HH
+#define M_MENUINP_HH
 
 #include <string>
 
@@ -17,26 +17,26 @@
 #include "symbol.hh"
 
 namespace hiemalia {
-class MenuOptions : public Menu {
+class MenuInputDevices : public Menu {
    public:
     std::string name() const noexcept { return name_; }
-    std::string title() const noexcept { return "Options"; }
+    std::string title() const noexcept { return "Input"; }
 
     void begin(GameState& state);
     void select(int index, symbol_t id);
     void end(GameState& state);
 
-    DELETE_COPY(MenuOptions);
-    MenuOptions(MenuOptions&& move) noexcept;
-    MenuOptions& operator=(MenuOptions&& move) noexcept;
-    MenuOptions(MenuHandler& handler,
-                const std::shared_ptr<ModuleHolder>& holder);
-    ~MenuOptions() noexcept;
+    DELETE_COPY(MenuInputDevices);
+    MenuInputDevices(MenuInputDevices&& move) noexcept;
+    MenuInputDevices& operator=(MenuInputDevices&& move) noexcept;
+    MenuInputDevices(MenuHandler& handler,
+                     const std::shared_ptr<ModuleHolder>& holder);
+    ~MenuInputDevices() noexcept;
 
    private:
-    static inline const std::string name_ = "MenuOptions";
+    static inline const std::string name_ = "MenuInputDevices";
     std::shared_ptr<ModuleHolder> holder_;
 };
 };  // namespace hiemalia
 
-#endif  // M_MENUOPT_HH
+#endif  // M_MENUINP_HH

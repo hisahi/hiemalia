@@ -12,8 +12,10 @@
 
 #include "game/box.hh"
 #include "game/checkpnt.hh"
+#include "game/enemy/all.hh"
 #include "game/mbox.hh"
 #include "game/object.hh"
+#include "game/setspeed.hh"
 #include "game/stageend.hh"
 #include "secure.hh"
 
@@ -22,6 +24,14 @@ template <typename T>
 std::shared_ptr<GameObject> makeStandardObject(const ModelPoint& p,
                                                const std::string& prop) {
     auto s = std::make_shared<T>();
+    s->move(p);
+    return s;
+}
+
+template <typename T>
+std::shared_ptr<GameObject> makePropObject(const ModelPoint& p,
+                                           const std::string& prop) {
+    auto s = std::make_shared<T>(prop);
     s->move(p);
     return s;
 }
@@ -46,6 +56,9 @@ static const std::unordered_map<std::string, object_maker_t> nameMap = {
     {"mbox", makeScalableObject<ScalableBox>},
     {"checkpoint", makeStandardObject<CheckpointScript>},
     {"end", makeStandardObject<StageEndScript>},
+    {"shard", makeStandardObject<EnemyShard>},
+    {"gunboat", makeStandardObject<EnemyGunboat>},
+    {"setspeed", makePropObject<SetSpeedScript>},
 };
 
 std::shared_ptr<GameObject> loadObjectSpawn(ModelPoint p,

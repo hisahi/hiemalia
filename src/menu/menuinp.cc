@@ -6,13 +6,13 @@
 /****************************************************************************/
 // menuinp.cc: implementation of input device menu
 
-#include "menuinp.hh"
+#include "menu/menuinp.hh"
 
 #include "controls.hh"
 #include "defs.hh"
 #include "input.hh"
 #include "logger.hh"
-#include "menuinpb.hh"
+#include "menu/menuinpb.hh"
 
 namespace hiemalia {
 

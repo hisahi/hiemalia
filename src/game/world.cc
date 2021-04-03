@@ -11,6 +11,7 @@
 #include <cmath>
 
 #include "assets.hh"
+#include "game/enemy.hh"
 #include "game/gamemsg.hh"
 #include "game/stage.hh"
 #include "hiemalia.hh"
@@ -20,7 +21,7 @@
 namespace hiemalia {
 
 MoveRegion GameWorld::getMoveRegionForZ(coord_t z) const {
-    coord_t fz = z * stageDivision + stageSectionOffset;
+    coord_t fz = z * stageDivision - stageSectionOffset;
     auto u = floatToWholeFrac<int>(fz);
     if (u < 0) return getSectionById(stage->visible.front()).region;
     if (u + 1 >= static_cast<int>(stage->visible.size()))
@@ -35,31 +36,28 @@ MoveRegion GameWorld::getPlayerMoveRegion() const {
     return getMoveRegionForZ(player->pos.z);
 }
 
+Rotation3D GameWorld::getSectionRotation() const {
+    int u =
+        static_cast<int>(player->pos.z * stageDivision - stageSectionOffset);
+    return getSectionById(stage->visible[u]).rotation *
+           (player->pos.z * stageDivision);
+}
+
+ModelPoint GameWorld::rotateInSection(ModelPoint v, coord_t z) const {
+    int u = static_cast<int>(z * stageDivision - stageSectionOffset);
+    return Matrix3D::rotate(getSectionById(stage->visible[u]).rotation)
+        .project(v);
+}
+
 void GameWorld::startNewStage() {
     ++stageNum;
     if (stageNum > stageCount) {
         ++cycle;
         stageNum = 1;
+        moveSpeedFac *= 1.1;
     }
     checkpoint = 0;
     resetStage(0);
-}
-
-static void playStageMusic(int stageNum) {
-    switch (stageNum) {
-        case 1:
-            sendMessage(AudioMessage::playMusic(MusicTrack::Stage1));
-            break;
-        case 2:
-            sendMessage(AudioMessage::playMusic(MusicTrack::Stage2));
-            break;
-        case 3:
-            sendMessage(AudioMessage::playMusic(MusicTrack::Stage3));
-            break;
-        case 4:
-            sendMessage(AudioMessage::playMusic(MusicTrack::Stage4));
-            break;
-    }
 }
 
 void GameWorld::resetStage(coord_t t) {
@@ -73,7 +71,6 @@ void GameWorld::resetStage(coord_t t) {
         moveForward(t);
         objects.clear();
     }
-    playStageMusic(stageNum);
 }
 
 void GameWorld::addScore(unsigned int p) {
@@ -81,6 +78,10 @@ void GameWorld::addScore(unsigned int p) {
         highScore = score;
     }
     sendMessage(GameMessage::updateStatus());
+}
+
+coord_t GameWorld::getObjectBackPlane() const {
+    return stage->getObjectBackPlane(0);
 }
 
 void GameWorld::drawStage(SplinterBuffer& sbuf, Renderer3D& r3d) {
@@ -98,6 +99,8 @@ void GameWorld::moveForward(coord_t dist) {
         ++sections;
         player->move(0, 0, moveDist);
         for (auto& obj : objects) obj->move(0, 0, moveDist);
+        for (auto& obj : playerBullets) obj->move(0, 0, moveDist);
+        for (auto& obj : enemyBullets) obj->move(0, 0, moveDist);
         stage->nextSection();
     }
 
@@ -106,6 +109,17 @@ void GameWorld::moveForward(coord_t dist) {
     while (!obj.empty() && obj.front().shouldSpawn(u, progress_f)) {
         objects.emplace_back(std::move(obj.front().obj))->onSpawn(*this);
         obj.pop_front();
+    }
+}
+
+void GameWorld::go(float interval) {
+    moveForward(interval * getMoveSpeed());
+    if (moveSpeedBase < moveSpeedDst) {
+        moveSpeedBase =
+            std::min(moveSpeedDst, moveSpeedBase + interval * moveSpeedVel);
+    } else if (moveSpeedBase > moveSpeedDst) {
+        moveSpeedBase =
+            std::max(moveSpeedDst, moveSpeedBase - interval * moveSpeedVel);
     }
 }
 
@@ -124,23 +138,50 @@ bool GameWorld::runPlayer(float interval) {
         return false;
 }
 
-void GameWorld::renderPlayer(SplinterBuffer& sbuf, Renderer3D& r3d) {
-    if (player)
-        player->render(sbuf, r3d);
-    else if (playerExplosion)
+void GameWorld::renderPlayer(SplinterBuffer& sbuf, Renderer3D& r3d,
+                             const Rotation3D& envRot) {
+    if (player) {
+        if (!envRot.isZero()) {
+            Rotation3D rotBackup = player->rot;
+            player->rot += envRot;
+            player->render(sbuf, r3d);
+            player->rot = rotBackup;
+        } else
+            player->render(sbuf, r3d);
+    } else if (playerExplosion)
         playerExplosion->render(sbuf, r3d);
 }
 
-coord_t GameWorld::getMoveSpeed() const { return moveSpeed; }
+coord_t GameWorld::getMoveSpeed() const {
+    return moveSpeedBase * moveSpeedFac * pow<coord_t>(2, moveSpeedCtl);
+}
+
+void GameWorld::updateMoveSpeedInput(ControlState& inputs, float delta) {
+    if (inputs.back) {
+        moveSpeedCtl = std::max<coord_t>(-1, moveSpeedCtl - delta * 2);
+    } else if (inputs.forward) {
+        moveSpeedCtl = std::min<coord_t>(1, moveSpeedCtl + delta * 4);
+    } else if (moveSpeedCtl > 0) {
+        moveSpeedCtl = std::max<coord_t>(0, moveSpeedCtl - delta * 2);
+    } else if (moveSpeedCtl < 0) {
+        moveSpeedCtl = std::min<coord_t>(0, moveSpeedCtl + delta * 4);
+    }
+}
 
 std::unique_ptr<PlayerObject>&& GameWorld::explodePlayer(
     std::unique_ptr<Explosion>&& expl) {
     playerExplosion = std::move(expl);
-    playerExplosion->adjustSpeed(moveSpeed);
+    playerExplosion->adjustSpeed(getMoveSpeed() * 4);
     dynamic_assert(playerExplosion != nullptr, "null explosion");
     sendMessage(AudioMessage::stopMusic());
     sendMessage(AudioMessage::playSound(SoundEffect::PlayerExplode));
     return std::move(player);
+}
+
+void GameWorld::explodeEnemy(GameObject& obj, const Model& model) {
+    auto expl = std::make_shared<Explosion>(obj, 0.0, 0.0, 0.0, 2.0f);
+    expl->adjustSpeed(4.0);
+    objects.push_back(std::move(expl));
 }
 
 void GameWorld::explodeBullet(BulletObject& b) {
@@ -165,12 +206,17 @@ bool GameWorld::respawn() {
 }
 
 void GameWorld::setCheckpoint() {
-    if (!isPlayerAlive() || !player->shouldCatchCheckpoints()) return;
+    if (!isPlayerAlive() || !player->playerInControl()) return;
     checkpoint = player->pos.z;
 }
 
+void GameWorld::setNewSpeed(coord_t s, coord_t d) {
+    moveSpeedDst = s;
+    moveSpeedVel = d;
+}
+
 void GameWorld::endStage() {
-    if (!isPlayerAlive() || !player->shouldCatchCheckpoints()) return;
+    if (!isPlayerAlive() || !player->playerInControl()) return;
     sendMessage(GameMessage::stageComplete());
 }
 

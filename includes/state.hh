@@ -16,6 +16,7 @@
 #include "config.hh"
 #include "controls.hh"
 #include "sbuf.hh"
+#include "scores.hh"
 
 namespace hiemalia {
 
@@ -23,6 +24,7 @@ struct GameState {
     ControlState controls;
     Config config;
     SplinterBuffer sbuf;
+    HighScoreTable highScores;
 };
 
 };  // namespace hiemalia

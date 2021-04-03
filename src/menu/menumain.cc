@@ -6,7 +6,7 @@
 /****************************************************************************/
 // menumain.cc: implementation of MenuMain
 
-#include "menumain.hh"
+#include "menu/menumain.hh"
 
 #include "assets.hh"
 #include "defs.hh"
@@ -14,7 +14,7 @@
 #include "load2d.hh"
 #include "logic.hh"
 #include "math.hh"
-#include "menuopt.hh"
+#include "menu/menuopt.hh"
 
 namespace hiemalia {
 
@@ -87,7 +87,7 @@ MenuMain::MenuMain(MenuHandler& handler,
                    const std::shared_ptr<ModuleHolder>& holder)
     : Menu(handler), holder_(holder) {
     makeUncloseable();
-    tube_ = getGameModel(GameModel::TitleCubeModel);
+    tube_ = getGameModel(GameModel::TitleCubeModel).model;
     rend_.setCamera(ModelPoint(0, 0, 0), Rotation3D(0, 0, 0),
                     ModelPoint(0.25, 0.25, 0.25));
     for (size_t i = 0; i < rots_.size(); ++i) {

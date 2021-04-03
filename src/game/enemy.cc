@@ -22,9 +22,13 @@ bool EnemyObject::update(GameWorld& w, float delta) {
     bool alive = doEnemyTick(w, delta);
     if (alive) {
         for (auto& bptr : w.getPlayerBullets()) {
-            if (bptr->hitsObject(*this)) {
-                killedByPlayer_ = true;
-                damage(w, bptr->getDamage(), bptr->lerp(0.5));
+            if (bptr->hits(*this)) {
+                ModelPoint c = bptr->lerp(0.5);
+                float dmg = bptr->getDamage();
+                if (hitEnemy(w, dmg, c)) {
+                    killedByPlayer_ = true;
+                    damage(w, dmg, c);
+                }
                 bptr->impact(w, true);
             }
         }
@@ -40,6 +44,37 @@ void EnemyObject::onDamage(GameWorld& w, float dmg,
 }
 
 void EnemyObject::onDeath(GameWorld& w) {
-    alive_ = onEnemyDeath(w, killedByPlayer_);
+    alive_ = alive_ && !onEnemyDeath(w, killedByPlayer_);
 }
+
+void EnemyObject::doExplode(GameWorld& w) { doExplode(w, model()); }
+
+void EnemyObject::doExplode(GameWorld& w, const Model& m) {
+    w.explodeEnemy(*this, m);
+}
+
+void EnemyObject::addScore(GameWorld& w, unsigned int score) {
+    w.addScore(score);
+}
+
+void EnemyObject::killPlayerOnContact(GameWorld& w) {
+    if (w.isPlayerAlive()) {
+        PlayerObject& p = w.getPlayer();
+        if (hits(p)) {
+            p.enemyContact();
+        }
+    }
+}
+
+ModelPoint EnemyObject::aimAtPlayer(GameWorld& w) const {
+    return w.getPlayerPosition() - pos;
+}
+
+ModelPoint EnemyObject::getBulletVelocity(GameWorld& w, ModelPoint dir,
+                                          float speed, float spew) const {
+    speed *= w.difficulty().getBulletSpeedMultiplier();
+    spew *= speed * w.difficulty().getBulletSpewMultiplier();
+    return (dir + randomUnitVector() * spew).normalize() * speed;
+}
+
 }  // namespace hiemalia

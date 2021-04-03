@@ -15,7 +15,7 @@
 #include "hbase.hh"
 #include "hiemalia.hh"
 #include "logger.hh"
-#include "menuinpb.hh"
+#include "menu/menuinpb.hh"
 
 // input backends
 #include "ibase.hh"
