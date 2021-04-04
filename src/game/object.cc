@@ -129,4 +129,13 @@ bool collidesSphereObject(const ModelPoint& c, coord_t r,
         return collidesPointSphere(obj.pos, c, r);
 }
 
+bool collidesSweepSphereObject(const ModelPoint& c1, const ModelPoint& c2,
+                               coord_t r, const GameObject& obj) {
+    if (obj.hasCollision())
+        return collidesSweepSphereModel(c1, c2, r, obj.collision(),
+                                        obj.getObjectModelMatrix());
+    else
+        return collidesSweepSpherePoint(c1, c2, r, obj.pos);
+}
+
 }  // namespace hiemalia

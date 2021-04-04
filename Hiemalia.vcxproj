@@ -133,6 +133,7 @@
     <ClCompile Include="src\game\mbox.cc" />
     <ClCompile Include="src\game\object.cc" />
     <ClCompile Include="src\game\objects.cc" />
+    <ClCompile Include="src\game\obstacle.cc" />
     <ClCompile Include="src\game\pbullet.cc" />
     <ClCompile Include="src\game\player.cc" />
     <ClCompile Include="src\game\script.cc" />
@@ -204,6 +205,7 @@
     <ClInclude Include="includes\game\mbox.hh" />
     <ClInclude Include="includes\game\object.hh" />
     <ClInclude Include="includes\game\objects.hh" />
+    <ClInclude Include="includes\game\obstacle.hh" />
     <ClInclude Include="includes\game\pbullet.hh" />
     <ClInclude Include="includes\game\player.hh" />
     <ClInclude Include="includes\game\script.hh" />

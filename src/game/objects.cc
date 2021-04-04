@@ -55,7 +55,7 @@ static const std::unordered_map<std::string, object_maker_t> nameMap = {
     {"box", makeStandardObject<Box>},
     {"mbox", makeScalableObject<ScalableBox>},
     {"checkpoint", makeStandardObject<CheckpointScript>},
-    {"end", makeStandardObject<StageEndScript>},
+    {"stageend", makeStandardObject<StageEndScript>},
     {"shard", makeStandardObject<EnemyShard>},
     {"gunboat", makeStandardObject<EnemyGunboat>},
     {"setspeed", makePropObject<SetSpeedScript>},
@@ -65,7 +65,10 @@ std::shared_ptr<GameObject> loadObjectSpawn(ModelPoint p,
                                             const std::string& name,
                                             const std::string& prop) {
     auto it = nameMap.find(name);
-    if (it == nameMap.end()) return nullptr;
+    if (it == nameMap.end()) {
+        never("unrecognized object name");
+        return nullptr;
+    }
     return (*it).second(p, prop);
 }
 

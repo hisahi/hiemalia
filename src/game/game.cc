@@ -170,6 +170,10 @@ static bool timerCrosses(float timer, float interval, float threshold) {
     return timer > threshold && timer - interval <= threshold;
 }
 
+static bool timerCrossesP(float timer, float interval, float threshold) {
+    return timer < threshold && timer + interval >= threshold;
+}
+
 static const ModelPoint c_scale = ModelPoint(0.25, 0.25, 0.25);
 static const coord_t p_fpx = 0;
 static const coord_t p_fpy = -0.017578125;
@@ -214,28 +218,90 @@ void GameMain::doStageStartTick(GameState& state, float interval) {
     if (stageStartTimer <= 0) {
         textscreen_.clear();
         playStageMusic(w.stageNum);
+        stageTime = 0;
     }
 }
 
 void GameMain::doStageComplete() {
     GameWorld& w = *world_;
-    timer = 8;
+    timer = 0;
     stageStartTimer = 0;
     stageComplete_ = true;
     objectLateZ = w.getObjectBackPlane();
+    w.setNewSpeed(2, w.getMoveSpeed() / 4);
+    textscreen_.clear();
+    font_.drawTextLineCenter(textscreen_, 0, -0.5, white,
+                             "STAGE " + std::to_string(w.stageNum) + " CLEAR",
+                             1.5);
     sendMessage(AudioMessage::fadeOutMusic());
+    bonus_ = 0;
+    bonusIndex_ = 0;
 }
 
+static unsigned getTimeBonus(float time) {
+    if (time > 600) return 0;
+    return static_cast<unsigned>(600 - time) * 20;
+}
+
+static float getBonusY(int index) { return 0.0625f * index; }
+
 void GameMain::doStageCompleteTick(GameState& state, float interval) {
+    static const float timerEnd = 8;
     GameWorld& w = *world_;
     w.drawStage(state.sbuf, r3d_);
     w.renderPlayer(state.sbuf, r3d_, {0, 0, 0});
+    w.moveForward(interval * w.getMoveSpeed());
+    PlayerObject& p = w.getPlayer();
+    Rotation3D rot = p.rot + Rotation3D(0, -timer / (timerEnd * 4), 0);
+    r3d_.setCamera(ModelPoint(p.pos.x + p_fpx,
+                              p.pos.y + p_fpy - (timer * timer) / timerEnd,
+                              p.pos.z + p_fpz - timer / 2),
+                   rot, c_scale);
+    if (timerCrossesP(timer, interval, 1)) {
+        unsigned timeBonus = getTimeBonus(stageTime);
+        font_.drawTextLineLeft(textscreen_, -0.75, getBonusY(bonusIndex_),
+                               white, "TIME BONUS", 1);
+        font_.drawTextLineRight(textscreen_, 0.75, getBonusY(bonusIndex_),
+                                white, std::to_string(timeBonus), 1);
+        ++bonusIndex_;
+        bonus_ += timeBonus;
+    }
+    if (timerCrossesP(timer, interval, 1.5) && w.stageNum == stageCount) {
+        const unsigned completeBonus_ = 5000;
+        font_.drawTextLineLeft(textscreen_, -0.75, getBonusY(bonusIndex_),
+                               white, "COMPLETE BONUS", 1);
+        font_.drawTextLineRight(textscreen_, 0.75, getBonusY(bonusIndex_),
+                                white, std::to_string(completeBonus_), 1);
+        bonus_ += completeBonus_;
+        ++bonusIndex_;
+    }
+    if (timerCrossesP(timer, interval, 2)) {
+        font_.drawTextLineLeft(textscreen_, -0.75, getBonusY(bonusIndex_),
+                               white, "TOTAL BONUS", 1);
+        font_.drawTextLineRight(textscreen_, 0.75, getBonusY(bonusIndex_),
+                                white, std::to_string(bonus_), 1);
+        ++bonusIndex_;
+    }
+    if (timerCrossesP(timer, interval, 3)) {
+        ++bonusIndex_;
+        font_.drawTextLineLeft(textscreen_, -0.75, getBonusY(bonusIndex_),
+                               white, "OLD SCORE", 1);
+        font_.drawTextLineRight(textscreen_, 0.75, getBonusY(bonusIndex_),
+                                white, std::to_string(w.score), 1);
+        ++bonusIndex_;
+        w.addScore(bonus_);
+        font_.drawTextLineLeft(textscreen_, -0.75, getBonusY(bonusIndex_),
+                               white, "NEW SCORE", 1);
+        font_.drawTextLineRight(textscreen_, 0.75, getBonusY(bonusIndex_),
+                                white, std::to_string(w.score), 1);
+        bonus_ = 0;
+    }
     drawObjects(state, interval, w.objects);
     drawObjects(state, interval, w.enemyBullets);
     drawObjects(state, interval, w.playerBullets);
-    timer -= interval;
+    timer += interval;
     stageStartTimer = 0;
-    if (timer <= 0) {
+    if (timer >= timerEnd) {
         textscreen_.clear();
         stageComplete_ = false;
         w.nextStage = true;
@@ -307,6 +373,7 @@ bool GameMain::run(GameState& state, float interval) {
         }
         bool playerAlive = w.runPlayer(interval);
         const ModelPoint& p = w.getPlayerPosition();
+        stageTime += interval;
         w.drawStage(state.sbuf, r3d_);
         if (w.isPlayerAlive()) {
             auto& plr = w.player;

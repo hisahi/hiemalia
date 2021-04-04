@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <array>
+#include <string_view>
 #include <type_traits>
 
 namespace hiemalia {
@@ -28,6 +29,13 @@ constexpr std::array<std::remove_cv_t<T>, N> to_array_(
     T(&&arr)[N], std::index_sequence<I...>) {
     return {{std::move(arr[I])...}};
 }
+
+template <std::size_t N>
+constexpr auto one_short_(const char (&s)[N + 1]) -> std::array<char, N> {
+    std::array<char, N> arr{};
+    for (std::size_t i = 0; i < N; ++i) arr[i] = s[i];
+    return arr;
+}
 }  // namespace
 
 template <typename T, std::size_t N>
@@ -40,8 +48,13 @@ constexpr std::array<std::remove_cv_t<T>, N> to_array(T(&&arr)[N]) {
     return to_array_(std::move(arr), std::make_index_sequence<N>{});
 }
 
+template <std::size_t N>
+constexpr auto str_to_array(const char (&s)[N]) {
+    return one_short_<N - 1>(s);
+}
+
 template <typename T, size_t N>
-bool arrayContains(const std::array<T, N>& arr, const T& val) {
+constexpr bool arrayContains(const std::array<T, N>& arr, const T& val) {
     return std::find(arr.begin(), arr.end(), val) != arr.end();
 }
 }  // namespace hiemalia

@@ -20,9 +20,9 @@
 namespace hiemalia {
 static const std::string scoresFilename = "scores.dat";
 static const auto validChars =
-    hiemalia::to_array("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-");
+    hiemalia::str_to_array("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-");
 static const auto randomChars =
-    hiemalia::to_array("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+    hiemalia::str_to_array("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
 int HighScoreTable::getHighscoreRank(unsigned long score) const {
     if (!score) return -1;
@@ -67,7 +67,7 @@ static HighScoreTable getDefaultHighscoreTable() {
             e.push_back(HighScoreEntry{
                 {randomChars[random(rc)], randomChars[random(rc)],
                  randomChars[random(rc)]},
-                (i + 1) * 10000UL,
+                (i + 1) * 2000UL,
                 1 + i / stageCount,
                 (i % stageCount) + 1});
         }
@@ -195,7 +195,8 @@ HighScoreTable loadHighscores() {
             if (i >= HighScoreTable::size) return getDefaultHighscoreTable();
             table.entries.push_back(readHighscoreEntry(memstr));
         }
-        if (table.entries.empty()) return getDefaultHighscoreTable();
+        if (table.entries.size() != HighScoreTable::size)
+            return getDefaultHighscoreTable();
     } catch (std::ios_base::failure&) {
         LOG_WARN("cannot open high scores, using defaults");
         return getDefaultHighscoreTable();
@@ -203,31 +204,48 @@ HighScoreTable loadHighscores() {
     return table;
 }
 
+static void dumpScores(const HighScoreTable& table) {
+    LOG_ERROR("Could not save high scores. they were");
+    uint16_t n = static_cast<uint16_t>(table.entries.size());
+    for (uint16_t i = 0; i < n; ++i) {
+        const HighScoreEntry& e = table.entries[i];
+        LOG_ERROR("#%2d   %.3s   %2d   %d   %12lu", i + 1, e.name, e.cycles,
+                  e.endStage, e.score);
+    }
+}
+
 void saveHighscores(HighScoreTable& table) {
     if (table.entries.empty()) return;
     auto out = openFileWrite(scoresFilename, true);
+    dumpScores(table);
     if (out.fail()) {
-        LOG_ERROR("cannot save high scores");
+        dumpScores(table);
     } else {
-        out.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-        omemorystream maindata;
-        uint16_t n = static_cast<uint16_t>(table.entries.size());
-        writeUInt16(maindata, n);
-        for (uint16_t i = 0; i < n; ++i) {
-            writeHighscoreEntry(maindata, table.entries[i]);
+        try {
+            out.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+            omemorystream maindata;
+            uint16_t n = static_cast<uint16_t>(table.entries.size());
+            writeUInt16(maindata, n);
+            for (uint16_t i = 0; i < n; ++i) {
+                writeHighscoreEntry(maindata, table.entries[i]);
+            }
+            int32_t checksum_enc = checksum(maindata.obegin(), maindata.oend());
+            std::uniform_int_distribution<int32_t> rc(INT32_MIN, INT32_MAX);
+            int32_t key = random(rc);
+            omemorystream crypting;
+            writeInt32(crypting, checksum_enc);
+            maindata.copy_to(crypting);
+            maindata.clear();
+            crypt(crypting.obegin(), crypting.oend(), key);
+            int32_t checksum_unenc =
+                checksum(crypting.obegin(), crypting.oend());
+            writeInt32(out, checksum_unenc);
+            writeInt32(out, key);
+            crypting.copy_to(out);
+        } catch (std::ostream::failure& e) {
+            dumpScores(table);
+            throw;
         }
-        int32_t checksum_enc = checksum(maindata.obegin(), maindata.oend());
-        std::uniform_int_distribution<int32_t> rc(INT32_MIN, INT32_MAX);
-        int32_t key = random(rc);
-        omemorystream crypting;
-        writeInt32(crypting, checksum_enc);
-        maindata.copy_to(crypting);
-        maindata.clear();
-        crypt(crypting.obegin(), crypting.oend(), key);
-        int32_t checksum_unenc = checksum(crypting.obegin(), crypting.oend());
-        writeInt32(out, checksum_unenc);
-        writeInt32(out, key);
-        crypting.copy_to(out);
     }
 }
 }  // namespace hiemalia

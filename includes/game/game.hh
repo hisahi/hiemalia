@@ -63,6 +63,9 @@ class GameMain : public LogicModule,
     float timer;
     coord_t objectLateZ;
     float stageStartTimer{0};
+    float stageTime{0};
+    unsigned bonus_{0};
+    int bonusIndex_{0};
 
     void doInit(GameState& state);
     void startNewStage();

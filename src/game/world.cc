@@ -74,7 +74,8 @@ void GameWorld::resetStage(coord_t t) {
 }
 
 void GameWorld::addScore(unsigned int p) {
-    if (highScore < (score += p)) {
+    score += p;
+    if (highScore < score) {
         highScore = score;
     }
     sendMessage(GameMessage::updateStatus());

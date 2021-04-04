@@ -19,3 +19,5 @@ o 0 0 0 0.125 gunboat
 # 
 # o 0 0 0 0.125 shard
 # o 0 0 0 0.125 gunboat
+
+o 10 0 0 0 stageend

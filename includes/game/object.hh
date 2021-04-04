@@ -82,6 +82,8 @@ bool collidesCuboidObject(const ModelPoint& cuboid1, const ModelPoint& cuboid2,
                           const GameObject& object);
 bool collidesSphereObject(const ModelPoint& center, coord_t radius,
                           const GameObject& object);
+bool collidesSweepSphereObject(const ModelPoint& c1, const ModelPoint& c2,
+                               coord_t r, const GameObject& object);
 };  // namespace hiemalia
 
 #endif  // M_GAME_OBJECT_HH

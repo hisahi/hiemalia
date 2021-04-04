@@ -114,29 +114,43 @@ struct CollisionSphere {
     coord_t radius;
 };
 
-ModelPoint collidesLineSphereWhere(const ModelPoint& line1,
-                                   const ModelPoint& line2,
-                                   const ModelPoint& center, coord_t radius);
-ModelPoint collidesLineCuboidWhere(const ModelPoint& line1,
-                                   const ModelPoint& line2,
-                                   const ModelPoint& cuboid1,
-                                   const ModelPoint& cuboid2);
-
 bool collidesLineShape(const ModelPoint& p1, const ModelPoint& p2,
                        const CollisionShape& shape, const Matrix3D& mat);
 bool collidesCuboidShape(const ModelPoint& c1, const ModelPoint& c2,
                          const CollisionShape& shape, const Matrix3D& mat);
-bool collidesSphereShape(const ModelPoint& c, coord_t r2,
+bool collidesSphereShape(const ModelPoint& c, coord_t r,
                          const CollisionShape& shape, const Matrix3D& mat);
 
 bool collidesLineModel(const ModelPoint& p1, const ModelPoint& p2,
                        const ModelCollision& mc, const Matrix3D& mat);
 bool collidesCuboidModel(const ModelPoint& c1, const ModelPoint& c2,
                          const ModelCollision& mc, const Matrix3D& mat);
-bool collidesSphereModel(const ModelPoint& c, coord_t r2,
+bool collidesSphereModel(const ModelPoint& c, coord_t r,
                          const ModelCollision& mc, const Matrix3D& mat);
 bool collidesModelModel(const ModelCollision& mc1, const Matrix3D& mat1,
                         const ModelCollision& mc2, const Matrix3D& mat2);
+
+bool collidesSweepSpherePoint(const ModelPoint& c1, const ModelPoint& c2,
+                              coord_t r, const ModelPoint& p);
+bool collidesSweepSphereModel(const ModelPoint& c1, const ModelPoint& c2,
+                              coord_t r, const ModelCollision& mc,
+                              const Matrix3D& mat);
+
+ModelPoint collidesSweepSphereSphereWhere(const ModelPoint& line1,
+                                          const ModelPoint& line2,
+                                          coord_t radius,
+                                          const ModelPoint& s_center,
+                                          coord_t s_radius);
+ModelPoint collidesSweepSphereCuboidWhere(const ModelPoint& line1,
+                                          const ModelPoint& line2,
+                                          coord_t radius,
+                                          const ModelPoint& cuboid1,
+                                          const ModelPoint& cuboid2);
+ModelPoint collidesSweepSphereModelWhere(const ModelPoint& line1,
+                                         const ModelPoint& line2,
+                                         coord_t radius,
+                                         const ModelCollision& mc,
+                                         const Matrix3D& mat);
 
 };  // namespace hiemalia
 

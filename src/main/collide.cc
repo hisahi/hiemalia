@@ -18,15 +18,12 @@
 namespace hiemalia {
 static inline coord_t distanceSquared(const ModelPoint& p1,
                                       const ModelPoint& p2) {
-    coord_t x = p1.x - p2.x;
-    coord_t y = p1.y - p2.y;
-    coord_t z = p1.z - p2.z;
-    return x * x + y * y + z * z;
+    return (p1 - p2).lengthSquared();
 }
 
 static inline coord_t distanceEuclidean(const ModelPoint& p1,
                                         const ModelPoint& p2) {
-    return sqrt(distanceSquared(p1, p2));
+    return (p1 - p2).length();
 }
 
 static inline coord_t pointDot(const ModelPoint& p1, const ModelPoint& p2) {
@@ -50,17 +47,58 @@ static bool collidesRangeRange(coord_t x1, coord_t x2, coord_t y1, coord_t y2) {
     return x1 <= y2 && y1 <= x2;
 }
 
+static ModelPoint closestPointOnLineToPoint(const ModelPoint& l1,
+                                            const ModelPoint& l2,
+                                            const ModelPoint& p) {
+    ModelPoint p1 = l2 - l1;
+    ModelPoint p2 = p - l1;
+    if (pointDot(p2, p1) <= 0) return l1;
+
+    ModelPoint p3 = p - l2;
+    if (pointDot(p3, p1) >= 0) return l2;
+
+    coord_t t = pointDot(p2.normalize(), p1.normalize());
+    return lerpPoint(l1, t, l2);
+}
+
+static ModelPoint ontoLineSegment(const ModelPoint& l1, const ModelPoint& x,
+                                  const ModelPoint& l2) {
+    return lerpPoint(
+        l1,
+        clamp<coord_t>(0, pointDot((l2 - l1).normalize(), (x - l1).normalize()),
+                       1),
+        l2);
+}
+
+static ModelPoint closestPointOnLineToLine(const ModelPoint& t1,
+                                           const ModelPoint& t2,
+                                           const ModelPoint& o1,
+                                           const ModelPoint& o2) {
+    ModelPoint a = o2 - o1;
+    ModelPoint b = t1 - o1;
+    ModelPoint c = t2 - o1;
+    b -= pointDot(b, a) * a;
+    c -= pointDot(c, a) * a;
+    ModelPoint d = c - b;
+    coord_t t =
+        (d - c).lengthSquared() < 1e-9 ? 0 : pointDot(-b, d) / pointDot(d, d);
+    ModelPoint l = lerpPoint(t1, clamp<coord_t>(0, t, 1), t2);
+    return ontoLineSegment(t1, ontoLineSegment(o1, l, o2), t2);
+}
+
 static coord_t closestDistanceToLineFromPoint(const ModelPoint& l1,
                                               const ModelPoint& l2,
                                               const ModelPoint& p) {
-    ModelPoint p1 = l2 - l1;
-    ModelPoint p2 = p - l1;
-    if (pointDot(p2, p1) <= 0) return p2.length();
+    return (closestPointOnLineToPoint(l1, l2, p) - p).length();
+}
 
-    ModelPoint p3 = p - l2;
-    if (pointDot(p3, p1) >= 0) return p3.length();
-
-    return sqrt(pointCross(p1, p2).lengthSquared() / p1.lengthSquared());
+static coord_t closestDistanceBetweenTwoLines(const ModelPoint& a1,
+                                              const ModelPoint& a2,
+                                              const ModelPoint& b1,
+                                              const ModelPoint& b2) {
+    return (closestPointOnLineToLine(a1, a2, b1, b2) -
+            closestPointOnLineToLine(b1, b2, a1, a2))
+        .length();
 }
 
 std::tuple<coord_t, coord_t> pointFind2D(ModelPoint tx, ModelPoint ty,
@@ -194,14 +232,15 @@ bool collidesSphereSphere(const ModelPoint& c1, coord_t r1,
 bool collidesLineTri(const ModelPoint& l1, const ModelPoint& l2,
                      const ModelPoint& t1, const ModelPoint& t2,
                      const ModelPoint& t3) {
+    static const coord_t sensitivity = 1.0 / 1024;
     ModelPoint a = l1 - t1;
     ModelPoint b = l2 - t1;
     ModelPoint x = t2 - t1;
     ModelPoint y = t3 - t1;
     ModelPoint z = pointCross(x, y).normalize();
 
-    coord_t c1 = pointDot(a, z);
-    coord_t c2 = pointDot(b, z);
+    coord_t c1 = pointDot(a, z) - sensitivity;
+    coord_t c2 = pointDot(b, z) + sensitivity;
     if (c1 * c2 > 0) return false;
 
     ModelPoint p = lerpPoint(a, unlerp<coord_t>(c1, 0, c2), b);
@@ -255,11 +294,79 @@ bool collidesTriTri(const ModelPoint& ta1, const ModelPoint& ta2,
            collidesLineTri(ta3, ta1, tb1, tb2, tb3);
 }
 
-ModelPoint collidesLineSphereWhere(const ModelPoint& l1, const ModelPoint& l2,
-                                   const ModelPoint& sc, coord_t r) {
+bool collidesSweepSpherePoint(const ModelPoint& c1, const ModelPoint& c2,
+                              coord_t r, const ModelPoint& p) {
+    return closestDistanceToLineFromPoint(c1, c2, p) < r;
+}
+
+static bool collidesSweepSphereLine(const ModelPoint& c1, const ModelPoint& c2,
+                                    coord_t r, const ModelPoint& l1,
+                                    const ModelPoint& l2) {
+    return closestDistanceBetweenTwoLines(c1, c2, l1, l2) < r;
+}
+
+static bool collidesSweepSphereCuboid(const ModelPoint& c1,
+                                      const ModelPoint& c2, coord_t r,
+                                      const ModelPoint& q1,
+                                      const ModelPoint& q2) {
+    if (std::min(c1.x, c2.x) <= q1.x && std::max(c1.x, c2.x) >= q1.x &&
+        collidesSphereCuboid(
+            lerpPoint(c1, unlerp(c1.x, (q1.x + q2.x) / 2, c2.x), c2), r, q1,
+            q2))
+        return true;
+    if (std::min(c1.y, c2.y) <= q1.y && std::max(c1.y, c2.y) >= q1.y &&
+        collidesSphereCuboid(
+            lerpPoint(c1, unlerp(c1.y, (q1.y + q2.y) / 2, c2.y), c2), r, q1,
+            q2))
+        return true;
+    if (std::min(c1.z, c2.z) <= q1.z && std::max(c1.z, c2.z) >= q1.z &&
+        collidesSphereCuboid(
+            lerpPoint(c1, unlerp(c1.z, (q1.z + q2.z) / 2, c2.z), c2), r, q1,
+            q2))
+        return true;
+    return collidesSphereCuboid(c1, r, q1, q2) ||
+           collidesSphereCuboid(c2, r, q1, q2);
+}
+
+static bool collidesSweepSphereSphere(const ModelPoint& c1,
+                                      const ModelPoint& c2, coord_t r,
+                                      const ModelPoint& sc, coord_t sr) {
+    return closestDistanceToLineFromPoint(c1, c2, sc) < r + sr;
+}
+
+static bool collidesSweepSphereTri(const ModelPoint& c1, const ModelPoint& c2,
+                                   coord_t r, const ModelPoint& t1,
+                                   const ModelPoint& t2, const ModelPoint& t3) {
+    ModelPoint tx = (t1 + t2 + t3) * (1.0 / 3);
+    ModelPoint cx = ModelPoint::average(c1, c2);
+    ModelPoint cd = c2 - c1;
+    ModelPoint td = tx - cx;
+    td -= cd * pointDot(td, cd);
+    if (td.length() > r) td = td.normalize() * r;
+    return collidesSphereTri(c1, r, t1, t2, t3) ||
+           collidesSphereTri(c2, r, t1, t2, t3) ||
+           collidesLineTri(c1 + td, c2 + td, t1, t2, t3);
+}
+
+static ModelPoint collidesSweepSpherePointWhere(const ModelPoint& l1,
+                                                const ModelPoint& l2, coord_t r,
+                                                const ModelPoint& p) {
+    return p;
+}
+
+static ModelPoint collidesSweepSphereLineWhere(const ModelPoint& l1,
+                                               const ModelPoint& l2, coord_t r,
+                                               const ModelPoint& a1,
+                                               const ModelPoint& a2) {
+    return closestPointOnLineToLine(l1, l2, a1, a2);
+}
+
+ModelPoint collidesSweepSphereSphereWhere(const ModelPoint& l1,
+                                          const ModelPoint& l2, coord_t r,
+                                          const ModelPoint& sc, coord_t sr) {
     coord_t a = pointDot(l2, l2);
     coord_t b = 2 * pointDot(l2, l1 - sc);
-    coord_t c = pointDot(l1 - sc, l1 - sc) - r * r;
+    coord_t c = pointDot(l1 - sc, l1 - sc) - sr * sr;
     coord_t d = b * b - 4 * a * c;
     if (d < 0) {
         LOG_WARN("tried to find intersection point, but there is none");
@@ -272,8 +379,10 @@ ModelPoint collidesLineSphereWhere(const ModelPoint& l1, const ModelPoint& l2,
 
 static coord_t validateCuboidUnlerp(coord_t x) { return x < 0 ? 1 : x; }
 
-ModelPoint collidesLineCuboidWhere(const ModelPoint& l1, const ModelPoint& l2,
-                                   const ModelPoint& c1, const ModelPoint& c2) {
+ModelPoint collidesSweepSphereCuboidWhere(const ModelPoint& l1,
+                                          const ModelPoint& l2, coord_t r,
+                                          const ModelPoint& c1,
+                                          const ModelPoint& c2) {
     coord_t tx = validateCuboidUnlerp(l2.x > l1.x ? unlerp(l1.x, c1.x, l2.x)
                                                   : unlerp(l1.x, c2.x, l2.x));
     coord_t ty = validateCuboidUnlerp(l2.y > l1.y ? unlerp(l1.y, c1.y, l2.y)
@@ -281,6 +390,32 @@ ModelPoint collidesLineCuboidWhere(const ModelPoint& l1, const ModelPoint& l2,
     coord_t tz = validateCuboidUnlerp(l2.z > l1.z ? unlerp(l1.z, c1.z, l2.z)
                                                   : unlerp(l1.z, c2.z, l2.z));
     return lerpPoint(l1, std::min({tx, ty, tz}), l2);
+}
+
+static ModelPoint collidesSweepSphereTriWhere(const ModelPoint& c1,
+                                              const ModelPoint& c2, coord_t r,
+                                              const ModelPoint& t1,
+                                              const ModelPoint& t2,
+                                              const ModelPoint& t3) {
+    ModelPoint tx = (t1 + t2 + t3) * (1.0 / 3);
+    ModelPoint cx = ModelPoint::average(c1, c2);
+    ModelPoint cd = c2 - c1;
+    ModelPoint td = tx - cx;
+    td -= cd * pointDot(td, cd);
+    if (td.length() > r) td = td.normalize() * r;
+    if (collidesSphereTri(c1, r, t1, t2, t3)) return c1;
+    if (collidesSphereTri(c2, r, t1, t2, t3)) return c2;
+
+    static const coord_t sensitivity = 1.0 / 1024;
+    ModelPoint a = c1 - t1;
+    ModelPoint b = c2 - t1;
+    ModelPoint x = t2 - t1;
+    ModelPoint y = t3 - t1;
+    ModelPoint z = pointCross(x, y).normalize();
+
+    coord_t x1 = pointDot(a, z) - sensitivity;
+    coord_t x2 = pointDot(b, z) + sensitivity;
+    return lerpPoint(a, unlerp<coord_t>(x1, 0, x2), b);
 }
 
 bool collidesPointShape(const ModelPoint& p, const CollisionShape& shape,
@@ -457,6 +592,77 @@ bool collidesModelModel(const ModelCollision& mc1, const Matrix3D& mat1,
                        [&](const CollisionShape& shape) {
                            return collidesShapeModel(shape, mat1, mc2, mat2);
                        });
+}
+
+static bool collidesSweepSphereShape(const ModelPoint& c1, const ModelPoint& c2,
+                                     coord_t r2, const CollisionShape& shape,
+                                     const Matrix3D& mat) {
+    switch (shape.type) {
+        case CollisionShapeType::Point:
+            return collidesSweepSpherePoint(c1, c2, r2, mat.project(shape.p));
+        case CollisionShapeType::Line:
+            return collidesSweepSphereLine(c1, c2, r2, mat.project(shape.p),
+                                           mat.project(shape.p1));
+        case CollisionShapeType::Cuboid:
+            return collidesSweepSphereCuboid(c1, c2, r2, mat.project(shape.p),
+                                             mat.project(shape.p1));
+        case CollisionShapeType::Sphere:
+            return collidesSweepSphereSphere(c1, c2, r2, mat.project(shape.p),
+                                             shape.r);
+        case CollisionShapeType::Tri:
+            return collidesSweepSphereTri(c1, c2, r2, mat.project(shape.p),
+                                          mat.project(shape.p1),
+                                          mat.project(shape.p2));
+        default:
+            never("invalid shape");
+    }
+}
+
+static ModelPoint collidesSweepSphereShapeWhere(const ModelPoint& c1,
+                                                const ModelPoint& c2,
+                                                coord_t r2,
+                                                const CollisionShape& shape,
+                                                const Matrix3D& mat) {
+    switch (shape.type) {
+        case CollisionShapeType::Point:
+            return collidesSweepSpherePointWhere(c1, c2, r2,
+                                                 mat.project(shape.p));
+        case CollisionShapeType::Line:
+            return collidesSweepSphereLineWhere(
+                c1, c2, r2, mat.project(shape.p), mat.project(shape.p1));
+        case CollisionShapeType::Cuboid:
+            return collidesSweepSphereCuboidWhere(
+                c1, c2, r2, mat.project(shape.p), mat.project(shape.p1));
+        case CollisionShapeType::Sphere:
+            return collidesSweepSphereSphereWhere(
+                c1, c2, r2, mat.project(shape.p), shape.r);
+        case CollisionShapeType::Tri:
+            return collidesSweepSphereTriWhere(c1, c2, r2, mat.project(shape.p),
+                                               mat.project(shape.p1),
+                                               mat.project(shape.p2));
+        default:
+            never("invalid shape");
+    }
+}
+
+bool collidesSweepSphereModel(const ModelPoint& c1, const ModelPoint& c2,
+                              coord_t r, const ModelCollision& mc,
+                              const Matrix3D& mat) {
+    return std::any_of(
+        mc.shapes.begin(), mc.shapes.end(), [&](const CollisionShape& shape) {
+            return collidesSweepSphereShape(c1, c2, r, shape, mat);
+        });
+}
+
+ModelPoint collidesSweepSphereModelWhere(const ModelPoint& l1,
+                                         const ModelPoint& l2, coord_t r,
+                                         const ModelCollision& mc,
+                                         const Matrix3D& mat) {
+    for (const CollisionShape& shape : mc.shapes) {
+        if (collidesSweepSphereShape(l1, l2, r, shape, mat))
+            return collidesSweepSphereShapeWhere(l1, l2, r, shape, mat);
+    }
+    return l1;
 }
 
 }  // namespace hiemalia

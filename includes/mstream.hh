@@ -136,7 +136,7 @@ class memorybuf : public std::streambuf {
         return *this;
     }
 
-    ~memorybuf() noexcept {
+    virtual ~memorybuf() noexcept {
         if (p_) alloc_.deallocate(p_, n_);
     }
 
@@ -243,7 +243,7 @@ class memorybuf : public std::streambuf {
     inline std::streamsize xsputn(const char_type* s, std::streamsize count) {
         if (!(mode_ & std::ios_base::out)) return 0;
         char* old_ptr = p_;
-        grow_(static_cast<size_t>(count));
+        resize_(pptr() - pbase() + static_cast<size_t>(count));
         if (p_ != old_ptr) {
             ptrdiff_t off = p_ - old_ptr;
             setg(p_, gptr() + off, egptr() + off);
@@ -287,7 +287,7 @@ class memorybuf : public std::streambuf {
 
 class imemorystream : public std::istream {
    public:
-    inline explicit imemorystream(const std::vector<char>& v)
+    inline explicit imemorystream(const std::vector<char_type>& v)
         : std::istream(&vbuf_), vbuf_(v, std::ios_base::in) {}
     inline explicit imemorystream(std::istream& scopy)
         : std::istream(&vbuf_), vbuf_(scopy, std::ios_base::in) {}
@@ -346,7 +346,7 @@ class omemorystream : public std::ostream {
 
 class memorystream : public std::iostream {
    public:
-    inline explicit memorystream(const std::vector<char>& v)
+    inline explicit memorystream(const std::vector<char_type>& v)
         : std::iostream(&vbuf_),
           vbuf_(v, std::ios_base::in | std::ios_base::out) {}
     inline explicit memorystream(std::istream& scopy)

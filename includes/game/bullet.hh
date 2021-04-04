@@ -28,6 +28,8 @@ class BulletObject : public GameObject {
     ModelPoint lerp(coord_t p) const;
     void backtrackCuboid(const ModelPoint& c1, const ModelPoint& c2);
     void backtrackSphere(const ModelPoint& p, coord_t r2);
+    void backtrackModel(const ModelCollision& mc, const Matrix3D mat);
+    void backtrackObject(const GameObject& o);
     bool isBulletOffScreen() const;
     virtual ~BulletObject() {}
 

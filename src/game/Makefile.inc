@@ -1,6 +1,7 @@
 
 OBJS := $(OBJS) game/object.o game/world.o game/player.o game/sections.o \
     game/objects.o game/explode.o game/bullet.o game/enemy.o game/script.o \
+    game/obstacle.o \
     game/pbullet.o game/ebullet.o \
     game/checkpnt.o game/stageend.o game/setspeed.o \
     game/box.o game/mbox.o \

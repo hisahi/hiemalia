@@ -38,7 +38,7 @@ void BulletObject::onSetPosition() { oldPos_ = pos; }
 void BulletObject::kill(GameWorld& w) { alive_ = false; }
 
 bool BulletObject::hitsInternal(const GameObject& obj) const {
-    return collidesSphereObject(pos, getCollisionRadius(), obj);
+    return collidesSweepSphereObject(oldPos_, pos, getCollisionRadius(), obj);
 }
 
 ModelPoint BulletObject::lerp(coord_t p) const {
@@ -46,11 +46,24 @@ ModelPoint BulletObject::lerp(coord_t p) const {
 }
 
 void BulletObject::backtrackCuboid(const ModelPoint& c1, const ModelPoint& c2) {
-    pos = collidesLineCuboidWhere(oldPos_, pos, c1, c2);
+    pos = collidesSweepSphereCuboidWhere(oldPos_, pos, getCollisionRadius(), c1,
+                                         c2);
 }
 
 void BulletObject::backtrackSphere(const ModelPoint& p, coord_t r2) {
-    pos = collidesLineSphereWhere(oldPos_, pos, p, r2);
+    pos = collidesSweepSphereSphereWhere(oldPos_, pos, getCollisionRadius(), p,
+                                         r2);
+}
+
+void BulletObject::backtrackModel(const ModelCollision& mc,
+                                  const Matrix3D mat) {
+    pos = collidesSweepSphereModelWhere(oldPos_, pos, getCollisionRadius(), mc,
+                                        mat);
+}
+
+void BulletObject::backtrackObject(const GameObject& o) {
+    if (o.hasCollision())
+        backtrackModel(o.collision(), o.getObjectModelMatrix());
 }
 
 bool BulletObject::checkInBounds(GameWorld& w, const ModelPoint& fvel) {
