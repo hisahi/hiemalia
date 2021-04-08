@@ -16,19 +16,18 @@
 #include "logger.hh"
 #include "mstream.hh"
 #include "random.hh"
+#include "sort.hh"
 
 namespace hiemalia {
 static const std::string scoresFilename = "scores.dat";
-static const auto validChars =
-    hiemalia::str_to_array("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-");
 static const auto randomChars =
-    hiemalia::str_to_array("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+    hiemalia::strToArray("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
 int HighScoreTable::getHighscoreRank(unsigned long score) const {
     if (!score) return -1;
     int i = 0;
     for (const HighScoreEntry& entry : entries) {
-        if (score >= entry.score) {
+        if (score > entry.score) {
             break;
         }
         ++i;
@@ -36,20 +35,25 @@ int HighScoreTable::getHighscoreRank(unsigned long score) const {
     return i >= HighScoreTable::size ? -1 : i;
 }
 
-void HighScoreTable::insertHighscore(HighScoreEntry&& entry) {
-    dynamic_assert(arrayContains(validChars, entry.name[0]),
+int HighScoreTable::insertHighscore(HighScoreEntry&& entry) {
+    dynamic_assert(arrayContains(validScoreNameChars, entry.name[0]),
                    "invalid character in high score!");
-    dynamic_assert(arrayContains(validChars, entry.name[1]),
+    dynamic_assert(arrayContains(validScoreNameChars, entry.name[1]),
                    "invalid character in high score!");
-    dynamic_assert(arrayContains(validChars, entry.name[2]),
+    dynamic_assert(arrayContains(validScoreNameChars, entry.name[2]),
                    "invalid character in high score!");
     entries.push_back(std::move(entry));
-    std::sort(entries.begin(), entries.end(),
-              [&](const HighScoreEntry& lhs, const HighScoreEntry& rhs) {
-                  return lhs.score < rhs.score;
-              });
+    auto idx = stableIndexSort(
+        entries.begin(), entries.end(),
+        [&](const HighScoreEntry& lhs, const HighScoreEntry& rhs) {
+            return lhs.score > rhs.score;
+        });
     if (entries.size() > HighScoreTable::size)
         entries.erase(entries.begin() + HighScoreTable::size, entries.end());
+    else
+        never("table is cut off");
+    return static_cast<int>(
+        std::find(idx.begin(), idx.end(), HighScoreTable::size) - idx.begin());
 }
 
 unsigned long HighScoreTable::getTopScore() const {
@@ -67,13 +71,18 @@ static HighScoreTable getDefaultHighscoreTable() {
             e.push_back(HighScoreEntry{
                 {randomChars[random(rc)], randomChars[random(rc)],
                  randomChars[random(rc)]},
-                (i + 1) * 2000UL,
-                1 + i / stageCount,
-                (i % stageCount) + 1});
+                (i + 1) * 2500UL,
+                1 + (i / 2) / stageCount,
+                ((i / 2) % stageCount) + 1});
         }
         std::reverse(e.begin(), e.end());
     }
     return defaultScores;
+}
+
+void HighScoreTable::resetScores() {
+    defaultScores.entries.clear();
+    *this = getDefaultHighscoreTable();
 }
 
 static char readChar(std::istream& s) { return s.get(); }
@@ -107,11 +116,11 @@ static uint64_t readUInt64(std::istream& s) {
 }
 
 static HighScoreEntry readHighscoreEntry(std::istream& s) {
+    std::array<char, highScoreNameLength> n;
+    for (int i = 0; i < highScoreNameLength; ++i) n[i] = readChar(s);
     return HighScoreEntry{
-        {readChar(s), readChar(s), readChar(s)},
-        static_cast<unsigned long>((readChar(s), readUInt64(s))),
-        static_cast<int>(readUInt16(s)),
-        static_cast<int>(readChar(s))};
+        n, static_cast<unsigned long>((readChar(s), readUInt64(s))),
+        static_cast<int>(readUInt16(s)), static_cast<int>(readChar(s))};
 }
 
 static void writeChar(std::ostream& s, char c) { s.put(c); }
@@ -140,9 +149,7 @@ static void writeUInt64(std::ostream& s, uint64_t v) {
 }
 
 static void writeHighscoreEntry(std::ostream& s, const HighScoreEntry& h) {
-    writeChar(s, h.name[0]);
-    writeChar(s, h.name[1]);
-    writeChar(s, h.name[2]);
+    for (int i = 0; i < highScoreNameLength; ++i) writeChar(s, h.name[i]);
     writeChar(s, 0x27);
     writeUInt64(s, static_cast<uint64_t>(h.score));
     writeUInt16(s, static_cast<uint16_t>(h.cycles));
@@ -194,6 +201,9 @@ HighScoreTable loadHighscores() {
         for (uint16_t i = 0, n = readUInt16(memstr); i < n; ++i) {
             if (i >= HighScoreTable::size) return getDefaultHighscoreTable();
             table.entries.push_back(readHighscoreEntry(memstr));
+            if (i > 1 &&
+                table.entries[i - 2].score < table.entries[i - 1].score)
+                return getDefaultHighscoreTable();
         }
         if (table.entries.size() != HighScoreTable::size)
             return getDefaultHighscoreTable();
@@ -217,7 +227,6 @@ static void dumpScores(const HighScoreTable& table) {
 void saveHighscores(HighScoreTable& table) {
     if (table.entries.empty()) return;
     auto out = openFileWrite(scoresFilename, true);
-    dumpScores(table);
     if (out.fail()) {
         dumpScores(table);
     } else {
@@ -242,7 +251,7 @@ void saveHighscores(HighScoreTable& table) {
             writeInt32(out, checksum_unenc);
             writeInt32(out, key);
             crypting.copy_to(out);
-        } catch (std::ostream::failure& e) {
+        } catch (std::ostream::failure&) {
             dumpScores(table);
             throw;
         }

@@ -26,7 +26,7 @@ struct Matrix2D {
 };
 
 class Renderer2D {
-   public:
+  public:
     void renderShape(SplinterBuffer& buf, coord_t x, coord_t y,
                      const Shape& s) const;
     void renderShapeColor(SplinterBuffer& buf, coord_t x, coord_t y,
@@ -45,7 +45,7 @@ class Renderer2D {
     }
     void resetMatrix() { setMatrix(1, 0, 0, 1); }
 
-   private:
+  private:
     void renderFragment(SplinterBuffer& buf, coord_t x, coord_t y,
                         const Color& clr, const ShapeFragment& f) const;
     Matrix2D _mat;

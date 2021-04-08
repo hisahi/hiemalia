@@ -30,7 +30,7 @@ struct ShapeFragment {
     ShapeFragment(const Color& color, ShapePoint start)
         : color(color), start(start), points() {}
     ShapeFragment(const Color& color, ShapePoint start,
-                  std::vector<ShapePoint>&& points)
+                  std::vector<ShapePoint>&& points) noexcept
         : color(color), start(start), points(std::move(points)) {}
 };
 
@@ -38,7 +38,8 @@ struct Shape {
     std::vector<ShapeFragment> parts;
 
     Shape() : parts() {}
-    Shape(std::vector<ShapeFragment>&& parts) : parts(std::move(parts)) {}
+    Shape(std::vector<ShapeFragment>&& parts) noexcept
+        : parts(std::move(parts)) {}
 };
 
 struct ShapeSheet {
@@ -46,10 +47,11 @@ struct ShapeSheet {
 
     inline Shape& operator[](size_t index) { return shapes[index]; }
     inline const Shape& operator[](size_t index) const { return shapes[index]; }
-    inline size_t count() { return shapes.size(); }
+    inline size_t count() const noexcept { return shapes.size(); }
 
     ShapeSheet() : shapes() {}
-    ShapeSheet(std::vector<Shape>&& shapes) : shapes(std::move(shapes)) {}
+    ShapeSheet(std::vector<Shape>&& shapes) noexcept
+        : shapes(std::move(shapes)) {}
 };
 
 };  // namespace hiemalia

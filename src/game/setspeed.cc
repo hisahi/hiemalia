@@ -11,12 +11,13 @@
 #include "game/world.hh"
 
 namespace hiemalia {
-SetSpeedScript::SetSpeedScript(const std::string& prop) {
+SetSpeedScript::SetSpeedScript(const Point3D& pos, const std::string& prop)
+    : ScriptObject(pos) {
     if (prop == "slow") {
-        speed_ = 0.875;
+        speed_ = 1;
         vel_ = 0.5;
     } else if (prop == "medium" || prop == "normal") {
-        speed_ = 1.25;
+        speed_ = 1.5;
         vel_ = 1;
     } else if (prop == "fast") {
         speed_ = 1.75;
@@ -26,15 +27,8 @@ SetSpeedScript::SetSpeedScript(const std::string& prop) {
     }
 }
 
-bool SetSpeedScript::run(GameWorld& w) {
-    if (w.isPlayerAlive()) {
-        PlayerObject& p = w.getPlayer();
-        if (p.playerInControl() && p.pos.z >= pos.z) {
-            w.setNewSpeed(speed_, vel_);
-        }
-        return p.pos.z < pos.z;
-    }
-    return true;
+void SetSpeedScript::doScript(GameWorld& w, bool instant) {
+    w.setNewSpeed(speed_, vel_);
 }
 
 }  // namespace hiemalia

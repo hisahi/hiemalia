@@ -25,7 +25,7 @@
 namespace hiemalia {
 
 class LogicEngine : public Module, MessageHandler<LogicMessage> {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
     std::string role() const noexcept { return role_; }
 
@@ -49,7 +49,7 @@ class LogicEngine : public Module, MessageHandler<LogicMessage> {
                                        std::forward<Ts>(args)...)));
     }
 
-   private:
+  private:
     LimitedVector<std::shared_ptr<LogicModule>, 16> modules_;
     static inline const std::string name_ = "LogicEngine";
     static inline const std::string role_ = "logic engine";

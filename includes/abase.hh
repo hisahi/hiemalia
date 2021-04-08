@@ -22,7 +22,7 @@ constexpr int channelAny = -1;
 constexpr unsigned int defaultFadeoutDuration = 5000;
 
 class AudioModule : public Module {
-   public:
+  public:
     virtual std::string name() const noexcept = 0;
     std::string role() const noexcept { return role_; }
 
@@ -49,15 +49,15 @@ class AudioModule : public Module {
     INHERIT_MOVE(AudioModule, Module);
     virtual ~AudioModule() noexcept {}
 
-   protected:
+  protected:
     AudioModule() {}
 
-   private:
+  private:
     static inline const std::string role_ = "audio module";
 };
 
 class AudioModuleNull : public AudioModule {
-   public:
+  public:
     inline std::string name() const noexcept { return name_; }
 
     inline void tick() {}
@@ -87,7 +87,7 @@ class AudioModuleNull : public AudioModule {
     }
     inline ~AudioModuleNull() {}
 
-   private:
+  private:
     static inline const std::string name_ = "AudioModuleNull";
 };
 

@@ -18,7 +18,7 @@
 
 namespace hiemalia {
 class InputEngine : public Module {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
     std::string role() const noexcept { return role_; }
 
@@ -41,7 +41,7 @@ class InputEngine : public Module {
     InputControlModule& getInputDevice(InputDevice device);
     void update(GameState& state);
 
-   private:
+  private:
     MenuControlState controlsmenu_;
     std::shared_ptr<InputModule> input_;
     static inline const std::string name_ = "InputEngine";

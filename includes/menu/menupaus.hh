@@ -18,7 +18,7 @@
 
 namespace hiemalia {
 class MenuPause : public Menu {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
     std::string title() const noexcept { return "Paused"; }
 
@@ -32,7 +32,7 @@ class MenuPause : public Menu {
     MenuPause(MenuHandler& handler);
     ~MenuPause() noexcept;
 
-   private:
+  private:
     static inline const std::string name_ = "MenuPause";
     bool unpause_{true};
 };

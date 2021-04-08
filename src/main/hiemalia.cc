@@ -50,6 +50,11 @@ void Hiemalia::gotMessage(const HostMessage &msg) {
         case HostMessageType::MainMenu:
             sendMessage(LogicMessage::mainMenu(modules_));
             break;
+        case HostMessageType::GotHighScore:
+            sendMessage(LogicMessage::highScore(
+                modules_,
+                HighScoreSubmit{&state_.highScores, msg.highScoreEntry()}));
+            break;
         case HostMessageType::Quit:
             host_->quit();
             break;

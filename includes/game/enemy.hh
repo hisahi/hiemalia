@@ -19,45 +19,56 @@
 
 namespace hiemalia {
 class EnemyObject : public GameObject, public ObjectDamageable {
-   public:
-    EnemyObject();
+  public:
+    explicit EnemyObject(const Point3D& pos);
+    EnemyObject(const Point3D& pos, float health);
     bool update(GameWorld& w, float delta);
     virtual bool doEnemyTick(GameWorld& w, float delta) = 0;
     inline virtual bool hitEnemy(GameWorld& w, float dmg,
-                                 const ModelPoint& pointOfContact) {
+                                 const Point3D& pointOfContact) {
         return true;
     }
     void kill(GameWorld& w);
+    void hitWall(GameWorld& w);
     virtual ~EnemyObject() {}
 
-   protected:
+  protected:
     inline virtual void onEnemyDamage(GameWorld& w, float dmg,
-                                      const ModelPoint& pointOfContact){};
+                                      const Point3D& pointOfContact){};
     inline virtual bool onEnemyDeath(GameWorld& w, bool killedByPlayer) {
         return true;
     };
     void doExplode(GameWorld& w);
     void doExplode(GameWorld& w, const Model& m);
+    void doExplodeBoss(GameWorld& w);
+    void doExplodeBoss(GameWorld& w, const Model& m);
     void addScore(GameWorld& w, unsigned int score);
     void killPlayerOnContact(GameWorld& w);
 
     template <typename T, typename... Ts>
-    void fireBullet(GameWorld& w, const ModelPoint& turret,
-                    const ModelPoint& dir, float speed, float spew,
-                    Ts&&... args) const {
+    void fireBullet(GameWorld& w, const Point3D& turret, const Point3D& dir,
+                    float speed, float spew, Ts&&... args) const {
         w.fireEnemyBullet<T>(getObjectModelMatrix().project(turret),
                              getBulletVelocity(w, dir, speed, spew),
                              std::forward<Ts>(args)...);
     }
-    ModelPoint aimAtPlayer(GameWorld& w) const;
+    template <typename T, typename... Ts>
+    void fireBulletAtPlayer(GameWorld& w, const Point3D& turret, float speed,
+                            float spew, float lead, Ts&&... args) const {
+        w.fireEnemyBullet<T>(
+            getObjectModelMatrix().project(turret),
+            getBulletVelocity(w, aimAtPlayer(w, speed, lead), speed, spew),
+            std::forward<Ts>(args)...);
+    }
+    Point3D aimAtPlayer(GameWorld& w, float speed, float lead) const;
+    Point3D getBulletVelocity(GameWorld& w, Point3D dir, float speed,
+                              float spew) const;
 
-   private:
+  private:
     bool alive_{true};
     bool killedByPlayer_{false};
-    void onDamage(GameWorld& w, float dmg, const ModelPoint& pointOfContact);
+    void onDamage(GameWorld& w, float dmg, const Point3D& pointOfContact);
     void onDeath(GameWorld& w);
-    ModelPoint getBulletVelocity(GameWorld& w, ModelPoint dir, float speed,
-                                 float spew) const;
 };
 };  // namespace hiemalia
 

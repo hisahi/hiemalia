@@ -19,7 +19,7 @@
 namespace hiemalia {
 
 class LogicModule : public Module {
-   public:
+  public:
     virtual std::string name() const noexcept = 0;
     virtual std::string role() const noexcept { return role_; }
     virtual bool run(GameState& state, float interval) = 0;
@@ -33,10 +33,10 @@ class LogicModule : public Module {
     }
     virtual ~LogicModule() noexcept {}
 
-   protected:
+  protected:
     LogicModule() {}
 
-   private:
+  private:
     static inline const std::string role_ = "logic module";
 };
 

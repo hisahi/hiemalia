@@ -71,12 +71,20 @@ VideoModuleSDL2::~VideoModuleSDL2() noexcept {
 }
 
 void VideoModuleSDL2::onResize() {
-    int w, h;
+    int w, h, x0, y0, x1, y1;
     SDL_GetRendererOutputSize(renderer_, &w, &h);
     width_ = w;
     cx_ = w * 0.5;
     cy_ = h * 0.5;
     scale_ = std::min(cx_, cy_);
+    x0 = static_cast<int>(cx_ - scale_);
+    x1 = static_cast<int>(cx_ + scale_);
+    y0 = static_cast<int>(cy_ - scale_);
+    y1 = static_cast<int>(cy_ + scale_);
+    square_.x = x0;
+    square_.y = y0;
+    square_.w = x1 - x0;
+    square_.h = y1 - y0;
 }
 
 void VideoModuleSDL2::frame() {}
@@ -89,6 +97,7 @@ void VideoModuleSDL2::blank() {
 
 void VideoModuleSDL2::draw(const SplinterBuffer &buffer) {
     int x, y;
+    SDL_RenderSetClipRect(renderer_, &square_);
     for (auto &s : buffer) {
         x = static_cast<int>(s.x * scale_ + cx_);
         y = static_cast<int>(s.y * scale_ + cy_);
@@ -107,17 +116,19 @@ void VideoModuleSDL2::draw(const SplinterBuffer &buffer) {
                 SDL_RenderDrawLines(renderer_, points_.data(), points_.size());
                 break;
             case SplinterType::BeginClipCenter:
-                rect_.x = 0;
+                x = static_cast<int>(s.x * scale_ + cy_);
+                rect_.x = square_.x;
                 rect_.y = x;
-                rect_.w = width_;
+                rect_.w = square_.w;
                 rect_.h = y - x;
                 SDL_RenderSetClipRect(renderer_, &rect_);
                 break;
             case SplinterType::EndClip:
-                SDL_RenderSetClipRect(renderer_, NULL);
+                SDL_RenderSetClipRect(renderer_, &square_);
                 break;
         }
     }
+    SDL_RenderSetClipRect(renderer_, NULL);
 }
 
 void VideoModuleSDL2::blit() { SDL_RenderPresent(renderer_); }

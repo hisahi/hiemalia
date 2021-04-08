@@ -13,11 +13,11 @@
 
 namespace hiemalia {
 class SetSpeedScript : public ScriptObject {
-   public:
-    SetSpeedScript(const std::string& prop);
-    bool run(GameWorld& w);
+  public:
+    SetSpeedScript(const Point3D& pos, const std::string& prop);
+    void doScript(GameWorld& w, bool instant);
 
-   private:
+  private:
     coord_t speed_;
     coord_t vel_;
 };

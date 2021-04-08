@@ -15,6 +15,7 @@
 #include "load2d.hh"
 #include "logger.hh"
 #include "logic.hh"
+#include "menu/menuyn.hh"
 #include "sounds.hh"
 
 namespace hiemalia {
@@ -140,6 +141,21 @@ void Menu::doRight() {
     }
 }
 
+void Menu::setActiveItem(symbol_t item) {
+    int i = -1;
+    options_[index_].dirty = true;
+
+    for (std::size_t j = 0; j < options_.size(); ++j) {
+        if (options_[j].id == item) {
+            i = static_cast<int>(j);
+            break;
+        }
+    }
+
+    index_ = i;
+    if (index_ >= 0) options_[index_].dirty = true;
+}
+
 void Menu::doSelect() {
     MenuOption& option = options_[index_];
     if (option.type == MenuOptionType::Select) {
@@ -148,6 +164,14 @@ void Menu::doSelect() {
     }
     select(index_, option.id);
     sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
+}
+
+void Menu::doConfirm(bool yes) {
+    confirmId_ = symbol_none;
+    std::function<void()>& f = yes ? onMenuYes_.value() : onMenuNo_.value();
+    if (f) f();
+    onMenuYes_.reset();
+    onMenuNo_.reset();
 }
 
 void Menu::gotMenuMessage(const MenuMessage& msg) {
@@ -173,6 +197,16 @@ void Menu::gotMenuMessage(const MenuMessage& msg) {
         case MenuMessageType::MenuExit:
             exiting_ = exitable_;
             break;
+        case MenuMessageType::MenuYes:
+            dynamic_assert(confirmId_ == msg.menuId && onMenuYes_.has_value(),
+                           "ghost message");
+            doConfirm(true);
+            break;
+        case MenuMessageType::MenuNo:
+            dynamic_assert(confirmId_ == msg.menuId && onMenuNo_.has_value(),
+                           "ghost message");
+            doConfirm(false);
+            break;
     }
 }
 
@@ -180,6 +214,20 @@ static Color getMenuOptionColor(const MenuOption& o, bool selected) {
     return o.type == MenuOptionType::Text || o.enabled
                ? (selected ? menuItemSelectedColor : menuItemColor)
                : menuItemDisabledColor;
+}
+
+void Menu::confirm(symbol_t id, const std::string& title,
+                   std::function<void()> onYes, std::function<void()> onNo) {
+    dynamic_assert(confirmId_ == symbol_none, "nested confirm not OK!");
+    onMenuYes_ = onYes;
+    onMenuNo_ = onNo;
+    confirmId_ = id;
+    openMenu<MenuYesNo>(id, title);
+}
+
+coord_t Menu::getMenuOptionY(int index) const {
+    return (-font_.lineHeight() * (options_.size() - 1)) / 2 +
+           index * font_.lineHeight();
 }
 
 void Menu::runMenu(GameState& state, float interval) {
@@ -194,8 +242,14 @@ void Menu::runMenu(GameState& state, float interval) {
         init_ = true;
         begin(state);
         dynamic_assert(options_.size() > 0, "menu cannot be empty");
-        index_ = 0;
-        if (!options_[0].enabled) goDown();
+        if (defaultItem == symbol_none) {
+            index_ = 0;
+        } else {
+            setActiveItem(defaultItem);
+            if (index_ < 0) index_ = 0;
+        }
+        if (!options_[index_].enabled) goDown();
+
         font_.renderTextLine(titlebuf_, -font_.getTextWidth(t) / 2, -0.875,
                              menuTitleColor, t);
     }
@@ -203,15 +257,13 @@ void Menu::runMenu(GameState& state, float interval) {
     specialRender(state.sbuf, interval);
     coord_t x1 = -0.75;
     coord_t x2 = 0.75;
-    coord_t y = (-font_.lineHeight() * (options_.size() - 1)) / 2;
     for (int i = 0, e = options_.size(); i < e; ++i) {
         MenuOption& option = options_[i];
         if (option.dirty) {
-            option.redraw(x1, x2, y, font_,
+            option.redraw(x1, x2, getMenuOptionY(i), font_,
                           getMenuOptionColor(option, i == index_));
         }
         state.sbuf.append(option.sbuf);
-        y += font_.lineHeight();
     }
     state.sbuf.append(titlebuf_);
 }

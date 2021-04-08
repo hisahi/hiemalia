@@ -11,7 +11,6 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 #ifndef NDEBUG
 #define NDEBUG 0
@@ -36,7 +35,7 @@ void dynamic_assert_(const std::string &file, unsigned line, bool condition,
 
 #define never(msg) hiemalia::never_(__FILE__, __LINE__, msg)
 #if NDEBUG
-#define dynamic_assert(cond, msg)
+#define dynamic_assert(cond, msg) (void)(cond)
 #else
 #define dynamic_assert(cond, msg) \
     hiemalia::dynamic_assert_(__FILE__, __LINE__, cond, msg)

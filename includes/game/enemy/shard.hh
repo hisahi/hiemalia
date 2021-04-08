@@ -13,11 +13,11 @@
 
 namespace hiemalia {
 class EnemyShard : public EnemyObject {
-   public:
-    EnemyShard();
+  public:
+    EnemyShard(const Point3D& pos);
     bool doEnemyTick(GameWorld& w, float delta);
 
-   protected:
+  protected:
     bool onEnemyDeath(GameWorld& w, bool killedByPlayer);
 };
 };  // namespace hiemalia

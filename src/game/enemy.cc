@@ -15,7 +15,10 @@
 #include "rend3d.hh"
 
 namespace hiemalia {
-EnemyObject::EnemyObject() {}
+
+EnemyObject::EnemyObject(const Point3D& pos) : EnemyObject(pos, 1.0f) {}
+EnemyObject::EnemyObject(const Point3D& pos, float health)
+    : GameObject(pos), ObjectDamageable(health) {}
 
 bool EnemyObject::update(GameWorld& w, float delta) {
     if (!alive_) return false;
@@ -23,13 +26,13 @@ bool EnemyObject::update(GameWorld& w, float delta) {
     if (alive) {
         for (auto& bptr : w.getPlayerBullets()) {
             if (bptr->hits(*this)) {
-                ModelPoint c = bptr->lerp(0.5);
+                Point3D c = bptr->lerp(0.5);
                 float dmg = bptr->getDamage();
-                if (hitEnemy(w, dmg, c)) {
+                if (alive_ && hitEnemy(w, dmg, c)) {
                     killedByPlayer_ = true;
                     damage(w, dmg, c);
                 }
-                bptr->impact(w, true);
+                bptr->impact(w, !alive_);
             }
         }
     }
@@ -38,8 +41,13 @@ bool EnemyObject::update(GameWorld& w, float delta) {
 
 void EnemyObject::kill(GameWorld& w) { alive_ = false; }
 
+void EnemyObject::hitWall(GameWorld& w) {
+    killedByPlayer_ = false;
+    damage(w, getHealth() + 1.0f, pos);
+}
+
 void EnemyObject::onDamage(GameWorld& w, float dmg,
-                           const ModelPoint& pointOfContact) {
+                           const Point3D& pointOfContact) {
     onEnemyDamage(w, dmg, pointOfContact);
 }
 
@@ -51,6 +59,12 @@ void EnemyObject::doExplode(GameWorld& w) { doExplode(w, model()); }
 
 void EnemyObject::doExplode(GameWorld& w, const Model& m) {
     w.explodeEnemy(*this, m);
+}
+
+void EnemyObject::doExplodeBoss(GameWorld& w) { doExplodeBoss(w, model()); }
+
+void EnemyObject::doExplodeBoss(GameWorld& w, const Model& m) {
+    w.explodeBoss(*this, m);
 }
 
 void EnemyObject::addScore(GameWorld& w, unsigned int score) {
@@ -66,12 +80,33 @@ void EnemyObject::killPlayerOnContact(GameWorld& w) {
     }
 }
 
-ModelPoint EnemyObject::aimAtPlayer(GameWorld& w) const {
-    return w.getPlayerPosition() - pos;
+static Point3D bulletAimAt(const Point3D& me, coord_t speed, const Point3D& p0,
+                           const Point3D& x) {
+    if (x.isZero()) return (p0 - me).normalize() * speed;
+    Point3D p = p0 + x;
+    Point3D d = p - me;
+    Point3D y = d - x * (x.dot(d) / x.dot(x));
+    Point3D pointOfContact = p0 + x * (y.length() / speed);
+    return (pointOfContact - me).normalize() * speed;
 }
 
-ModelPoint EnemyObject::getBulletVelocity(GameWorld& w, ModelPoint dir,
-                                          float speed, float spew) const {
+Point3D EnemyObject::aimAtPlayer(GameWorld& w, float speed, float lead) const {
+    speed *= w.difficulty().getBulletSpeedMultiplier();
+    lead *= w.difficulty().getBulletLeadMultiplier();
+    Point3D nonLead = bulletAimAt(pos, speed, w.getPlayerPosition(),
+                                  Point3D(0, 0, w.getMoveSpeed()));
+    Point3D yesLead =
+        lead == 0
+            ? nonLead
+            : bulletAimAt(
+                  pos, speed, w.getPlayerPosition(),
+                  w.getPlayer().vel * 0.125 +
+                      Point3D(0, 0, w.getMoveSpeed() + w.getMoveSpeedDelta()));
+    return Point3D::lerp(nonLead, lead, yesLead);
+}
+
+Point3D EnemyObject::getBulletVelocity(GameWorld& w, Point3D dir, float speed,
+                                       float spew) const {
     speed *= w.difficulty().getBulletSpeedMultiplier();
     spew *= speed * w.difficulty().getBulletSpewMultiplier();
     return (dir + randomUnitVector() * spew).normalize() * speed;

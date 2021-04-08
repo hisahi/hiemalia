@@ -21,7 +21,7 @@ namespace hiemalia {
 class InputControlModule;
 
 class InputModule : public Module {
-   public:
+  public:
     virtual std::string name() const noexcept = 0;
     std::string role() const noexcept { return role_; }
 
@@ -36,15 +36,15 @@ class InputModule : public Module {
     INHERIT_MOVE(InputModule, Module);
     virtual ~InputModule() noexcept {}
 
-   protected:
+  protected:
     InputModule() {}
 
-   private:
+  private:
     static inline const std::string role_ = "input module";
 };
 
 class InputControlModule : public Module {
-   public:
+  public:
     virtual std::string name() const noexcept = 0;
     std::string role() const noexcept { return role_; }
     InputDevice device() const noexcept { return device_; }
@@ -71,7 +71,7 @@ class InputControlModule : public Module {
 
     inline const ConfigSectionPtr<ButtonSetup>& getConfig() { return config_; }
 
-   protected:
+  protected:
     explicit InputControlModule(InputModule& host,
                                 const ConfigSectionPtr<ButtonSetup>& config)
         : device_(config->getDevice()), config_(config) {}
@@ -79,7 +79,7 @@ class InputControlModule : public Module {
     ConfigSectionPtr<ButtonSetup> config_;
     void doneSettingButton(ControlInput control);
 
-   private:
+  private:
     static inline const std::string role_ = "input control module";
 };
 

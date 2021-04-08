@@ -11,31 +11,36 @@
 #include "assets.hh"
 #include "audio.hh"
 #include "collide.hh"
+#include "game/gamemsg.hh"
 #include "game/pbullet.hh"
 #include "game/world.hh"
 #include "hiemalia.hh"
 #include "random.hh"
 
 namespace hiemalia {
-static const coord_t maxSpeed = 1.5;
-static const coord_t maxRotation = 0.1875;
+static const coord_t maxSpeed = 1.25;
+static const coord_t maxRotation = 0.125;
 
 static std::uniform_real_distribution<coord_t> rd_rotmul(0.5, 1.0);
 static std::uniform_real_distribution<coord_t> rd_yawmul(-0.5, 1.0);
+static std::uniform_real_distribution<coord_t> rd_fallmul(0.25, 0.5);
 
-PlayerObject::PlayerObject() : GameObject() {
+PlayerObject::PlayerObject(const Point3D& pos) : GameObject(pos) {
     useGameModel(GameModel::PlayerShip);
     shipRadius_ = getCollisionRadius();
 }
 
 void PlayerObject::onDamage(GameWorld& w, float damage,
-                            const ModelPoint& contact) {
+                            const Point3D& contact) {
     if (woundedBird_) return;
+    sendMessage(GameMessage::shakeCamera(2.0));
     wbird_vel_.yaw = (contact.x - pos.x) * -8 * random(rd_yawmul);
-    wbird_vel_.pitch = (contact.z - pos.z) * 12 * random(rd_rotmul);
+    wbird_vel_.pitch =
+        (contact.z - pos.z) * 12 * random(rd_rotmul) * w.getMoveSpeed();
     wbird_vel_.roll = (contact.x - pos.x) * 32 * random(rd_rotmul);
     wbird_fr_ = 0;
-    wbird_mul_ = std::max(0.25, 0.25 + (contact.z - pos.z) * 12) * 0.125;
+    wbird_mul_ = std::abs(std::max(0.25, 0.25 + (contact.z - pos.z) * 12) *
+                          random(rd_fallmul) * random(rd_fallmul));
 }
 
 void PlayerObject::onDeath(GameWorld& w) {
@@ -47,7 +52,7 @@ void PlayerObject::onDeath(GameWorld& w) {
 void PlayerObject::enemyContact() { wallContact(0, 0, 0); }
 
 void PlayerObject::wallContact(coord_t x, coord_t y, coord_t z) {
-    explodeObject_ = std::make_unique<Explosion>(*this, x, y, z, 1.0f);
+    explodeObject_ = std::make_unique<Explosion>(pos, *this, x, y, z, 1.0f);
 }
 
 void PlayerObject::updateInput(ControlState& controls) { inputs_ = controls; }
@@ -77,10 +82,10 @@ void PlayerObject::inputsVelocity(float delta) {
 void PlayerObject::inputsAngles(float delta) {
     if (inputs_.left) {
         rot.roll =
-            std::max<coord_t>(rot.roll - maxRotation * 4 * delta, -maxRotation);
+            std::max<coord_t>(rot.roll - maxRotation * 3 * delta, -maxRotation);
     } else if (inputs_.right) {
         rot.roll =
-            std::min<coord_t>(rot.roll + maxRotation * 4 * delta, maxRotation);
+            std::min<coord_t>(rot.roll + maxRotation * 3 * delta, maxRotation);
     } else if (rot.roll < 0) {
         rot.roll = std::min<coord_t>(0, rot.roll + maxRotation * 4 * delta);
     } else if (rot.roll > 0) {
@@ -88,11 +93,11 @@ void PlayerObject::inputsAngles(float delta) {
     }
 
     if (inputs_.up) {
-        rot.pitch = std::max<coord_t>(rot.pitch - maxRotation * 4 * delta,
+        rot.pitch = std::max<coord_t>(rot.pitch - maxRotation * 3 * delta,
                                       -maxRotation);
     } else if (inputs_.down) {
         rot.pitch =
-            std::min<coord_t>(rot.pitch + maxRotation * 4 * delta, maxRotation);
+            std::min<coord_t>(rot.pitch + maxRotation * 3 * delta, maxRotation);
     } else if (rot.pitch < 0) {
         rot.pitch = std::min<coord_t>(0, rot.pitch + maxRotation * 4 * delta);
     } else if (rot.pitch > 0) {
@@ -101,12 +106,12 @@ void PlayerObject::inputsAngles(float delta) {
 }
 
 void PlayerObject::checkBounds(const MoveRegion& r, GameWorld& w) {
-    if (pos.y - shipRadius_ < r.y0) {
+    if (pos.y - shipRadius_ * 0.5 < r.y0) {
         if (vel.y < 0) vel.y = 0;
         pos.y = r.y0;
         wallContact(0, 1, 0);
         return;
-    } else if (pos.y + shipRadius_ > r.y1) {
+    } else if (pos.y + shipRadius_ * 0.5 > r.y1) {
         if (vel.y > 0) vel.y = 0;
         pos.y = r.y1;
         wallContact(0, -1, 0);
@@ -124,23 +129,35 @@ void PlayerObject::checkBounds(const MoveRegion& r, GameWorld& w) {
     }
 }
 
+void PlayerObject::render(SplinterBuffer& sbuf, Renderer3D& r3d) {
+    GameObject::render(sbuf, r3d);
+    if (woundedBird_) {
+        r3d.renderModel(sbuf, pos, rot, scale,
+                        *getGameModel(GameModel::CrackedWindow).model);
+    }
+}
+
 bool PlayerObject::playerInControl() const { return !woundedBird_; }
 
 void PlayerObject::doWoundedBird(float delta) {
     wbird_fr_ += delta;
-    vel.y += wbird_fr_ * wbird_fr_ * wbird_mul_;
+    vel.y += wbird_fr_ * wbird_mul_;
     rot += wbird_vel_ * delta;
+    if (wbird_vel_.pitch > 2 || wbird_vel_.pitch < -2)
+        wbird_vel_.pitch = -wbird_vel_.pitch;
 }
 
 void PlayerObject::doFire(GameWorld& w) {
     fireInterval_ = 0.2f;
     sendMessage(AudioMessage::playSound(SoundEffect::PlayerFire));
     Matrix3D mat = getObjectModelMatrix();
-    ModelPoint leftTurret = mat.project(ModelPoint(-2, 0.0625, 0.25) * 0.0625);
-    ModelPoint rightTurret = mat.project(ModelPoint(2, 0.0625, 0.25) * 0.0625);
-    w.firePlayerBullet<PlayerBullet>(leftTurret, ModelPoint(0.125, 0, 4) * 1.5);
+    Point3D leftTurret = mat.project(Point3D(-2, 0.0625, 0.25) * 0.0625);
+    Point3D rightTurret = mat.project(Point3D(2, 0.0625, 0.25) * 0.0625);
+    Point3D target = pos + Point3D(0, 0, farObjectBackPlane);
+    w.firePlayerBullet<PlayerBullet>(leftTurret,
+                                     (target - leftTurret).normalize() * 6);
     w.firePlayerBullet<PlayerBullet>(rightTurret,
-                                     ModelPoint(-0.125, 0, 4) * 1.5);
+                                     (target - rightTurret).normalize() * 6);
 }
 
 bool PlayerObject::update(GameWorld& w, float delta) {
@@ -149,7 +166,6 @@ bool PlayerObject::update(GameWorld& w, float delta) {
         return true;
     }
     inputsVelocity(delta);
-    pos += vel * delta;
     if (fireInterval_ >= 0) fireInterval_ -= delta;
     const MoveRegion& r = w.getPlayerMoveRegion();
     checkBounds(r, w);

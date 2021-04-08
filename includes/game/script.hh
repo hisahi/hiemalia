@@ -14,10 +14,11 @@
 
 namespace hiemalia {
 class ScriptObject : public GameObject {
-   public:
-    ScriptObject();
+  public:
+    ScriptObject(const Point3D& pos);
     bool update(GameWorld& w, float delta);
-    virtual bool run(GameWorld& w) = 0;
+    virtual inline void doScript(GameWorld& w, bool instant) {}
+    inline void instant(GameWorld& w) { doScript(w, true); }
     virtual ~ScriptObject() {}
 };
 };  // namespace hiemalia

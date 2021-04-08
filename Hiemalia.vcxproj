@@ -33,6 +33,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -82,6 +83,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ConformanceMode>false</ConformanceMode>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <UseFullPaths>false</UseFullPaths>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -100,6 +102,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <UseFullPaths>false</UseFullPaths>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -120,22 +123,30 @@
     <ClCompile Include="src\base\sdl2\ibasei.cc" />
     <ClCompile Include="src\base\sdl2\vbasei.cc" />
     <ClCompile Include="src\base\vbase.cc" />
-    <ClCompile Include="src\game\box.cc" />
     <ClCompile Include="src\game\bullet.cc" />
     <ClCompile Include="src\game\checkpnt.cc" />
     <ClCompile Include="src\game\diffic.cc" />
     <ClCompile Include="src\game\ebullet.cc" />
     <ClCompile Include="src\game\enemy.cc" />
+    <ClCompile Include="src\game\enemy\boss0.cc" />
+    <ClCompile Include="src\game\enemy\boss1.cc" />
+    <ClCompile Include="src\game\enemy\chevron.cc" />
+    <ClCompile Include="src\game\enemy\fighter.cc" />
     <ClCompile Include="src\game\enemy\gunboat.cc" />
     <ClCompile Include="src\game\enemy\shard.cc" />
+    <ClCompile Include="src\game\enemy\turret.cc" />
+    <ClCompile Include="src\game\enemy\volcano.cc" />
+    <ClCompile Include="src\game\enemy\wave.cc" />
     <ClCompile Include="src\game\explode.cc" />
     <ClCompile Include="src\game\game.cc" />
-    <ClCompile Include="src\game\mbox.cc" />
+    <ClCompile Include="src\game\box.cc" />
+    <ClCompile Include="src\game\nameentr.cc" />
     <ClCompile Include="src\game\object.cc" />
     <ClCompile Include="src\game\objects.cc" />
     <ClCompile Include="src\game\obstacle.cc" />
     <ClCompile Include="src\game\pbullet.cc" />
     <ClCompile Include="src\game\player.cc" />
+    <ClCompile Include="src\game\sbox.cc" />
     <ClCompile Include="src\game\script.cc" />
     <ClCompile Include="src\game\sections.cc" />
     <ClCompile Include="src\game\setspeed.cc" />
@@ -158,11 +169,13 @@
     <ClCompile Include="src\main\video.cc" />
     <ClCompile Include="src\menu\menu.cc" />
     <ClCompile Include="src\menu\menuaud.cc" />
+    <ClCompile Include="src\menu\menuhigh.cc" />
     <ClCompile Include="src\menu\menuinp.cc" />
     <ClCompile Include="src\menu\menuinpb.cc" />
     <ClCompile Include="src\menu\menumain.cc" />
     <ClCompile Include="src\menu\menuopt.cc" />
     <ClCompile Include="src\menu\menupaus.cc" />
+    <ClCompile Include="src\menu\menuyn.cc" />
     <ClCompile Include="src\render\load2d.cc" />
     <ClCompile Include="src\render\load3d.cc" />
     <ClCompile Include="src\render\rend2d.cc" />
@@ -194,15 +207,23 @@
     <ClInclude Include="includes\game\bullet.hh" />
     <ClInclude Include="includes\game\checkpnt.hh" />
     <ClInclude Include="includes\game\diffic.hh" />
+    <ClInclude Include="includes\game\enemy\boss0.hh" />
+    <ClInclude Include="includes\game\enemy\boss1.hh" />
+    <ClInclude Include="includes\game\nameentr.hh" />
+    <ClInclude Include="includes\game\sbox.hh" />
     <ClInclude Include="includes\game\ebullet.hh" />
     <ClInclude Include="includes\game\enemy.hh" />
     <ClInclude Include="includes\game\enemy\all.hh" />
+    <ClInclude Include="includes\game\enemy\chevron.hh" />
+    <ClInclude Include="includes\game\enemy\fighter.hh" />
     <ClInclude Include="includes\game\enemy\gunboat.hh" />
     <ClInclude Include="includes\game\enemy\shard.hh" />
+    <ClInclude Include="includes\game\enemy\turret.hh" />
+    <ClInclude Include="includes\game\enemy\volcano.hh" />
+    <ClInclude Include="includes\game\enemy\wave.hh" />
     <ClInclude Include="includes\game\explode.hh" />
     <ClInclude Include="includes\game\game.hh" />
     <ClInclude Include="includes\game\gamemsg.hh" />
-    <ClInclude Include="includes\game\mbox.hh" />
     <ClInclude Include="includes\game\object.hh" />
     <ClInclude Include="includes\game\objects.hh" />
     <ClInclude Include="includes\game\obstacle.hh" />
@@ -227,6 +248,8 @@
     <ClInclude Include="includes\logic.hh" />
     <ClInclude Include="includes\logicmsg.hh" />
     <ClInclude Include="includes\lvector.hh" />
+    <ClInclude Include="includes\menu\menuhigh.hh" />
+    <ClInclude Include="includes\menu\menuyn.hh" />
     <ClInclude Include="includes\mstream.hh" />
     <ClInclude Include="includes\math.hh" />
     <ClInclude Include="includes\menu.hh" />
@@ -250,12 +273,14 @@
     <ClInclude Include="includes\scores.hh" />
     <ClInclude Include="includes\secure.hh" />
     <ClInclude Include="includes\shape.hh" />
+    <ClInclude Include="includes\sort.hh" />
     <ClInclude Include="includes\sounds.hh" />
     <ClInclude Include="includes\state.hh" />
     <ClInclude Include="includes\str.hh" />
     <ClInclude Include="includes\symbol.hh" />
     <ClInclude Include="includes\vbase.hh" />
     <ClInclude Include="includes\video.hh" />
+    <ClInclude Include="Resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\base\Makefile.inc" />
@@ -264,6 +289,12 @@
     <None Include="src\main\Makefile.inc" />
     <None Include="src\menu\Makefile.inc" />
     <None Include="src\render\Makefile.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\Hiemalia.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

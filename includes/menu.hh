@@ -9,6 +9,8 @@
 #ifndef M_MENU_HH
 #define M_MENU_HH
 
+#include <functional>
+#include <optional>
 #include <stack>
 #include <string>
 
@@ -27,11 +29,14 @@ enum class MenuMessageType {
     MenuLeft,
     MenuRight,
     MenuSelect,
-    MenuExit
+    MenuExit,
+    MenuYes,
+    MenuNo,
 };
 
 struct MenuMessage {
     MenuMessageType type;
+    symbol_t menuId;
 
     static MenuMessage up() { return MenuMessage(MenuMessageType::MenuUp); }
     static MenuMessage down() { return MenuMessage(MenuMessageType::MenuDown); }
@@ -43,9 +48,16 @@ struct MenuMessage {
         return MenuMessage(MenuMessageType::MenuSelect);
     }
     static MenuMessage exit() { return MenuMessage(MenuMessageType::MenuExit); }
+    static MenuMessage yes(symbol_t id) {
+        return MenuMessage(MenuMessageType::MenuYes, id);
+    }
+    static MenuMessage no(symbol_t id) {
+        return MenuMessage(MenuMessageType::MenuNo, id);
+    }
 
-   private:
-    MenuMessage(MenuMessageType t) : type(t) {}
+  private:
+    MenuMessage(MenuMessageType t) : type(t), menuId(symbol_none) {}
+    MenuMessage(MenuMessageType t, symbol_t id) : type(t), menuId(id) {}
 };
 
 enum class MenuOptionType { Spacer, Button, Text, Select, Input };
@@ -60,7 +72,7 @@ struct MenuOptionInput {
 };
 
 class MenuOption {
-   public:
+  public:
     symbol_t id;
     MenuOptionType type;
     bool enabled;
@@ -107,7 +119,7 @@ class MenuOption {
     void redraw(coord_t x1, coord_t x2, coord_t y, RendererText& font,
                 const Color& color);
 
-   private:
+  private:
     MenuOption(symbol_t id, MenuOptionType type, bool enabled, std::string text)
         : id(id), type(type), enabled(enabled), text(text), dirty(true) {}
     MenuOption(symbol_t id, MenuOptionType type, bool enabled, std::string text,
@@ -136,7 +148,7 @@ class MenuOption {
 class Menu;
 
 class MenuHandler : public LogicModule, MessageHandler<MenuMessage> {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
     std::string role() const noexcept { return role_; }
 
@@ -152,7 +164,11 @@ class MenuHandler : public LogicModule, MessageHandler<MenuMessage> {
     MenuHandler();
     ~MenuHandler() noexcept {}
 
-    void openMenu(const std::shared_ptr<Menu>& menu) { menus_.push(menu); }
+    template <typename T = Menu>
+    T& openMenu(const std::shared_ptr<T>& menu) {
+        menus_.push(menu);
+        return *menu;
+    }
 
     template <typename T, typename... Ts>
     void newMenu(Ts&&... args) {
@@ -168,39 +184,45 @@ class MenuHandler : public LogicModule, MessageHandler<MenuMessage> {
     void gotMessage(const MenuMessage& msg);
     bool run(GameState& state, float interval);
 
-   private:
+  private:
     std::stack<std::shared_ptr<Menu>> menus_;
     static inline const std::string name_ = "MenuHandler";
     static inline const std::string role_ = "menu handler";
 };
 
 class Menu {
-   public:
+  public:
     virtual std::string title() const noexcept = 0;
     virtual void begin(GameState& state) = 0;
     virtual void select(int index, symbol_t id) = 0;
     virtual void end(GameState& state) = 0;
 
-    void option(MenuOption&& option) { options_.push_back(std::move(option)); }
-    void gotMenuMessage(const MenuMessage& msg);
-    void runMenu(GameState& state, float interval);
-    virtual void specialRender(SplinterBuffer& sbuf, float interval) {}
+    inline void option(MenuOption&& option) {
+        options_.push_back(std::move(option));
+    }
+    inline void setActiveItem(symbol_t item);
+    inline void gotMenuMessage(const MenuMessage& msg);
+    inline void runMenu(GameState& state, float interval);
+    virtual inline void specialRender(SplinterBuffer& sbuf, float interval) {}
 
     DELETE_COPY(Menu);
     Menu(Menu&& move) noexcept;
     Menu& operator=(Menu&& move) noexcept;
     virtual ~Menu() noexcept {}
 
-    void closeMenu() { exiting_ = true; }
+    inline void closeMenu() { exiting_ = true; }
+    void confirm(symbol_t id, const std::string& title,
+                 std::function<void()> onYes, std::function<void()> onNo);
 
     template <typename T, typename... Ts>
     void openMenu(Ts&&... args) {
         handler_.get().newMenu<T>(std::forward<Ts>(args)...);
     }
 
-   protected:
+  protected:
     Menu(MenuHandler& handler);
     int index_{0};
+    symbol_t defaultItem{symbol_none};
     bool init_{false};
     bool exiting_{false};
     bool exitable_{true};
@@ -209,13 +231,18 @@ class Menu {
     RendererText font_;
     SplinterBuffer titlebuf_;
     std::vector<MenuOption> options_;
+    coord_t getMenuOptionY(int index) const;
 
-   private:
+  private:
     void goUp();
     void goDown();
     void doLeft();
     void doRight();
     void doSelect();
+    void doConfirm(bool yes);
+    symbol_t confirmId_{symbol_none};
+    std::optional<std::function<void()>> onMenuYes_;
+    std::optional<std::function<void()>> onMenuNo_;
 };
 };  // namespace hiemalia
 

@@ -12,30 +12,38 @@
 
 #include "assets.hh"
 #include "collide.hh"
+#include "game/world.hh"
 
 namespace hiemalia {
 
-void GameObject::setPosition(const ModelPoint& p) {
+GameObject::GameObject(const Point3D& pos) : pos(pos), oldPos_(pos) {}
+
+void GameObject::setPosition(const Point3D& p) {
+    onMove(p);
+    oldPos_ = pos;
     pos = p;
-    onSetPosition();
 }
 
 void GameObject::setPosition(coord_t x, coord_t y, coord_t z) {
-    pos = ModelPoint(x, y, z);
-    onSetPosition();
+    setPosition(Point3D(x, y, z));
 }
 
-void GameObject::move(const ModelPoint& p) { pos += p; }
+void GameObject::move(const Point3D& p) { setPosition(pos + p); }
 
 void GameObject::move(coord_t x, coord_t y, coord_t z) {
-    move(ModelPoint(x, y, z));
+    move(Point3D(x, y, z));
 }
 
 void GameObject::render(SplinterBuffer& sbuf, Renderer3D& r3d) {
-    if (model_ == nullptr)
-        renderSpecial(sbuf, r3d);
-    else
-        r3d.renderModel(sbuf, pos, rot, scale, *model_);
+    if (model_ != nullptr) r3d.renderModel(sbuf, pos, rot, scale, *model_);
+}
+
+bool GameObject::isInRegion(GameWorld& w, coord_t extentLeft,
+                            coord_t extentRight, coord_t extentTop,
+                            coord_t extentBottom) const {
+    const MoveRegion& r = w.getMoveRegionForZ(pos.z);
+    return pos.x - extentLeft >= r.x0 && pos.x + extentRight <= r.x1 &&
+           pos.y - extentTop >= r.y0 && pos.y + extentBottom <= r.y1;
 }
 
 Matrix3D GameObject::getObjectModelMatrix() const {
@@ -49,7 +57,12 @@ void GameObject::setCollisionRadius(coord_t r) { collideRadius_ = r; }
 bool GameObject::hits(const GameObject& obj) const {
     return collidesSphereSphere(pos, collideRadius_, obj.pos,
                                 obj.collideRadius_) &&
-           hitsInternal(obj);
+           (hitsSweep(obj) || hitsInternal(obj));
+}
+
+bool GameObject::hitsSweep(const GameObject& obj) const {
+    return obj.collision_ && collidesLineModel(oldPos_, pos, *obj.collision_,
+                                               obj.getObjectModelMatrix());
 }
 
 bool GameObject::hitsInternal(const GameObject& obj) const {
@@ -100,10 +113,24 @@ bool GameObject::isOffScreen() const {
     return pos.z < 0 && pos.z > collideRadius_;
 }
 
+void GameObject::doMove(float delta, const Point3D& v) {
+    oldPos_ = pos;
+    pos += delta * v;
+}
+
+void GameObject::doMove(float delta) { doMove(delta, vel); }
+
+bool GameObject::tick(GameWorld& w, float delta) {
+    oldPos_ = pos;
+    if (!update(w, delta)) return false;
+    if (oldPos_ == pos) doMove(delta);
+    return true;
+}
+
 float ObjectDamageable::getHealth() const { return health_; }
 
 bool ObjectDamageable::damage(GameWorld& w, float damage,
-                              const ModelPoint& pointOfContact) {
+                              const Point3D& pointOfContact) {
     bool dead = damage >= health_;
     health_ -= damage;
     onDamage(w, damage, pointOfContact);
@@ -111,7 +138,7 @@ bool ObjectDamageable::damage(GameWorld& w, float damage,
     return dead;
 }
 
-bool collidesCuboidObject(const ModelPoint& c1, const ModelPoint& c2,
+bool collidesCuboidObject(const Point3D& c1, const Point3D& c2,
                           const GameObject& obj) {
     if (obj.hasCollision())
         return collidesCuboidModel(c1, c2, obj.collision(),
@@ -120,8 +147,7 @@ bool collidesCuboidObject(const ModelPoint& c1, const ModelPoint& c2,
         return collidesPointCuboid(obj.pos, c1, c2);
 }
 
-bool collidesSphereObject(const ModelPoint& c, coord_t r,
-                          const GameObject& obj) {
+bool collidesSphereObject(const Point3D& c, coord_t r, const GameObject& obj) {
     if (obj.hasCollision())
         return collidesSphereModel(c, r, obj.collision(),
                                    obj.getObjectModelMatrix());
@@ -129,8 +155,8 @@ bool collidesSphereObject(const ModelPoint& c, coord_t r,
         return collidesPointSphere(obj.pos, c, r);
 }
 
-bool collidesSweepSphereObject(const ModelPoint& c1, const ModelPoint& c2,
-                               coord_t r, const GameObject& obj) {
+bool collidesSweepSphereObject(const Point3D& c1, const Point3D& c2, coord_t r,
+                               const GameObject& obj) {
     if (obj.hasCollision())
         return collidesSweepSphereModel(c1, c2, r, obj.collision(),
                                         obj.getObjectModelMatrix());

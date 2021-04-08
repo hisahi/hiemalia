@@ -17,12 +17,24 @@
 #include "menu.hh"
 #include "module.hh"
 #include "msg.hh"
+#include "scores.hh"
 
 namespace hiemalia {
 
-enum class LogicMessageType { MainMenu, StartGame, PauseMenu };
+enum class LogicMessageType {
+    MainMenu,
+    NewHighScore,
+    OpenHighScores,
+    StartGame,
+    PauseMenu
+};
 
 struct ModuleHolder;
+
+struct HighScoreSubmit {
+    HighScoreTable* table;
+    PartialHighScoreEntry entry;
+};
 
 struct LogicMessage {
     LogicMessageType type;
@@ -31,6 +43,16 @@ struct LogicMessage {
     inline static LogicMessage mainMenu(
         const std::shared_ptr<ModuleHolder>& holder) {
         return LogicMessage(LogicMessageType::MainMenu, holder);
+    }
+
+    inline static LogicMessage highScore(
+        const std::shared_ptr<ModuleHolder>& holder, const HighScoreSubmit& e) {
+        return LogicMessage(LogicMessageType::NewHighScore, holder, e);
+    }
+
+    inline static LogicMessage openHighScores(
+        const std::shared_ptr<ModuleHolder>& holder, int i) {
+        return LogicMessage(LogicMessageType::OpenHighScores, holder, i);
     }
 
     inline const std::shared_ptr<ModuleHolder>& holder() const {
@@ -45,10 +67,27 @@ struct LogicMessage {
         return LogicMessage(LogicMessageType::PauseMenu);
     }
 
-   private:
+    inline const HighScoreSubmit& highScoreEntry() const {
+        dynamic_assert(type == LogicMessageType::NewHighScore,
+                       "wrong message type");
+        return std::get<HighScoreSubmit>(x);
+    }
+    inline int highScoreIndex() const {
+        dynamic_assert(type == LogicMessageType::OpenHighScores,
+                       "wrong message type");
+        return std::get<int>(x);
+    }
+
+  private:
     LogicMessage(LogicMessageType t) : type(t) {}
     LogicMessage(LogicMessageType t, std::shared_ptr<ModuleHolder> v)
         : type(t), value(v) {}
+    LogicMessage(LogicMessageType t, std::shared_ptr<ModuleHolder> v,
+                 const HighScoreSubmit& e)
+        : type(t), value(v), x(e) {}
+    LogicMessage(LogicMessageType t, std::shared_ptr<ModuleHolder> v, int i)
+        : type(t), value(v), x(i) {}
+    std::variant<HighScoreSubmit, int> x;
 };
 
 };  // namespace hiemalia

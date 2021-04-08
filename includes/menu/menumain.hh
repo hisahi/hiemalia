@@ -20,7 +20,7 @@
 
 namespace hiemalia {
 class MenuMain : public Menu {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
     std::string title() const noexcept { return ""; }
 
@@ -35,15 +35,17 @@ class MenuMain : public Menu {
     MenuMain(MenuHandler& handler, const std::shared_ptr<ModuleHolder>& holder);
     ~MenuMain() noexcept;
 
-   private:
+  private:
     static inline const std::string name_ = "MenuMain";
     std::shared_ptr<ModuleHolder> holder_;
     std::shared_ptr<const Model> tube_;
     Renderer2D rend2_;
+    RendererText rendtext_;
     Renderer3D rend_;
     coord_t angle_{0};
     std::array<coord_t, 512> rots_;
     ShapeSheet logoSheet;
+    SplinterBuffer copyright;
 
     void progress(float interval);
 };

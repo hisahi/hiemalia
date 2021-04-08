@@ -21,7 +21,7 @@ namespace hiemalia {
 class InputControlModuleSDL2;
 
 class InputModuleSDL2 : public InputModule {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
 
     void update(ControlState& state, MenuControlState& menustate);
@@ -37,7 +37,7 @@ class InputModuleSDL2 : public InputModule {
     InputModuleSDL2& operator=(InputModuleSDL2&& move) noexcept;
     ~InputModuleSDL2() noexcept;
 
-   private:
+  private:
     static inline const std::string name_ = "InputModuleSDL2";
     std::shared_ptr<HostModuleSDL2> host_;
     std::vector<std::unique_ptr<InputControlModuleSDL2>> devices_;
@@ -47,7 +47,7 @@ class InputModuleSDL2 : public InputModule {
 };
 
 class InputControlModuleSDL2 : public InputControlModule {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
 
     void handle(ControlState& state, MenuControlState& menustate,
@@ -65,7 +65,7 @@ class InputControlModuleSDL2 : public InputControlModule {
     InputControlModuleSDL2& operator=(InputControlModuleSDL2&& move) noexcept;
     ~InputControlModuleSDL2() noexcept;
 
-   private:
+  private:
     static inline const std::string name_ = "InputControlModuleSDL2";
     SDL_GameController* pad_{nullptr};
     SDL_Joystick* joy_{nullptr};

@@ -18,7 +18,7 @@
 
 namespace hiemalia {
 class MenuInputDevices : public Menu {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
     std::string title() const noexcept { return "Input"; }
 
@@ -33,7 +33,7 @@ class MenuInputDevices : public Menu {
                      const std::shared_ptr<ModuleHolder>& holder);
     ~MenuInputDevices() noexcept;
 
-   private:
+  private:
     static inline const std::string name_ = "MenuInputDevices";
     std::shared_ptr<ModuleHolder> holder_;
 };

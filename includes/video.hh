@@ -23,7 +23,7 @@ struct VideoMessage {
 };
 
 class VideoEngine : public Module, MessageHandler<VideoMessage> {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
     std::string role() const noexcept { return role_; }
 
@@ -44,7 +44,7 @@ class VideoEngine : public Module, MessageHandler<VideoMessage> {
 
     void gotMessage(const VideoMessage& msg);
 
-   private:
+  private:
     std::shared_ptr<VideoModule> video_;
     static inline const std::string name_ = "VideoEngine";
     static inline const std::string role_ = "video engine";

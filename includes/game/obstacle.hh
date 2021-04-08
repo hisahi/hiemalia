@@ -4,10 +4,10 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// game/enemy.hh: header file for enemy objects (game/enemy.cc)
+// game/obstacle.hh: header file for obstacles (game/obstacle.cc)
 
-#ifndef M_GAME_ENEMY_HH
-#define M_GAME_ENEMY_HH
+#ifndef M_GAME_OBSTACLE_HH
+#define M_GAME_OBSTACLE_HH
 
 #include "game/ebullet.hh"
 #include "game/explode.hh"
@@ -19,29 +19,29 @@
 
 namespace hiemalia {
 class Obstacle : public GameObject {
-   public:
-    Obstacle(GameModel model);
+  public:
+    Obstacle(const Point3D& pos, const Orient3D& rot, GameModel model);
     bool update(GameWorld& w, float delta);
     virtual ~Obstacle() {}
 
-   private:
+  private:
     bool alive_{true};
     void absorbBullets(GameWorld& w, const BulletList& list);
 };
 
 class DestroyableObstacle : public GameObject, public ObjectDamageable {
-   public:
-    DestroyableObstacle(GameModel model, float health);
+  public:
+    DestroyableObstacle(const Point3D& pos, const Orient3D& rot,
+                        GameModel model, float health);
     bool update(GameWorld& w, float delta);
     virtual ~DestroyableObstacle() {}
 
-   private:
+  private:
     bool alive_{true};
-    float health_;
-    void onDamage(GameWorld& w, float dmg, const ModelPoint& pointOfContact);
+    void onDamage(GameWorld& w, float dmg, const Point3D& pointOfContact);
     void onDeath(GameWorld& w);
     void absorbBullets(GameWorld& w, const BulletList& list);
 };
 };  // namespace hiemalia
 
-#endif  // M_GAME_ENEMY_HH
+#endif  // M_GAME_OBSTACLE_HH

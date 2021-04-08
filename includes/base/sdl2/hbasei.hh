@@ -27,7 +27,7 @@ class AudioModuleSDL2;
 class InputModuleSDL2;
 
 class HostModuleSDL2 : public HostModule {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
     void begin();
     bool proceed();
@@ -49,7 +49,7 @@ class HostModuleSDL2 : public HostModule {
     HostModuleSDL2& operator=(HostModuleSDL2&& move) noexcept;
     ~HostModuleSDL2() noexcept;
 
-   private:
+  private:
     static inline const std::string name_ = "HostModuleSDL2";
     std::vector<VideoModuleSDL2*> video_modules_;
     std::vector<AudioModuleSDL2*> audio_modules_;

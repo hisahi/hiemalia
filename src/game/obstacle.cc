@@ -13,7 +13,11 @@
 #include "game/world.hh"
 
 namespace hiemalia {
-Obstacle::Obstacle(GameModel model) { useGameModel(model); }
+Obstacle::Obstacle(const Point3D& pos, const Orient3D& r, GameModel model)
+    : GameObject(pos) {
+    useGameModel(model);
+    rot = r;
+}
 
 void Obstacle::absorbBullets(GameWorld& w, const BulletList& list) {
     for (auto& bptr : list) {
@@ -37,9 +41,11 @@ bool Obstacle::update(GameWorld& w, float delta) {
     return !isOffScreen();
 }
 
-DestroyableObstacle::DestroyableObstacle(GameModel model, float health)
-    : health_(health) {
+DestroyableObstacle::DestroyableObstacle(const Point3D& pos, const Orient3D& r,
+                                         GameModel model, float health)
+    : GameObject(pos), ObjectDamageable(health) {
     useGameModel(model);
+    rot = r;
 }
 
 void DestroyableObstacle::absorbBullets(GameWorld& w, const BulletList& list) {
@@ -66,7 +72,7 @@ bool DestroyableObstacle::update(GameWorld& w, float delta) {
 }
 
 void DestroyableObstacle::onDamage(GameWorld& w, float dmg,
-                                   const ModelPoint& pointOfContact) {}
+                                   const Point3D& pointOfContact) {}
 
 void DestroyableObstacle::onDeath(GameWorld& w) {
     if (!alive_) return;

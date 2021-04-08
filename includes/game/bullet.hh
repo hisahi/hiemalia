@@ -16,32 +16,31 @@
 
 namespace hiemalia {
 class BulletObject : public GameObject {
-   public:
-    BulletObject();
+  public:
+    BulletObject(const Point3D& pos);
     bool update(GameWorld& w, float delta);
     virtual bool doBulletTick(GameWorld& w, float delta) = 0;
     virtual void impact(GameWorld& w, bool enemy) = 0;
     virtual bool firedByPlayer() const = 0;
-    virtual void onSetPosition();
+    virtual void onMove(const Point3D& newPos);
     virtual float getDamage() const = 0;
+    virtual bool hitsSweep(const GameObject& obj) const;
     virtual bool hitsInternal(const GameObject& obj) const;
-    ModelPoint lerp(coord_t p) const;
-    void backtrackCuboid(const ModelPoint& c1, const ModelPoint& c2);
-    void backtrackSphere(const ModelPoint& p, coord_t r2);
+    Point3D lerp(coord_t p) const;
+    void backtrackCuboid(const Point3D& c1, const Point3D& c2);
+    void backtrackSphere(const Point3D& p, coord_t r2);
     void backtrackModel(const ModelCollision& mc, const Matrix3D mat);
     void backtrackObject(const GameObject& o);
     bool isBulletOffScreen() const;
     virtual ~BulletObject() {}
 
-   protected:
+  protected:
     void kill(GameWorld& w);
-    ModelPoint oldPos_{0, 0, 0};
-    ModelPoint vel{0, 0, 0};
-    Rotation3D rotvel{0, 0, 0};
+    Orient3D rotvel{0, 0, 0};
 
-   private:
+  private:
     bool alive_{true};
-    bool checkInBounds(GameWorld& w, const ModelPoint& fvel);
+    bool checkInBounds(GameWorld& w);
 };
 };  // namespace hiemalia
 

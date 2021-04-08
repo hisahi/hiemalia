@@ -21,12 +21,12 @@ enum class InputDevice { Keyboard, Gamepad };
 enum class ControlInput { Up, Down, Left, Right, Forward, Back, Fire, Pause };
 enum class MenuControlInput { Up, Down, Left, Right, Select, Exit };
 
-inline auto inputDevices = hiemalia::to_array<NamePair<InputDevice>>({
+inline auto inputDevices = hiemalia::makeArray<NamePair<InputDevice>>({
     {"Keyboard", InputDevice::Keyboard},
     {"Gamepad", InputDevice::Gamepad},
 });
 
-inline auto controlInputs = to_array<NamePair<ControlInput>>({
+inline auto controlInputs = makeArray<NamePair<ControlInput>>({
     {"Up", ControlInput::Up},
     {"Down", ControlInput::Down},
     {"Left", ControlInput::Left},
@@ -37,7 +37,7 @@ inline auto controlInputs = to_array<NamePair<ControlInput>>({
     {"Pause", ControlInput::Pause},
 });
 
-inline auto menuControlInputs = to_array<NamePair<MenuControlInput>>({
+inline auto menuControlInputs = makeArray<NamePair<MenuControlInput>>({
     {"Up", MenuControlInput::Up},
     {"Down", MenuControlInput::Down},
     {"Left", MenuControlInput::Left},
@@ -102,7 +102,7 @@ struct ControlState {
         return *this;
     }
 
-   private:
+  private:
     bool up_prev_{false};
     bool down_prev_{false};
     bool left_prev_{false};
@@ -149,7 +149,7 @@ struct MenuControlState {
         return *this;
     }
 
-   private:
+  private:
     bool exit_prev_{false};
     bool select_prev_{false};
     bool up_prev_{false};

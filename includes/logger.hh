@@ -21,7 +21,7 @@ namespace hiemalia {
 enum class LogLevel { TRACE, DEBUG, INFO, WARN, ERROR, FAIL };
 
 class LogHandler {
-   public:
+  public:
     LogHandler(const LogHandler& copy) = default;
     LogHandler& operator=(const LogHandler& copy) = default;
     LogHandler(LogHandler&& move) = default;
@@ -30,36 +30,36 @@ class LogHandler {
                         size_t line, const std::string& msg) = 0;
     virtual ~LogHandler() {}
 
-   protected:
+  protected:
     LogHandler() {}
 };
 
 class StdLogHandler : public LogHandler {
-   public:
+  public:
     StdLogHandler(LogLevel minimumLevel) : minimumLevel_(minimumLevel) {}
     void handle(LogLevel level, const std::tm& tm, const char* file,
                 size_t line, const std::string& msg) override;
     ~StdLogHandler() {}
 
-   private:
+  private:
     LogLevel minimumLevel_;
 };
 
 class FileLogHandler : public LogHandler {
-   public:
+  public:
     FileLogHandler(std::unique_ptr<std::ostream> stream, LogLevel minimumLevel)
         : stream_(std::move(stream)), minimumLevel_(minimumLevel) {}
     void handle(LogLevel level, const std::tm& tm, const char* file,
                 size_t line, const std::string& msg) override;
     ~FileLogHandler() {}
 
-   private:
+  private:
     std::unique_ptr<std::ostream> stream_;
     LogLevel minimumLevel_;
 };
 
 class Logger {
-   public:
+  public:
     using LogHandlerPtr = std::unique_ptr<LogHandler>;
     template <typename T>
     using LogHandlerContainer = std::vector<T>;
@@ -111,7 +111,7 @@ class Logger {
               std::string("Added new logger ") + typeid(T).name());
     }
 
-   private:
+  private:
     void log_(LogLevel level, const char* file, size_t line,
               const std::string& s);
     LogHandlerContainer<LogHandlerPtr> handlers_;

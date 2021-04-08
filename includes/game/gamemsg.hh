@@ -14,12 +14,12 @@
 namespace hiemalia {
 enum class GameMessageType {
     AddScore,
-    UpdateCamera,
     UpdateStatus,
     PauseGame,
     ContinueGame,
     StageComplete,
-    ExitGame
+    ExitGame,
+    ShakeCamera
 };
 
 struct GameMessage {
@@ -27,10 +27,6 @@ struct GameMessage {
 
     inline static GameMessage addScore(unsigned score) {
         return GameMessage(GameMessageType::AddScore, score);
-    }
-
-    inline static GameMessage updateCamera() {
-        return GameMessage(GameMessageType::UpdateCamera);
     }
 
     inline static GameMessage updateStatus() {
@@ -53,12 +49,18 @@ struct GameMessage {
         return GameMessage(GameMessageType::ExitGame);
     }
 
-    inline unsigned getScore() const { return std::get<unsigned>(x); }
+    inline static GameMessage shakeCamera(coord_t factor) {
+        return GameMessage(GameMessageType::ShakeCamera, factor);
+    }
 
-   private:
+    inline unsigned getScore() const { return std::get<unsigned>(x); }
+    inline coord_t getFactor() const { return std::get<coord_t>(x); }
+
+  private:
     GameMessage(GameMessageType t) : type(t) {}
     GameMessage(GameMessageType t, unsigned v) : type(t), x(v) {}
-    std::variant<unsigned> x;
+    GameMessage(GameMessageType t, coord_t v) : type(t), x(v) {}
+    std::variant<unsigned, coord_t> x;
 };
 };  // namespace hiemalia
 

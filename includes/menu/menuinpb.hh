@@ -34,14 +34,14 @@ struct InputMenuMessage {
 
     inline ControlInput button() const { return std::get<ControlInput>(value); }
 
-   private:
+  private:
     InputMenuMessage(InputMenuMessageType type) : type(type) {}
     InputMenuMessage(InputMenuMessageType type, ControlInput ctrl)
         : type(type), value(ctrl) {}
 };
 
 class MenuInputControls : public Menu, MessageHandler<InputMenuMessage> {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
     std::string title() const noexcept;
 
@@ -59,7 +59,7 @@ class MenuInputControls : public Menu, MessageHandler<InputMenuMessage> {
                       NamePair<InputDevice> pair, InputControlModule& module);
     ~MenuInputControls() noexcept;
 
-   private:
+  private:
     static inline const std::string name_ = "MenuInputControls";
     std::shared_ptr<ModuleHolder> holder_;
     std::string title_;

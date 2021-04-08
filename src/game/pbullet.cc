@@ -11,10 +11,11 @@
 #include "game/world.hh"
 
 namespace hiemalia {
-PlayerBullet::PlayerBullet(const ModelPoint& v) {
+PlayerBullet::PlayerBullet(const Point3D& pos, const Point3D& v)
+    : BulletObject(pos) {
     useGameModel(GameModel::BulletPlayer);
     vel = v;
-    rotvel = Rotation3D(1.8, 1.2, 0.6) * 16;
+    rotvel = Orient3D(1.8, 1.2, 0.6) * 16;
 }
 
 bool PlayerBullet::doBulletTick(GameWorld& w, float delta) { return true; }

@@ -18,7 +18,7 @@
 namespace hiemalia {
 template <typename T>
 class MessageHandler {
-   public:
+  public:
     using MessageHandlerPtr = MessageHandler<T>*;
     using MessageHandlerPtrList = std::list<MessageHandlerPtr>;
 
@@ -32,7 +32,7 @@ class MessageHandler {
     void enable() { _enabled = true; }
     void disable() { _enabled = false; }
 
-   private:
+  private:
     bool _enabled{true};
     static MessageHandlerPtrList list_;
     static void deliver(const T& msg) {

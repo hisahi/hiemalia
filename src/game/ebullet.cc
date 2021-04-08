@@ -11,13 +11,15 @@
 #include "game/world.hh"
 
 namespace hiemalia {
-EnemyBulletSimple::EnemyBulletSimple(const ModelPoint& v) {
+EnemyBulletSimple::EnemyBulletSimple(const Point3D& pos, const Point3D& v)
+    : BulletObject(pos) {
     useGameModel(GameModel::BulletEnemy);
     vel = v;
-    rotvel = Rotation3D(1.8, 1.2, 0.6) * 24;
+    rotvel = Orient3D(1.8, 1.2, 0.6) * 24;
 }
 
 bool EnemyBulletSimple::doBulletTick(GameWorld& w, float delta) {
+    doMove(delta);
     if (w.isPlayerAlive() && hits(w.getPlayer())) {
         if (w.getPlayer().playerInControl()) w.getPlayer().damage(w, 1.0f, pos);
         impact(w, false);

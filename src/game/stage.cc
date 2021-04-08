@@ -13,6 +13,7 @@
 #include "assets.hh"
 #include "collide.hh"
 #include "file.hh"
+#include "game/enemy.hh"
 #include "game/objects.hh"
 #include "game/sections.hh"
 #include "load3d.hh"
@@ -54,12 +55,11 @@ coord_t GameStage::getObjectBackPlane(coord_t offset) const {
 void GameStage::drawStage(SplinterBuffer& sbuf, Renderer3D& r3d,
                           coord_t offset) {
     int i = stageSectionOffset;
-    ModelPoint p =
-        ModelPoint(0, 0, stageSectionOffset * stageSectionLength - offset);
-    ModelPoint v = ModelPoint(0, 0, stageSectionLength);
-    Rotation3D r = Rotation3D(0, 0, 0);
+    Point3D p = Point3D(0, 0, stageSectionOffset * stageSectionLength - offset);
+    Point3D v = Point3D(0, 0, stageSectionLength);
+    Orient3D r = Orient3D(0, 0, 0);
     Matrix3D m;
-    static const ModelPoint s = ModelPoint(1, 1, 1);
+    static const Point3D s = Point3D(1, 1, 1);
     for (auto section : visible) {
         const GameSection& sec = getSectionById(section);
         m = Matrix3D::rotate(r);
@@ -83,12 +83,12 @@ static MoveRegion parseMoveRegion(std::string s) {
     return MoveRegion{x0, x1, y0, y1};
 }
 
-static Rotation3D parseRotation3D(std::string s) {
+static Orient3D parseRotation3D(std::string s) {
     coord_t y = 0, p = 0, r = 0;
     if (s_sscanf(s.c_str(), FMT_coord_t " " FMT_coord_t " " FMT_coord_t, &y, &p,
                  &r) < 3)
         never("Invalid rotation");
-    return Rotation3D{y, p, r};
+    return Orient3D{y, p, r};
 }
 
 GameSection loadSection(const std::string& name) {
@@ -99,7 +99,7 @@ GameSection loadSection(const std::string& name) {
         throw std::runtime_error("cannot open section file " + filename);
     std::string modelFile = "";
     MoveRegion moveRegion = {-1, 1, -1, 1};
-    Rotation3D turn = {0, 0, 0};
+    Orient3D turn = {0, 0, 0};
 
     for (std::string line; std::getline(in, line);) {
         if (line.empty() || line[0] == '#') continue;
@@ -123,7 +123,8 @@ GameSection loadSection(const std::string& name) {
     return GameSection{load3D("smodels", modelFile), moveRegion, turn};
 }
 
-static ObjectSpawn parseObject(std::string v, coord_t dist, int lineNum) {
+static ObjectSpawn parseObject(std::string v, coord_t& dist, int lineNum,
+                               bool front, bool relative) {
     coord_t r, x, y, z;
     unsigned n, q;
     q = s_sscanf(v.c_str(),
@@ -141,12 +142,18 @@ static ObjectSpawn parseObject(std::string v, coord_t dist, int lineNum) {
         name = name.substr(0, i);
     }
 
-    coord_t f = dist + r;
+    coord_t f = stageDivision;
+    if (relative)
+        f *= dist + r;
+    else
+        f *= dist, dist += r;
 
     unsigned u = floatToWholeFrac<unsigned>(f);
     f *= stageSectionLength;
-    z += stageSpawnDistance;
-    return ObjectSpawn{loadObjectSpawn(ModelPoint(x, y, z), name, prop), u, f};
+    z += front ? 0 : stageSpawnDistance;
+    auto ptr = loadObjectSpawn(Point3D(x, y, z), name, prop);
+    return ObjectSpawn{
+        ptr, std::dynamic_pointer_cast<EnemyObject>(ptr) != nullptr, u, f};
 }
 
 void GameStage::processSectionCommand(std::vector<section_t>& sections,
@@ -195,7 +202,13 @@ GameStage GameStage::load(int stagenum) {
         } else if (command == "l") {  // l <loopLength>
             loopLength = std::atoi(value.c_str());
         } else if (command == "o") {  // o <reldist> <x> <y> <z> <name> [prop]
-            spawns.push_back(parseObject(value, offset, lineNum));
+            spawns.push_back(parseObject(value, offset, lineNum, false, false));
+        } else if (command == "or") {  // o <reldist> <x> <y> <z> <name> [prop]
+            spawns.push_back(parseObject(value, offset, lineNum, false, true));
+        } else if (command == "x") {  // o <reldist> <x> <y> <z> <name> [prop]
+            spawns.push_back(parseObject(value, offset, lineNum, true, false));
+        } else if (command == "xr") {  // o <reldist> <x> <y> <z> <name> [prop]
+            spawns.push_back(parseObject(value, offset, lineNum, true, true));
         } else if (command == "od") {  // od <reldist>
             offset += fromString<coord_t>(value);
         }

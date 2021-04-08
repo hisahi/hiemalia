@@ -21,7 +21,7 @@
 
 namespace hiemalia {
 class ButtonSetup : public ConfigSection {
-   public:
+  public:
     ButtonSetup(const Module& input, NamePair<InputDevice> pair) noexcept
         : ConfigSection(input.name() + ":" + pair.name),
           name_(pair.name),
@@ -66,7 +66,7 @@ class ButtonSetup : public ConfigSection {
         return control(input);
     }
 
-   private:
+  private:
     control_t up{};
     control_t down{};
     control_t left{};

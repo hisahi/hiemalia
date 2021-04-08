@@ -24,10 +24,11 @@ constexpr unsigned stageVisibility = 22;
 constexpr unsigned stageDivision = 4;
 constexpr int stageSectionOffset = -2;
 inline const coord_t stageSectionLength = 1.0 / stageDivision;
-constexpr unsigned stageSpawnDistance = 4;
+constexpr unsigned stageSpawnDistance = 5;
 
 struct ObjectSpawn {
     std::shared_ptr<GameObject> obj;
+    bool isEnemy;
     unsigned pos_i;
     coord_t pos_f;
 
@@ -44,7 +45,7 @@ struct MoveRegion {
 struct GameSection {
     Model model;
     MoveRegion region;
-    Rotation3D rotation;
+    Orient3D rotation;
 };
 
 GameSection loadSection(const std::string& name);
@@ -60,7 +61,7 @@ struct GameStage {
     coord_t getObjectBackPlane(coord_t offset) const;
     static GameStage load(int stagenum);
 
-   private:
+  private:
     GameStage(std::vector<section_t>&& sections, int loopLength,
               std::deque<ObjectSpawn>&& spawns);
     static void processSectionCommand(std::vector<section_t>& sections,

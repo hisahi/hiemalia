@@ -31,19 +31,19 @@ inline std::string SDLmixer2_build_message(const std::string& message) {
 }
 
 class SDLBaseException : public std::runtime_error {
-   public:
+  public:
     SDLBaseException(const std::string& message)
         : std::runtime_error(message) {}
 };
 
 class SDLException : public SDLBaseException {
-   public:
+  public:
     SDLException(const std::string& message)
         : SDLBaseException(SDL2_build_message(message)) {}
 };
 
 class SDLMixerException : public SDLBaseException {
-   public:
+  public:
     SDLMixerException(const std::string& message)
         : SDLBaseException(SDLmixer2_build_message(message)) {}
 };

@@ -19,61 +19,13 @@
 namespace hiemalia {
 static const coord_t viewDistance = 2;
 
-struct Rotation3D {
-    coord_t yaw;
-    coord_t pitch;
-    coord_t roll;
-
-    Rotation3D(coord_t yaw, coord_t pitch, coord_t roll)
-        : yaw(yaw), pitch(pitch), roll(roll) {}
-
-    inline Rotation3D& operator+=(const Rotation3D& r) {
-        yaw += r.yaw;
-        pitch += r.pitch;
-        roll += r.roll;
-        return *this;
-    }
-    inline Rotation3D& operator-=(const Rotation3D& r) {
-        yaw -= r.yaw;
-        pitch -= r.pitch;
-        roll -= r.roll;
-        return *this;
-    }
-    inline Rotation3D& operator*=(const coord_t& f) {
-        yaw *= f;
-        pitch *= f;
-        roll *= f;
-        return *this;
-    }
-
-    friend inline Rotation3D operator+(Rotation3D a, const Rotation3D& b) {
-        return a += b;
-    }
-    friend inline Rotation3D operator-(Rotation3D a, const Rotation3D& b) {
-        return a -= b;
-    }
-    friend inline Rotation3D operator*(Rotation3D a, const coord_t& f) {
-        return a *= f;
-    }
-
-    inline bool isZero() const noexcept {
-        return yaw == 0 && pitch == 0 && roll == 0;
-    }
-
-    static Rotation3D atScreen;
-    static Rotation3D atPlayer;
-};
-
-inline Rotation3D Rotation3D::atScreen = Rotation3D{0, 0, 0};
-inline Rotation3D Rotation3D::atPlayer = Rotation3D{numbers::PI<coord_t>, 0, 0};
-
 struct Vector3D {
     coord_t x;
     coord_t y;
     coord_t z;
     coord_t w;
 
-    Vector3D(const ModelPoint& p) : x(p.x), y(p.y), z(p.z), w(1) {}
+    Vector3D(const Point3D& p) : x(p.x), y(p.y), z(p.z), w(1) {}
     Vector3D(coord_t x, coord_t y, coord_t z) : x(x), y(y), z(z), w(1) {}
     Vector3D(coord_t x, coord_t y, coord_t z, coord_t w)
         : x(x), y(y), z(z), w(w) {}
@@ -104,7 +56,7 @@ struct Vector3D {
     inline coord_t getY() { return y / w; }
     inline coord_t getDepth() { return z / w; }
 
-    ModelPoint toCartesian() const;
+    Point3D toCartesian() const;
 
     inline static coord_t dot(const Vector3D& a, const Vector3D& b) {
         coord_t wf = 1.0 / (a.w * b.w);
@@ -136,13 +88,16 @@ struct Matrix3D {
         return Matrix3D({1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1});
     }
 
-    static Matrix3D translate(const ModelPoint& p);
-    static Matrix3D rotate(const Rotation3D& r);
-    static Matrix3D scale(const ModelPoint& s);
+    static Matrix3D translate(const Point3D& p);
+    static Matrix3D rotate(const Orient3D& r);
+    static Matrix3D scale(const Point3D& s);
     static Matrix3D scale(coord_t s);
     static Matrix3D yaw(coord_t theta);
     static Matrix3D pitch(coord_t theta);
     static Matrix3D roll(coord_t theta);
+
+    Point3D project(const Point3D& p) const;
+    Vector3D project(const Vector3D& v) const;
 
     inline bool operator==(const Matrix3D& r) const {
         for (size_t i = 0; i < 16; ++i)
@@ -196,24 +151,9 @@ struct Matrix3D {
     }
 
     inline Matrix3D operator-() const {
-        Matrix3D a;
-        a[0] = -m[0];
-        a[1] = -m[1];
-        a[2] = -m[2];
-        a[3] = -m[3];
-        a[4] = -m[4];
-        a[5] = -m[5];
-        a[6] = -m[6];
-        a[7] = -m[7];
-        a[8] = -m[8];
-        a[9] = -m[9];
-        a[10] = -m[10];
-        a[11] = -m[11];
-        a[12] = -m[12];
-        a[13] = -m[13];
-        a[14] = -m[14];
-        a[15] = -m[15];
-        return a;
+        return Matrix3D(-m[0], -m[1], -m[2], -m[3], -m[4], -m[5], -m[6], -m[7],
+                        -m[8], -m[9], -m[10], -m[11], -m[12], -m[13], -m[14],
+                        -m[15]);
     }
 
     friend inline Matrix3D operator+(Matrix3D a, const Matrix3D& b) {
@@ -223,28 +163,39 @@ struct Matrix3D {
         return a -= b;
     }
     friend inline Matrix3D operator*(const Matrix3D& a, const Matrix3D& b) {
-        Matrix3D r;
-        r[0] = a[0] * b[0] + a[1] * b[4] + a[2] * b[8] + a[3] * b[12];
-        r[1] = a[0] * b[1] + a[1] * b[5] + a[2] * b[9] + a[3] * b[13];
-        r[2] = a[0] * b[2] + a[1] * b[6] + a[2] * b[10] + a[3] * b[14];
-        r[3] = a[0] * b[3] + a[1] * b[7] + a[2] * b[11] + a[3] * b[15];
-        r[4] = a[4] * b[0] + a[5] * b[4] + a[6] * b[8] + a[7] * b[12];
-        r[5] = a[4] * b[1] + a[5] * b[5] + a[6] * b[9] + a[7] * b[13];
-        r[6] = a[4] * b[2] + a[5] * b[6] + a[6] * b[10] + a[7] * b[14];
-        r[7] = a[4] * b[3] + a[5] * b[7] + a[6] * b[11] + a[7] * b[15];
-        r[8] = a[8] * b[0] + a[9] * b[4] + a[10] * b[8] + a[11] * b[12];
-        r[9] = a[8] * b[1] + a[9] * b[5] + a[10] * b[9] + a[11] * b[13];
-        r[10] = a[8] * b[2] + a[9] * b[6] + a[10] * b[10] + a[11] * b[14];
-        r[11] = a[8] * b[3] + a[9] * b[7] + a[10] * b[11] + a[11] * b[15];
-        r[12] = a[12] * b[0] + a[13] * b[4] + a[14] * b[8] + a[15] * b[12];
-        r[13] = a[12] * b[1] + a[13] * b[5] + a[14] * b[9] + a[15] * b[13];
-        r[14] = a[12] * b[2] + a[13] * b[6] + a[14] * b[10] + a[15] * b[14];
-        r[15] = a[12] * b[3] + a[13] * b[7] + a[14] * b[11] + a[15] * b[15];
-        return r;
+        return Matrix3D(a.m[0] * b.m[0] + a.m[1] * b.m[4] + a.m[2] * b.m[8] +
+                            a.m[3] * b.m[12],
+                        a.m[0] * b.m[1] + a.m[1] * b.m[5] + a.m[2] * b.m[9] +
+                            a.m[3] * b.m[13],
+                        a.m[0] * b.m[2] + a.m[1] * b.m[6] + a.m[2] * b.m[10] +
+                            a.m[3] * b.m[14],
+                        a.m[0] * b.m[3] + a.m[1] * b.m[7] + a.m[2] * b.m[11] +
+                            a.m[3] * b.m[15],
+                        a.m[4] * b.m[0] + a.m[5] * b.m[4] + a.m[6] * b.m[8] +
+                            a.m[7] * b.m[12],
+                        a.m[4] * b.m[1] + a.m[5] * b.m[5] + a.m[6] * b.m[9] +
+                            a.m[7] * b.m[13],
+                        a.m[4] * b.m[2] + a.m[5] * b.m[6] + a.m[6] * b.m[10] +
+                            a.m[7] * b.m[14],
+                        a.m[4] * b.m[3] + a.m[5] * b.m[7] + a.m[6] * b.m[11] +
+                            a.m[7] * b.m[15],
+                        a.m[8] * b.m[0] + a.m[9] * b.m[4] + a.m[10] * b.m[8] +
+                            a.m[11] * b.m[12],
+                        a.m[8] * b.m[1] + a.m[9] * b.m[5] + a.m[10] * b.m[9] +
+                            a.m[11] * b.m[13],
+                        a.m[8] * b.m[2] + a.m[9] * b.m[6] + a.m[10] * b.m[10] +
+                            a.m[11] * b.m[14],
+                        a.m[8] * b.m[3] + a.m[9] * b.m[7] + a.m[10] * b.m[11] +
+                            a.m[11] * b.m[15],
+                        a.m[12] * b.m[0] + a.m[13] * b.m[4] + a.m[14] * b.m[8] +
+                            a.m[15] * b.m[12],
+                        a.m[12] * b.m[1] + a.m[13] * b.m[5] + a.m[14] * b.m[9] +
+                            a.m[15] * b.m[13],
+                        a.m[12] * b.m[2] + a.m[13] * b.m[6] +
+                            a.m[14] * b.m[10] + a.m[15] * b.m[14],
+                        a.m[12] * b.m[3] + a.m[13] * b.m[7] +
+                            a.m[14] * b.m[11] + a.m[15] * b.m[15]);
     }
-
-    ModelPoint project(const ModelPoint& p) const;
-    Vector3D project(const Vector3D& v) const;
 };
 
 #if !NDEBUG
@@ -252,20 +203,20 @@ std::string printMatrix(const Matrix3D& m);  // test.cc
 #endif
 
 class Renderer3D {
-   public:
-    static Matrix3D getModelMatrix(ModelPoint p, Rotation3D r, ModelPoint s);
-    void renderModel(SplinterBuffer& buf, ModelPoint p, Rotation3D r,
-                     ModelPoint s, const Model& m);
-    void setCamera(ModelPoint pos, Rotation3D rot, ModelPoint scale);
+  public:
+    static Matrix3D getModelMatrix(Point3D p, Orient3D r, Point3D s);
+    void renderModel(SplinterBuffer& buf, Point3D p, Orient3D r, Point3D s,
+                     const Model& m);
+    void setCamera(Point3D pos, Orient3D rot, Point3D scale);
     Renderer3D();
 
-   private:
+  private:
     void renderModelFragment(SplinterBuffer& buf, const ModelFragment& f) const;
-    void projectVertices(const std::vector<ModelPoint>& v, const Matrix3D& m);
-    ModelPoint clipPoint(const Vector3D& onScreen,
-                         const Vector3D& offScreen) const;
-    bool clipLine(const Vector3D& v0, const Vector3D& v1, ModelPoint& p0,
-                  ModelPoint& p1) const;
+    void projectVertices(const std::vector<Point3D>& v, const Matrix3D& m);
+    Point3D clipPoint(const Vector3D& onScreen,
+                      const Vector3D& offScreen) const;
+    bool clipLine(const Vector3D& v0, const Vector3D& v1, Point3D& p0,
+                  Point3D& p1) const;
     Matrix3D view;
     std::vector<Vector3D> points_;
 };

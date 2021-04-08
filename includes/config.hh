@@ -21,7 +21,7 @@
 namespace hiemalia {
 
 class ConfigStore {
-   public:
+  public:
     void validate_key(const std::string& key) const {
         if (key.find('=') != std::string::npos)
             throw std::invalid_argument("key");
@@ -61,25 +61,25 @@ class ConfigStore {
     void readStream(std::istream& stream);
     void writeStream(std::ostream& stream) const;
 
-   private:
+  private:
     std::map<std::string, std::string> map_;
 };
 
 class ConfigSectionStore;
 
 class ConfigSection {
-   public:
+  public:
     virtual void load(ConfigSectionStore store) = 0;
     virtual void save(ConfigSectionStore store) const = 0;
     const std::string name;
     virtual ~ConfigSection() {}
 
-   protected:
+  protected:
     ConfigSection(std::string name) : name(name) {}
 };
 
 class ConfigSectionStore {
-   public:
+  public:
     template <typename T>
     bool has(const std::string& key) const {
         return store_.has<T>(header_ + key);
@@ -103,7 +103,7 @@ class ConfigSectionStore {
     ConfigSectionStore(const ConfigSection& section, ConfigStore& store)
         : header_(section.name + ":"), store_(store) {}
 
-   private:
+  private:
     const std::string header_;
     ConfigStore& store_;
 };
@@ -113,7 +113,7 @@ using ConfigSectionPtr = std::shared_ptr<T>;
 using ConfigSectionPtrDefault = ConfigSectionPtr<ConfigSection>;
 
 class Config {
-   public:
+  public:
     template <typename T>
     using ConfigSectionContainer = std::vector<T>;
 
@@ -137,7 +137,7 @@ class Config {
         section->save(ConfigSectionStore(*section, store_));
     }
 
-   private:
+  private:
     ConfigStore store_;
     ConfigSectionContainer<ConfigSectionPtrDefault> confs_;
 };

@@ -30,7 +30,7 @@ template <typename Allocator = std::allocator<char>>
 class memorybuf : public std::streambuf {
     using traits = std::char_traits<char_type>;
 
-   public:
+  public:
     inline explicit memorybuf(
         std::ios_base::openmode which = std::ios_base::in | std::ios_base::out)
         : alloc_(), n_(0), p_(nullptr), mode_(which) {
@@ -157,7 +157,7 @@ class memorybuf : public std::streambuf {
         setp(nullptr, nullptr);
     }
 
-   protected:
+  protected:
     inline int_type underflow() {
         if (!(mode_ & std::ios_base::in)) return traits::eof();
         if ((mode_ & std::ios_base::out) && pptr() > egptr())
@@ -274,7 +274,7 @@ class memorybuf : public std::streambuf {
 
     inline void grow_(size_t n) { resize_(n_ + n); }
 
-   private:
+  private:
     Allocator alloc_;
     size_t n_;
     char* p_;
@@ -286,7 +286,7 @@ class memorybuf : public std::streambuf {
 };
 
 class imemorystream : public std::istream {
-   public:
+  public:
     inline explicit imemorystream(const std::vector<char_type>& v)
         : std::istream(&vbuf_), vbuf_(v, std::ios_base::in) {}
     inline explicit imemorystream(std::istream& scopy)
@@ -305,12 +305,12 @@ class imemorystream : public std::istream {
     inline size_t isize() { return iend() - ibegin(); }
     inline void clear() { vbuf_.clear(); }
 
-   private:
+  private:
     memorybuf<> vbuf_;
 };
 
 class omemorystream : public std::ostream {
-   public:
+  public:
     inline omemorystream() : std::ostream(&vbuf_), vbuf_(std::ios_base::out) {}
     inline omemorystream(const omemorystream& copy)
         : std::basic_ios<char_type>(&vbuf_),
@@ -340,12 +340,12 @@ class omemorystream : public std::ostream {
         return t;
     }
 
-   private:
+  private:
     memorybuf<> vbuf_;
 };
 
 class memorystream : public std::iostream {
-   public:
+  public:
     inline explicit memorystream(const std::vector<char_type>& v)
         : std::iostream(&vbuf_),
           vbuf_(v, std::ios_base::in | std::ios_base::out) {}
@@ -387,7 +387,7 @@ class memorystream : public std::iostream {
         return t;
     }
 
-   private:
+  private:
     memorybuf<> vbuf_;
 };
 

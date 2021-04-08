@@ -13,15 +13,15 @@
 
 namespace hiemalia {
 class EnemyGunboat : public EnemyObject {
-   public:
-    EnemyGunboat();
+  public:
+    EnemyGunboat(const Point3D& pos);
     bool doEnemyTick(GameWorld& w, float delta);
 
-   protected:
+  protected:
     bool onEnemyDeath(GameWorld& w, bool killedByPlayer);
 
-   private:
-    float offset{0};
+  private:
+    float fireTime_{0};
 };
 };  // namespace hiemalia
 

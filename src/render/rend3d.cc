@@ -19,11 +19,11 @@
 
 namespace hiemalia {
 
-Matrix3D Matrix3D::translate(const ModelPoint& p) {
+Matrix3D Matrix3D::translate(const Point3D& p) {
     return Matrix3D(1, 0, 0, p.x, 0, 1, 0, p.y, 0, 0, 1, p.z, 0, 0, 0, 1);
 }
 
-Matrix3D Matrix3D::scale(const ModelPoint& s) {
+Matrix3D Matrix3D::scale(const Point3D& s) {
     return Matrix3D(s.x, 0, 0, 0, 0, s.y, 0, 0, 0, 0, s.z, 0, 0, 0, 0, 1);
 }
 
@@ -46,11 +46,10 @@ Matrix3D Matrix3D::roll(coord_t theta) {
     return Matrix3D(c, -s, 0, 0, s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 }
 
-Matrix3D Matrix3D::rotate(const Rotation3D& r) {
-    Matrix3D m = Matrix3D::identity();
-    if (r.roll != 0) m *= Matrix3D::roll(r.roll);
+Matrix3D Matrix3D::rotate(const Orient3D& r) {
+    Matrix3D m = r.yaw != 0 ? Matrix3D::yaw(r.yaw) : Matrix3D::identity();
     if (r.pitch != 0) m *= Matrix3D::pitch(r.pitch);
-    if (r.yaw != 0) m *= Matrix3D::yaw(r.yaw);
+    if (r.roll != 0) m *= Matrix3D::roll(r.roll);
     return m;
 }
 
@@ -71,10 +70,10 @@ std::string printMatrix(const Matrix3D& m) {
 }
 #endif
 
-ModelPoint Vector3D::toCartesian() const {
+Point3D Vector3D::toCartesian() const {
     coord_t wf = 1.0 / w;
     dynamic_assert(wf > 0, "negative w -- unexpected degenerate case");
-    return ModelPoint(x * wf, y * wf, z * wf);
+    return Point3D(x * wf, y * wf, z * wf);
 }
 Vector3D Matrix3D::project(const Vector3D& v) const {
     coord_t x = v.x, y = v.y, z = v.z, w = v.w;
@@ -84,19 +83,41 @@ Vector3D Matrix3D::project(const Vector3D& v) const {
                     x * m[12] + y * m[13] + z * m[14] + w * m[15]);
 }
 
-ModelPoint Matrix3D::project(const ModelPoint& p) const {
+Point3D Matrix3D::project(const Point3D& p) const {
     return project(Vector3D(p)).toCartesian();
 }
 
-Matrix3D Renderer3D::getModelMatrix(ModelPoint p, Rotation3D r, ModelPoint s) {
+Matrix3D Renderer3D::getModelMatrix(Point3D p, Orient3D r, Point3D s) {
     Matrix3D wrld = Matrix3D::translate(p);
     wrld *= Matrix3D::rotate(r);
     wrld *= Matrix3D::scale(s);
     return wrld;
 }
 
+coord_t Orient3D::offBy(const Orient3D& other) const noexcept {
+    return std::max({angleDifferenceAbs(yaw, other.yaw),
+                     angleDifferenceAbs(pitch, other.pitch),
+                     angleDifferenceAbs(roll, other.roll)});
+}
+
+Point3D Orient3D::rotate(const Point3D& vector, coord_t scale) const noexcept {
+    return Matrix3D::rotate(*this).project(vector) * scale;
+}
+
+Orient3D Orient3D::toPolar(const Point3D& p, coord_t roll) noexcept {
+    coord_t yaw = atan2(p.x, p.z);
+    coord_t pitch = atan2(p.y, hypot(p.x, p.z));
+    return Orient3D(yaw, pitch, roll);
+}
+
+Orient3D Orient3D::tendTo(const Orient3D& target, coord_t rate) const noexcept {
+    return Orient3D(angleApproach(yaw, target.yaw, rate),
+                    angleApproach(pitch, target.pitch, rate),
+                    angleApproach(roll, target.roll, rate));
+}
+
 Renderer3D::Renderer3D() {
-    setCamera(ModelPoint(0, 0, 0), Rotation3D(0, 0, 0), ModelPoint(1, 1, 1));
+    setCamera(Point3D(0, 0, 0), Orient3D(0, 0, 0), Point3D(1, 1, 1));
 }
 
 static coord_t computeFOV(coord_t a) { return 1.0 / tan(a / 2.0); }
@@ -106,23 +127,23 @@ static const coord_t far = 8;
 static const coord_t wherever_you_are = far / (far - near);
 static const coord_t s_fov = computeFOV(radians<coord_t>(90));
 
-void Renderer3D::setCamera(ModelPoint pos, Rotation3D rot, ModelPoint scale) {
+void Renderer3D::setCamera(Point3D pos, Orient3D rot, Point3D scale) {
     // projection
     view = Matrix3D(s_fov, 0, 0, 0, 0, s_fov, 0, 0, 0, 0, wherever_you_are,
                     near * wherever_you_are, 0, 0, 1, 0);
     // view. in reverse order from the model matrix!
     view *= Matrix3D::scale(scale);
-    if (rot.yaw != 0) view *= Matrix3D::yaw(-rot.yaw);
-    if (rot.pitch != 0) view *= Matrix3D::pitch(-rot.pitch);
     if (rot.roll != 0) view *= Matrix3D::roll(-rot.roll);
+    if (rot.pitch != 0) view *= Matrix3D::pitch(-rot.pitch);
+    if (rot.yaw != 0) view *= Matrix3D::yaw(-rot.yaw);
     view *= Matrix3D::translate(-pos);
 }
 
-void Renderer3D::renderModel(SplinterBuffer& buf, ModelPoint p, Rotation3D r,
-                             ModelPoint s, const Model& m) {
+void Renderer3D::renderModel(SplinterBuffer& buf, Point3D p, Orient3D r,
+                             Point3D s, const Model& m) {
     Matrix3D wrld = view * getModelMatrix(p, r, s);
     points_.clear();
-    for (const ModelPoint& p : m.vertices)
+    for (const Point3D& p : m.vertices)
         points_.emplace_back<Vector3D>(wrld.project(Vector3D(p)));
     for (const ModelFragment& part : m.shapes) renderModelFragment(buf, part);
 }
@@ -133,8 +154,8 @@ inline static int outcode(const Vector3D& v) {
            ((v.w < near) << 5);
 }
 
-ModelPoint Renderer3D::clipPoint(const Vector3D& onScreen,
-                                 const Vector3D& offScreen) const {
+Point3D Renderer3D::clipPoint(const Vector3D& onScreen,
+                              const Vector3D& offScreen) const {
     coord_t n = unlerp(onScreen.w, near, offScreen.w);
     return Vector3D(lerp(onScreen.x, n, offScreen.x),
                     lerp(onScreen.y, n, offScreen.y),
@@ -142,8 +163,8 @@ ModelPoint Renderer3D::clipPoint(const Vector3D& onScreen,
         .toCartesian();
 }
 
-bool Renderer3D::clipLine(const Vector3D& v0, const Vector3D& v1,
-                          ModelPoint& p0, ModelPoint& p1) const {
+bool Renderer3D::clipLine(const Vector3D& v0, const Vector3D& v1, Point3D& p0,
+                          Point3D& p1) const {
     int o0 = outcode(v0), o1 = outcode(v1);
 
     if (!(o0 | o1)) {
@@ -164,7 +185,7 @@ void Renderer3D::renderModelFragment(SplinterBuffer& buf,
     Color clr = f.color;
     const Vector3D* v0 = &points_[f.start];
     const Vector3D* v1;
-    ModelPoint p0{0, 0, 0}, p1{0, 0, 0};
+    Point3D p0{0, 0, 0}, p1{0, 0, 0};
     for (auto it = f.points.begin(); it != f.points.end(); ++it) {
         v1 = &points_[*it];
         visible = clipLine(*v0, *v1, p0, p1);

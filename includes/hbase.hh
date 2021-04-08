@@ -16,7 +16,7 @@
 
 namespace hiemalia {
 class HostModule : public Module {
-   public:
+  public:
     virtual std::string name() const noexcept = 0;
     std::string role() const noexcept { return role_; }
     virtual void begin() = 0;
@@ -28,10 +28,10 @@ class HostModule : public Module {
     INHERIT_MOVE(HostModule, Module);
     virtual ~HostModule() noexcept {}
 
-   protected:
+  protected:
     HostModule() {}
 
-   private:
+  private:
     static inline const std::string role_ = "host module";
 };
 

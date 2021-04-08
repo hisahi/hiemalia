@@ -16,70 +16,165 @@
 #include "sbuf.hh"
 
 namespace hiemalia {
-struct ModelPoint {
+struct Point3D {
     coord_t x;
     coord_t y;
     coord_t z;
 
-    ModelPoint(coord_t x, coord_t y, coord_t z) : x(x), y(y), z(z) {}
+    Point3D(coord_t x, coord_t y, coord_t z) : x(x), y(y), z(z) {}
 
-    inline ModelPoint operator-() const { return ModelPoint(-x, -y, -z); }
+    inline Point3D operator-() const { return Point3D(-x, -y, -z); }
 
-    inline ModelPoint& operator+=(const ModelPoint& r) {
+    inline Point3D& operator+=(const Point3D& r) noexcept {
         x += r.x;
         y += r.y;
         z += r.z;
         return *this;
     }
-    inline ModelPoint& operator-=(const ModelPoint& r) {
+    inline Point3D& operator-=(const Point3D& r) noexcept {
         x -= r.x;
         y -= r.y;
         z -= r.z;
         return *this;
     }
-    inline ModelPoint& operator*=(const coord_t& f) {
+    inline Point3D& operator*=(const coord_t& f) noexcept {
         x *= f;
         y *= f;
         z *= f;
         return *this;
     }
 
-    friend inline ModelPoint operator+(ModelPoint a, const ModelPoint& b) {
+    friend inline Point3D operator+(Point3D a, const Point3D& b) noexcept {
         return a += b;
     }
-    friend inline ModelPoint operator-(ModelPoint a, const ModelPoint& b) {
+    friend inline Point3D operator-(Point3D a, const Point3D& b) noexcept {
         return a -= b;
     }
-    friend inline ModelPoint operator*(const coord_t& f, ModelPoint a) {
+    friend inline Point3D operator*(const coord_t& f, Point3D a) noexcept {
         return a *= f;
     }
-    friend inline ModelPoint operator*(ModelPoint a, const coord_t& f) {
+    friend inline Point3D operator*(Point3D a, const coord_t& f) noexcept {
         return a *= f;
     }
 
-    inline static ModelPoint average(const ModelPoint& a, const ModelPoint& b) {
-        return ModelPoint(0.5 * (a.x + b.x), 0.5 * (a.y + b.y),
-                          0.5 * (a.z + b.z));
+    inline bool operator==(const Point3D& b) const noexcept {
+        return x == b.x && y == b.y && z == b.z;
     }
-    inline coord_t lengthSquared() const { return x * x + y * y + z * z; }
-    inline coord_t length() const { return sqrt(lengthSquared()); }
-    inline ModelPoint normalize() const {
+    inline bool operator!=(const Point3D& b) const noexcept {
+        return !(*this == b);
+    }
+
+    inline bool isZero() const noexcept { return x == 0 && y == 0 && z == 0; }
+    inline explicit operator bool() const noexcept { return !isZero(); }
+    inline bool operator!() const noexcept { return isZero(); }
+
+    inline coord_t dot(const Point3D& b) const noexcept {
+        return x * b.x + y * b.y + z * b.z;
+    }
+    inline Point3D cross(const Point3D& b) const noexcept {
+        return Point3D(y * b.z - z * b.y, x * b.z - z * b.x, x * b.y - y * b.x);
+    }
+
+    inline static Point3D average(const Point3D& a, const Point3D& b) noexcept {
+        return Point3D(0.5 * (a.x + b.x), 0.5 * (a.y + b.y), 0.5 * (a.z + b.z));
+    }
+    inline static Point3D lerp(const Point3D& a, coord_t t,
+                               const Point3D& b) noexcept {
+        return Point3D(hiemalia::lerp(a.x, t, b.x), hiemalia::lerp(a.y, t, b.y),
+                       hiemalia::lerp(a.z, t, b.z));
+    }
+    inline static Point3D sqerp(const Point3D& a, coord_t t,
+                                const Point3D& b) noexcept {
+        return Point3D(hiemalia::sqerp(a.x, t, b.x),
+                       hiemalia::sqerp(a.y, t, b.y),
+                       hiemalia::sqerp(a.z, t, b.z));
+    }
+    inline coord_t lengthSquared() const noexcept {
+        return x * x + y * y + z * z;
+    }
+    inline coord_t length() const noexcept { return sqrt(lengthSquared()); }
+    inline Point3D normalize() const {
         dynamic_assert(x != 0 || y != 0 || z != 0,
                        "attempt to normalize zero vector!");
         return *this * (1 / sqrt(lengthSquared()));
     }
+
+    static Point3D origin;
 };
 
-inline ModelPoint lerpPoint(const ModelPoint& a, coord_t t,
-                            const ModelPoint& b) {
-    return ModelPoint(lerp(a.x, t, b.x), lerp(a.y, t, b.y), lerp(a.z, t, b.z));
-}
+inline Point3D Point3D::origin = Point3D(0, 0, 0);
 
-inline ModelPoint sqerpPoint(const ModelPoint& a, coord_t t,
-                             const ModelPoint& b) {
-    return ModelPoint(sqerp(a.x, t, b.x), sqerp(a.y, t, b.y),
-                      sqerp(a.z, t, b.z));
-}
+struct Orient3D {
+    coord_t yaw;
+    coord_t pitch;
+    coord_t roll;
+
+    Orient3D(coord_t yaw, coord_t pitch, coord_t roll)
+        : yaw(yaw), pitch(pitch), roll(roll) {}
+
+    inline Orient3D& operator+=(const Orient3D& r) {
+        yaw += r.yaw;
+        pitch += r.pitch;
+        roll += r.roll;
+        wrap();
+        return *this;
+    }
+    inline Orient3D& operator-=(const Orient3D& r) {
+        yaw -= r.yaw;
+        pitch -= r.pitch;
+        roll -= r.roll;
+        wrap();
+        return *this;
+    }
+    inline Orient3D& operator*=(const coord_t& f) {
+        yaw *= f;
+        pitch *= f;
+        roll *= f;
+        wrap();
+        return *this;
+    }
+
+    friend inline Orient3D operator+(Orient3D a, const Orient3D& b) {
+        return a += b;
+    }
+    friend inline Orient3D operator-(Orient3D a, const Orient3D& b) {
+        return a -= b;
+    }
+    friend inline Orient3D operator*(Orient3D a, const coord_t& f) {
+        return a *= f;
+    }
+
+    inline bool isZero() const noexcept {
+        return yaw == 0 && pitch == 0 && roll == 0;
+    }
+    inline explicit operator bool() const noexcept { return !isZero(); }
+    inline bool operator!() const noexcept { return isZero(); }
+
+    inline void wrap() noexcept {
+        yaw = wrapAngle(yaw);
+        pitch = wrapAngle(pitch);
+        roll = wrapAngle(roll);
+    }
+
+    inline bool operator==(const Orient3D& b) const {
+        return wrapAngle(yaw) == wrapAngle(b.yaw) &&
+               wrapAngle(pitch) == wrapAngle(b.pitch) &&
+               wrapAngle(roll) == wrapAngle(b.roll);
+    }
+    inline bool operator!=(const Orient3D& b) const { return !(*this == b); }
+
+    // implemented in rend3d.cc
+    coord_t offBy(const Orient3D& other) const noexcept;
+    Point3D rotate(const Point3D& vector, coord_t scale = 1) const noexcept;
+    static Orient3D toPolar(const Point3D& p, coord_t roll = 0) noexcept;
+    Orient3D tendTo(const Orient3D& target, coord_t rate) const noexcept;
+
+    static Orient3D atScreen;
+    static Orient3D atPlayer;
+};
+
+inline Orient3D Orient3D::atScreen = Orient3D{0, 0, 0};
+inline Orient3D Orient3D::atPlayer = Orient3D{numbers::PI<coord_t>, 0, 0};
 
 struct ModelFragment {
     Color color;
@@ -92,17 +187,17 @@ struct ModelFragment {
                   std::initializer_list<size_t> points)
         : color(color), start(start), points(points) {}
     ModelFragment(const Color& color, size_t start,
-                  std::vector<size_t>&& points)
+                  std::vector<size_t>&& points) noexcept
         : color(color), start(start), points(std::move(points)) {}
 };
 
 struct Model {
-    std::vector<ModelPoint> vertices;
+    std::vector<Point3D> vertices;
     std::vector<ModelFragment> shapes;
 
     Model() : vertices(), shapes() {}
-    Model(std::vector<ModelPoint>&& vertices,
-          std::vector<ModelFragment>&& shapes)
+    Model(std::vector<Point3D>&& vertices,
+          std::vector<ModelFragment>&& shapes) noexcept
         : vertices(std::move(vertices)), shapes(std::move(shapes)) {}
 };
 

@@ -27,9 +27,6 @@
     <ClCompile Include="src\base\vbase.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\box.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\game.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -138,7 +135,7 @@
     <ClCompile Include="src\game\explode.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\mbox.cc">
+    <ClCompile Include="src\game\box.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\game\enemy.cc">
@@ -181,6 +178,39 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\game\obstacle.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\enemy\volcano.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\enemy\chevron.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\enemy\wave.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\enemy\turret.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\sbox.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menu\menuhigh.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\enemy\fighter.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\enemy\boss0.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\enemy\boss1.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menu\menuyn.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\nameentr.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -389,9 +419,6 @@
     <ClInclude Include="includes\secure.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\game\mbox.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\game\enemy.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -443,6 +470,45 @@
     <ClInclude Include="includes\game\obstacle.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="includes\game\enemy\volcano.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\enemy\chevron.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\enemy\fighter.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\enemy\wave.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\enemy\turret.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\sbox.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\menu\menuhigh.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\enemy\boss1.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\enemy\boss0.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\menu\menuyn.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\nameentr.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\sort.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\base\Makefile.inc">
@@ -463,5 +529,15 @@
     <None Include="src\render\Makefile.inc">
       <Filter>Header Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Icon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\Hiemalia.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

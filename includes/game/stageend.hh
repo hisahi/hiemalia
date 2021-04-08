@@ -13,8 +13,9 @@
 
 namespace hiemalia {
 class StageEndScript : public ScriptObject {
-   public:
-    bool run(GameWorld& w);
+  public:
+    using ScriptObject::ScriptObject;
+    void doScript(GameWorld& w, bool instant);
 };
 };  // namespace hiemalia
 

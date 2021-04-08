@@ -16,39 +16,39 @@
 
 namespace hiemalia {
 struct ExplosionShard {
-    ModelPoint p0;
-    ModelPoint p1;
-    ModelPoint pos;
-    Rotation3D rot;
-    ModelPoint dpos;
-    Rotation3D drot;
+    Point3D p0;
+    Point3D p1;
+    Point3D pos;
+    Orient3D rot;
+    Point3D dpos;
+    Orient3D drot;
 };
 
 class Explosion : public GameObject {
-   public:
-    Explosion(const GameObject& o, coord_t xm, coord_t ym, coord_t zm,
-              float explspeed);
-    Explosion(const GameObject& o, const Model& m, coord_t xm, coord_t ym,
+  public:
+    Explosion(const Point3D& pos, const GameObject& o, coord_t xm, coord_t ym,
               coord_t zm, float explspeed);
+    Explosion(const Point3D& pos, const GameObject& o, const Model& m,
+              coord_t xm, coord_t ym, coord_t zm, float explspeed);
     bool update(GameWorld& w, float delta);
-    void renderSpecial(SplinterBuffer& sbuf, Renderer3D& r3d);
+    void render(SplinterBuffer& sbuf, Renderer3D& r3d);
     void adjustSpeed(coord_t s);
-    void move(const ModelPoint& p);
+    void onMove(const Point3D& newPos);
 
-   private:
+  private:
     std::vector<ExplosionShard> shards_;
     Model tempModel_;
     float alpha_{1};
     float explspeed_{1};
-    inline bool collideLineInternal(const ModelPoint& p1,
-                                    const ModelPoint& p2) const {
+    inline bool collideLineInternal(const Point3D& p1,
+                                    const Point3D& p2) const {
         return false;
     }
-    inline bool collideCuboidInternal(const ModelPoint& c1,
-                                      const ModelPoint& c2) const {
+    inline bool collideCuboidInternal(const Point3D& c1,
+                                      const Point3D& c2) const {
         return false;
     }
-    inline bool collideSphereInternal(const ModelPoint& p, coord_t r2) const {
+    inline bool collideSphereInternal(const Point3D& p, coord_t r2) const {
         return false;
     }
 };

@@ -21,13 +21,13 @@
 #include "str.hh"
 
 namespace hiemalia {
-static ModelPoint parseModelPoint(std::string s, coord_t sx, coord_t sy,
-                                  coord_t sz) {
+static Point3D parseModelPoint(std::string s, coord_t sx, coord_t sy,
+                               coord_t sz) {
     coord_t x = 0, y = 0, z = 0;
     if (s_sscanf(s.c_str(), FMT_coord_t " " FMT_coord_t " " FMT_coord_t, &x, &y,
                  &z) < 3)
         never("Invalid model point");
-    return ModelPoint(x * sx, y * sy, z * sz);
+    return Point3D(x * sx, y * sy, z * sz);
 }
 
 static ModelFragment parseModelFragment(std::string s, size_t n, Color color) {
@@ -44,7 +44,7 @@ static ModelFragment parseModelFragment(std::string s, size_t n, Color color) {
 }
 
 static Model loadStream3D(std::istream& in, ModelCollisionRadius* col) {
-    std::vector<ModelPoint> vertices;
+    std::vector<Point3D> vertices;
     std::vector<ModelFragment> fragments;
     coord_t scale = 1;
     coord_t scaleX = 1;
@@ -98,12 +98,12 @@ static Model loadStream3D(std::istream& in, ModelCollisionRadius* col) {
             in >> a >> b;
             if (a < 0) a += vertices.size();
             if (b < 0) b += vertices.size();
-            ModelPoint c1{std::min(vertices[a].x, vertices[b].x),
-                          std::min(vertices[a].y, vertices[b].y),
-                          std::min(vertices[a].z, vertices[b].z)};
-            ModelPoint c2{std::max(vertices[a].x, vertices[b].x),
-                          std::max(vertices[a].y, vertices[b].y),
-                          std::max(vertices[a].z, vertices[b].z)};
+            Point3D c1{std::min(vertices[a].x, vertices[b].x),
+                       std::min(vertices[a].y, vertices[b].y),
+                       std::min(vertices[a].z, vertices[b].z)};
+            Point3D c2{std::max(vertices[a].x, vertices[b].x),
+                       std::max(vertices[a].y, vertices[b].y),
+                       std::max(vertices[a].z, vertices[b].z)};
             col->shapes.push_back(CollisionShape::cuboid(c1, c2));
         } else if (command == "cs" && col) {
             std::istringstream in(value);
@@ -122,6 +122,11 @@ static Model loadStream3D(std::istream& in, ModelCollisionRadius* col) {
             if (c < 0) c += vertices.size();
             col->shapes.push_back(
                 CollisionShape::tri(vertices[a], vertices[b], vertices[c]));
+            dynamic_assert(
+                !((vertices[b] - vertices[a])
+                      .cross(vertices[c] - vertices[a])
+                      .isZero()),
+                "zero normal for collision triangle! this will cause issues");
         }
     }
 

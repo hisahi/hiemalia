@@ -22,11 +22,12 @@
 
 namespace hiemalia {
 class GameMain;
+class EnemyObject;
 
-constexpr int objectsMax = 128;
+constexpr int objectsMax = 256;
 constexpr int stageCount = 4;
 inline const coord_t farObjectBackPlane =
-    static_cast<coord_t>(2 * stageSpawnDistance);
+    static_cast<coord_t>(1 * stageSpawnDistance);
 
 template <typename T>
 using ObjectPtrBase = std::shared_ptr<T>;
@@ -35,8 +36,11 @@ using ObjectListBase = LimitedVector<ObjectPtrBase<T>, objectsMax>;
 using ObjectPtr = ObjectPtrBase<GameObject>;
 using ObjectList = ObjectListBase<GameObject>;
 using BulletList = ObjectListBase<BulletObject>;
+using EnemyList = ObjectListBase<EnemyObject>;
 
 struct GameWorld {
+    GameWorld();
+
     void startNewStage();
     void resetStage(coord_t t);
     void addScore(unsigned int p);
@@ -49,47 +53,63 @@ struct GameWorld {
     bool isPlayerAlive() const;
     bool runPlayer(float interval);
     void renderPlayer(SplinterBuffer& sbuf, Renderer3D& r3d,
-                      const Rotation3D& envRot);
+                      const Orient3D& envRot);
     coord_t getMoveSpeed() const;
+    coord_t getMoveSpeedDelta() const;
     coord_t getObjectBackPlane() const;
-    Rotation3D getSectionRotation() const;
-    ModelPoint rotateInSection(ModelPoint v, coord_t z) const;
+    Orient3D getSectionRotation() const;
+    Point3D rotateInSection(Point3D v, coord_t z) const;
     std::unique_ptr<PlayerObject>&& explodePlayer(
         std::unique_ptr<Explosion>&& expl);
     void explodeEnemy(GameObject& enemy, const Model& model);
+    void explodeBoss(GameObject& enemy, const Model& model);
     void explodeBullet(BulletObject& bullet);
-    const ModelPoint& getPlayerPosition();
+    const Point3D& getPlayerPosition();
     bool respawn();
+    const EnemyList& getEnemies() const;
     const BulletList& getPlayerBullets() const;
     const BulletList& getEnemyBullets() const;
     void setNewSpeed(coord_t s, coord_t d);
-    void setCheckpoint();
+    void setCheckpoint(coord_t z);
     void endStage();
     void updateMoveSpeedInput(ControlState& controls, float delta);
-    inline const GameDifficulty& difficulty() { return difficulty_; }
+    const GameDifficulty& difficulty() const noexcept;
+    coord_t pushBoss();
+    void popBoss(coord_t x);
 
     template <typename T, typename... Ts>
-    void firePlayerBullet(ModelPoint p, Ts&&... args) {
+    void spawn(Point3D p, Ts&&... args) {
+        auto& o = objects.emplace_back(
+            std::make_shared<T>(p, std::forward<Ts>(args)...));
+        o->onSpawn(*this);
+    }
+    template <typename T, typename... Ts>
+    void spawnEnemy(Point3D p, Ts&&... args) {
+        auto& o = enemies.emplace_back(
+            std::make_shared<T>(p, std::forward<Ts>(args)...));
+        o->onSpawn(*this);
+    }
+    template <typename T, typename... Ts>
+    void firePlayerBullet(Point3D p, Ts&&... args) {
         auto& b = playerBullets.emplace_back(
-            std::make_shared<T>(std::forward<Ts>(args)...));
-        b->setPosition(p);
+            std::make_shared<T>(p, std::forward<Ts>(args)...));
         b->onSpawn(*this);
     }
     template <typename T, typename... Ts>
-    void fireEnemyBullet(ModelPoint p, ModelPoint v, Ts&&... args) {
+    void fireEnemyBullet(Point3D p, Point3D v, Ts&&... args) {
         auto& b = enemyBullets.emplace_back(
-            std::make_shared<T>(v, std::forward<Ts>(args)...));
-        b->setPosition(p);
+            std::make_shared<T>(p, v, std::forward<Ts>(args)...));
         b->onSpawn(*this);
     }
 
-   private:
+  private:
     std::unique_ptr<PlayerObject> player;
     std::unique_ptr<Explosion> playerExplosion;
     std::unique_ptr<GameStage> stage;
+    ObjectList objects;
+    EnemyList enemies;
     BulletList playerBullets;
     BulletList enemyBullets;
-    ObjectList objects;
     unsigned sections{0};
     coord_t checkpoint{0};
     coord_t progress{0};
@@ -99,14 +119,17 @@ struct GameWorld {
     coord_t moveSpeedCtl{0};
     coord_t moveSpeedVel{2};
     coord_t moveSpeedFac{1};
+    coord_t moveSpeedOverride{0};
+    int bossLevel{0};
+    coord_t bossSlideTime{0};
     unsigned long score{0};
     unsigned long highScore{0};
     int stageNum{0};
     int cycle{1};
     bool nextStage{true};
     int lives{3};
-    ModelPoint lastPos{0, 0, 0};
-    GameDifficulty difficulty_{1};
+    Point3D lastPos{0, 0, 0};
+    GameDifficulty difficulty_;
     friend class GameMain;
     friend class PlayerObject;
 };

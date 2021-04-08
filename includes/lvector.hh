@@ -25,7 +25,7 @@ class LimitedVectorIterator;
 
 template <typename T, size_t N, typename Allocator = std::allocator<T>>
 class LimitedVector {
-   public:
+  public:
     using value_type = T;
     using size_type = size_t;
     using difference_type = ptrdiff_t;
@@ -104,7 +104,7 @@ class LimitedVector {
     LimitedVector& operator=(LimitedVector&& move) noexcept(
         std::is_nothrow_destructible_v<LimitedVector<T, N, Allocator>>) {
         if (&move != this) {
-            ~LimitedVector();
+            this->~LimitedVector();
             alloc_ = move.alloc_;
             count_ = move.count_;
             data_ = std::exchange(move.data_, nullptr);
@@ -172,7 +172,7 @@ class LimitedVector {
 
     reference at(size_type index) {
         if (index >= count_) throw std::out_of_range("index");
-        return *this[index];
+        return data_[index];
     }
 
     reference operator[](size_type index) { return data_[index]; }
@@ -353,9 +353,9 @@ class LimitedVector {
     }
 
     void swap(LimitedVector<T, N, Allocator> v) noexcept(
-        std::is_nothrow_swappable<T>::value&&
-            std::is_nothrow_move_constructible<T>::value&&
-                std::is_nothrow_swappable<Allocator>::value) {
+        std::conjunction_v<std::is_nothrow_swappable<T>,
+                           std::is_nothrow_move_constructible<T>,
+                           std::is_nothrow_swappable<Allocator>>) {
         using std::swap;
         size_t i;
 
@@ -365,12 +365,12 @@ class LimitedVector {
 
         if (count_ > v.count_) {
             for (i = v.count_; i < count_; ++i) {
-                new (&v.data_[i]) T(std::move(&data_[i]));
+                new (&v.data_[i]) T(std::move(data_[i]));
                 data_[i].~T();
             }
         } else if (count_ < v.count_) {
             for (i = count_; i < v.count_; ++i) {
-                new (&data_[i]) T(std::move(&v.data_[i]));
+                new (&data_[i]) T(std::move(v.data_[i]));
                 v.data_[i].~T();
             }
         }
@@ -379,7 +379,7 @@ class LimitedVector {
         swap(count_, v.count_);
     }
 
-   private:
+  private:
     size_type count_{0};
     allocator_type alloc_;
     T* data_{nullptr};
@@ -412,8 +412,8 @@ class LimitedVector {
     }
 
     void move_back_(size_type i, size_type n) noexcept(
-        std::is_nothrow_move_assignable_v<T>&&
-            std::is_nothrow_destructible_v<T>) {
+        std::conjunction_v<std::is_nothrow_move_assignable<T>,
+                           std::is_nothrow_destructible<T>>) {
         if (n == 0) return;
 
         size_type j;
@@ -431,7 +431,7 @@ class LimitedVector {
     }
 
     [[noreturn]] void out_of_capacity() {
-        throw std::length_error("exceeds vector capacity");
+        throw std::length_error("LimitedVector is out of capacity");
     }
 
     template <typename vT, size_t vN, typename vAllocator>
@@ -448,7 +448,7 @@ void swap(
 
 template <typename T>
 class LimitedVectorIterator {
-   public:
+  public:
     using iterator = LimitedVectorIterator;
     using iterator_category = std::random_access_iterator_tag;
     using value_type = T;
@@ -552,7 +552,7 @@ class LimitedVectorIterator {
         return ptr_ <= rhs.ptr_;
     }
 
-   private:
+  private:
     pointer ptr_;
     template <typename Tv, size_t N, typename Allocator>
     friend class LimitedVector;

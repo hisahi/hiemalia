@@ -15,7 +15,6 @@
 #include <type_traits>
 
 namespace hiemalia {
-// std::to_array in C++20
 
 namespace {
 template <typename T, std::size_t N, std::size_t... I>
@@ -38,18 +37,19 @@ constexpr auto one_short_(const char (&s)[N + 1]) -> std::array<char, N> {
 }
 }  // namespace
 
+// std::to_array in C++20
 template <typename T, std::size_t N>
-constexpr std::array<std::remove_cv_t<T>, N> to_array(T (&arr)[N]) {
+constexpr std::array<std::remove_cv_t<T>, N> makeArray(T (&arr)[N]) {
     return to_array_(arr, std::make_index_sequence<N>{});
 }
 
 template <typename T, std::size_t N>
-constexpr std::array<std::remove_cv_t<T>, N> to_array(T(&&arr)[N]) {
+constexpr std::array<std::remove_cv_t<T>, N> makeArray(T(&&arr)[N]) {
     return to_array_(std::move(arr), std::make_index_sequence<N>{});
 }
 
 template <std::size_t N>
-constexpr auto str_to_array(const char (&s)[N]) {
+constexpr auto strToArray(const char (&s)[N]) {
     return one_short_<N - 1>(s);
 }
 

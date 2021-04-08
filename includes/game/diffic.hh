@@ -14,13 +14,17 @@
 namespace hiemalia {
 
 class GameDifficulty {
-   public:
+  public:
     GameDifficulty(float level);
+    float getDifficultyLevel() const;
+    float getStageSpeedMultiplier() const;
     float getFireRateMultiplier() const;
     float getBulletSpeedMultiplier() const;
+    float getBulletLeadMultiplier() const;
     float getBulletSpewMultiplier() const;
+    float getEnemySpeedMultiplier() const;
 
-   private:
+  private:
     float level_;
 };
 

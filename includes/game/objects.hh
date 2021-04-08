@@ -14,8 +14,7 @@
 #include "game/object.hh"
 
 namespace hiemalia {
-std::shared_ptr<GameObject> loadObjectSpawn(ModelPoint p,
-                                            const std::string& name,
+std::shared_ptr<GameObject> loadObjectSpawn(Point3D p, const std::string& name,
                                             const std::string& prop);
 };  // namespace hiemalia
 

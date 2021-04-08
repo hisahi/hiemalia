@@ -34,7 +34,7 @@ enum class SoundEffect {
     EndOfSounds
 };
 
-inline auto soundEffectNames = hiemalia::to_array<NamePair<SoundEffect>>({
+inline auto soundEffectNames = hiemalia::makeArray<NamePair<SoundEffect>>({
     {"mselect.wav", SoundEffect::MenuSelect},
     {"mmove.wav", SoundEffect::MenuChange},
     {"pause.wav", SoundEffect::Pause},

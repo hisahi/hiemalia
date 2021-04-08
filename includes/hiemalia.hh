@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <string>
+#include <variant>
 #include <vector>
 
 #include "audio.hh"
@@ -35,7 +36,7 @@ void sendMessageMake(Ts&&... args) {
     MessageHandler<T>::deliver(T(std::forward<Ts>(args)...));
 }
 
-enum class HostMessageType { MainMenu, Quit };
+enum class HostMessageType { MainMenu, Quit, GotHighScore };
 
 struct HostMessage {
     HostMessageType type;
@@ -43,14 +44,27 @@ struct HostMessage {
     static HostMessage mainMenu() {
         return HostMessage(HostMessageType::MainMenu);
     }
+    static HostMessage gotHighScore(PartialHighScoreEntry&& e) {
+        return HostMessage(HostMessageType::GotHighScore, std::move(e));
+    }
     static HostMessage quit() { return HostMessage(HostMessageType::Quit); }
 
-   private:
+    inline const PartialHighScoreEntry& highScoreEntry() const {
+        dynamic_assert(type == HostMessageType::GotHighScore,
+                       "wrong message type");
+        return std::get<PartialHighScoreEntry>(x);
+    }
+
+  private:
     HostMessage(HostMessageType t) : type(t) {}
+    HostMessage(HostMessageType t, PartialHighScoreEntry&& e)
+        : type(t), x(std::move(e)) {}
+
+    std::variant<PartialHighScoreEntry> x;
 };
 
 class Hiemalia : MessageHandler<HostMessage> {
-   public:
+  public:
     Hiemalia(const std::string& command);
     ~Hiemalia();
     Hiemalia(const Hiemalia& copy) = delete;
@@ -62,7 +76,7 @@ class Hiemalia : MessageHandler<HostMessage> {
     void args(std::vector<std::string> args);
     void run();
 
-   private:
+  private:
     std::string command_;
     std::string configFileName{"hiemalia.cfg"};
     GameState state_;

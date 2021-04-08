@@ -20,7 +20,7 @@
 
 namespace hiemalia {
 class VideoModuleSDL2 : public VideoModule {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
 
     void frame();
@@ -37,13 +37,14 @@ class VideoModuleSDL2 : public VideoModule {
     VideoModuleSDL2& operator=(VideoModuleSDL2&& move) noexcept;
     ~VideoModuleSDL2() noexcept;
 
-   private:
+  private:
     static inline const std::string name_ = "VideoModuleSDL2";
     int width_{0};
     coord_t cx_, cy_, scale_;
     std::shared_ptr<HostModuleSDL2> host_;
     SDL_Window* window_{nullptr};
     SDL_Renderer* renderer_{nullptr};
+    SDL_Rect square_;
     SDL_Rect rect_;
     std::vector<SDL_Point> points_;
 };

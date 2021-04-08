@@ -15,7 +15,7 @@ static random_engine re{rd()};
 
 random_engine& getRandomEngine() { return re; }
 
-ModelPoint randomUnitVector() {
+Point3D randomUnitVector() {
     std::normal_distribution<coord_t> n;
     int i = 0;
     coord_t x, y, z;
@@ -25,7 +25,7 @@ ModelPoint randomUnitVector() {
         z = random(n);
     } while (x == 0 && y == 0 && z == 0 && i++ < 64);
 
-    return i < 64 ? ModelPoint(x, y, z).normalize() : ModelPoint(x, y, z);
+    return i < 64 ? Point3D(x, y, z).normalize() : Point3D(x, y, z);
 }
 
 }  // namespace hiemalia

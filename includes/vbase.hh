@@ -17,12 +17,12 @@
 
 namespace hiemalia {
 class HostVideoConfig : public ConfigSection {
-   public:
-   private:
+  public:
+  private:
 };
 
 class VideoModule : public Module {
-   public:
+  public:
     virtual std::string name() const noexcept = 0;
     std::string role() const noexcept { return role_; }
 
@@ -36,10 +36,10 @@ class VideoModule : public Module {
     INHERIT_MOVE(VideoModule, Module);
     virtual ~VideoModule() noexcept {}
 
-   protected:
+  protected:
     VideoModule() {}
 
-   private:
+  private:
     static inline const std::string role_ = "video module";
 };
 

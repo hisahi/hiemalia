@@ -1,0 +1,85 @@
+/****************************************************************************/
+/*                                                                          */
+/*   HIEMALIA SOURCE CODE (C) 2021      SAMPO HIPPELAINEN (HISAHI).         */
+/*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
+/*                                                                          */
+/****************************************************************************/
+// game/enemy/turret.cc: implementation of EnemyTurret
+
+#include "game/enemy/turret.hh"
+
+#include "game/obstacle.hh"
+#include "game/world.hh"
+
+namespace hiemalia {
+EnemyTurret::EnemyTurret(const Point3D& p, Orient3D r)
+    : EnemyObject(p, 4.0f),
+      baseModel_(getGameModel(GameModel::EnemyTurret)),
+      baseRot_(r + Orient3D::atPlayer),
+      targetRot_(r + Orient3D::atPlayer) {
+    useGameModel(GameModel::EnemyTurretCannon);
+    rot = r + Orient3D::atPlayer;
+    pos += rot.rotate(model().vertices[9]);
+    fireTime_ = random(std::uniform_real_distribution<float>(0, 1));
+}
+
+void EnemyTurret::aim(GameWorld& w, float delta) {
+    Orient3D old = targetRot_;
+    Point3D offset = w.getPlayerPosition() - pos;
+    Orient3D newPredicted =
+        Orient3D::toPolar(old.rotate(Point3D(0, 0, offset.length())) +
+                          Point3D(0, 0, delta * w.getMoveSpeed()));
+    Orient3D newActual = Orient3D::toPolar(offset);
+    if (angleDifference(newActual.pitch, baseRot_.pitch) <
+        -numbers::PI<coord_t>)
+        newActual.pitch = wrapAngle(baseRot_.pitch - numbers::PI<coord_t>);
+    else if (angleDifference(newActual.pitch, baseRot_.pitch) > 0)
+        newActual.pitch = baseRot_.pitch;
+    float penalty = static_cast<float>(newActual.offBy(newPredicted)) * 0.5f;
+    fireTime_ = std::max<float>(0, fireTime_ - penalty);
+    targetRot_ = newActual;
+}
+
+bool EnemyTurret::hitsInternal(const GameObject& obj) const {
+    return EnemyObject::hitsInternal(obj) ||
+           (obj.hasCollision() &&
+            collidesModelModel(*baseModel_.collision,
+                               Renderer3D::getModelMatrix(pos, baseRot_, scale),
+                               obj.collision(), obj.getObjectModelMatrix()));
+}
+
+void EnemyTurret::render(SplinterBuffer& sbuf, Renderer3D& r3d) {
+    EnemyObject::render(sbuf, r3d);
+    r3d.renderModel(sbuf, pos, baseRot_, scale, *baseModel_.model);
+}
+
+void EnemyTurret::onSpawn(GameWorld& w) {
+    w.spawn<Obstacle>(pos, baseRot_, GameModel::EnemyTurretStand);
+}
+
+bool EnemyTurret::doEnemyTick(GameWorld& w, float delta) {
+    if (w.isPlayerAlive()) {
+        aim(w, delta);
+        if (rot != targetRot_) rot = rot.tendTo(targetRot_, delta);
+        if (rot == targetRot_)
+            fireTime_ += delta * 2.0f * w.difficulty().getFireRateMultiplier();
+        if (pos.z - w.getPlayerPosition().z > getCollisionRadius() * 0.5) {
+            while (fireTime_ >= 1) {
+                fireBulletAtPlayer<EnemyBulletSimple>(w, model().vertices[10],
+                                                      0.5f, 0.0625f, 1.0f);
+                fireTime_ -= 1;
+            }
+        }
+        killPlayerOnContact(w);
+    }
+    return !isOffScreen();
+}
+
+bool EnemyTurret::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
+    doExplode(w);
+    w.explodeEnemy(*this, *baseModel_.model);
+    if (killedByPlayer) addScore(w, 400);
+    return true;
+}
+
+}  // namespace hiemalia

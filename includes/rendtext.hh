@@ -19,7 +19,7 @@
 
 namespace hiemalia {
 class RendererText : private Renderer2D {
-   public:
+  public:
     RendererText();
     void renderCharacter(SplinterBuffer& buf, coord_t x, coord_t y,
                          const Color& clr, char c) const;
@@ -41,7 +41,7 @@ class RendererText : private Renderer2D {
     inline coord_t lineHeight() const { return scaley_ * font_->height; }
     void setScale(coord_t scalex, coord_t scaley);
 
-   private:
+  private:
     std::shared_ptr<Font> font_;
     coord_t scalex_{1.0 / 40};
     coord_t scaley_{1.0 / 30};

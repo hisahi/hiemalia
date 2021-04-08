@@ -17,26 +17,26 @@
 
 namespace hiemalia {
 class PlayerObject : public GameObject, public ObjectDamageable {
-   public:
-    PlayerObject();
+  public:
+    PlayerObject(const Point3D& pos);
     void updateInput(ControlState& controls);
     bool update(GameWorld& w, float delta);
     bool playerInControl() const;
+    void render(SplinterBuffer& sbuf, Renderer3D& r3d);
     void enemyContact();
     void wallContact(coord_t x, coord_t y, coord_t z);
 
-   private:
+  private:
     ControlState inputs_;
-    ModelPoint vel{0, 0, 0};
     std::unique_ptr<Explosion> explodeObject_;
     float fireInterval_{0};
     bool woundedBird_{false};
     coord_t wbird_mul_{0};
     coord_t wbird_fr_{0};
-    Rotation3D wbird_vel_{0, 0, 0};
+    Orient3D wbird_vel_{0, 0, 0};
     coord_t shipRadius_;
 
-    void onDamage(GameWorld& w, float dmg, const ModelPoint& pointOfContact);
+    void onDamage(GameWorld& w, float dmg, const Point3D& pointOfContact);
     void onDeath(GameWorld& w);
     void doWoundedBird(float delta);
     void inputsVelocity(float delta);

@@ -30,7 +30,7 @@ namespace hiemalia {
 class GameMain : public LogicModule,
                  MessageHandler<GameMessage>,
                  MessageHandler<MenuMessage> {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
     std::string role() const noexcept { return role_; }
 
@@ -44,7 +44,7 @@ class GameMain : public LogicModule,
     GameMain();
     virtual ~GameMain() noexcept;
 
-   private:
+  private:
     static inline const std::string name_ = "GameMain";
     static inline const std::string role_ = "game module";
 
@@ -54,6 +54,11 @@ class GameMain : public LogicModule,
     RendererText font_;
     SplinterBuffer statusbar_;
     SplinterBuffer textscreen_;
+    coord_t cameraShake_{0};
+    coord_t cameraShakeSpeed_{0};
+    coord_t cameraShakeTime_{0};
+    Point3D shake0_{0, 0, 0};
+    Point3D shake1_{0, 0, 0};
     bool init_{false};
     bool continue_{true};
     bool shouldBePaused_{false};

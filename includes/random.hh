@@ -24,7 +24,7 @@ auto random(T distr) -> typename T::result_type {
     return distr(getRandomEngine());
 }
 
-ModelPoint randomUnitVector();
+Point3D randomUnitVector();
 }  // namespace hiemalia
 
 #endif  // M_RANDOM_HH

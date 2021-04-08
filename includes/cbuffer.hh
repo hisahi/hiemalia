@@ -11,9 +11,13 @@
 
 #include <array>
 
+#include "math.hh"
+
+namespace hiemalia {
+
 template <typename T, size_t N>
 class circular_buffer {
-   public:
+  public:
     using array_type = std::array<T, 2 * N>;
 
     circular_buffer() {}
@@ -46,9 +50,9 @@ class circular_buffer {
         }
     }
 
-    T& operator[](size_t i) { return data_[begin_ + i]; }
-
     const T& operator[](size_t i) const { return data_[begin_ + i]; }
+
+    void set(size_t i, const T& value) { place(remainder(i, 2 * N), value); }
 
     size_t size() const { return end_ - begin_; }
     size_t capacity() const { return N; }
@@ -68,7 +72,7 @@ class circular_buffer {
     T& front() { return data_[begin_]; }
     T& back() { return data_[end_ - 1]; }
 
-   private:
+  private:
     array_type data_{};
     size_t begin_{0};
     size_t end_{0};
@@ -83,5 +87,7 @@ class circular_buffer {
         }
     }
 };
+
+}  // namespace hiemalia
 
 #endif  // M_CBUFFER_HH

@@ -14,7 +14,7 @@
 namespace hiemalia {
 template <typename T>
 class NamePair {
-   public:
+  public:
     NamePair(const std::string& name, T value) noexcept
         : name(name), value(value) {}
     const std::string name;

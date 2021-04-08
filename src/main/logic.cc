@@ -10,6 +10,8 @@
 
 #include "defs.hh"
 #include "game/game.hh"
+#include "game/nameentr.hh"
+#include "menu/menuhigh.hh"
 #include "menu/menumain.hh"
 #include "menu/menupaus.hh"
 
@@ -19,6 +21,19 @@ void LogicEngine::gotMessage(const LogicMessage& msg) {
         case LogicMessageType::MainMenu: {
             MenuHandler& menu = getOrCreate<MenuHandler>();
             menu.openMenu(std::make_shared<MenuMain>(menu, msg.holder()));
+            break;
+        }
+        case LogicMessageType::OpenHighScores: {
+            MenuHandler& menu = getOrCreate<MenuHandler>();
+            menu.openMenu(std::make_shared<MenuMain>(menu, msg.holder()));
+            menu.openMenu<MenuHighScore>(
+                    std::make_shared<MenuHighScore>(menu, msg.holder()))
+                .highlight(msg.highScoreIndex());
+            break;
+        }
+        case LogicMessageType::NewHighScore: {
+            getOrCreate<NameEntry>(msg.holder(), msg.highScoreEntry().entry,
+                                   msg.highScoreEntry().table);
             break;
         }
         case LogicMessageType::StartGame: {

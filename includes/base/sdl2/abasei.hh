@@ -48,12 +48,12 @@ struct SDLMixer {
     SDLMixer& operator=(SDLMixer&& move) noexcept;
     DELETE_COPY(SDLMixer);
 
-   private:
+  private:
     bool own_{false};
 };
 
 class AudioModuleSDLMixer2 : public AudioModule {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
 
     void tick();
@@ -77,7 +77,7 @@ class AudioModuleSDLMixer2 : public AudioModule {
     AudioModuleSDLMixer2& operator=(AudioModuleSDLMixer2&& move) noexcept;
     ~AudioModuleSDLMixer2() noexcept;
 
-   private:
+  private:
     static inline const std::string name_ = "AudioModuleSDLMixer2";
     Mix_Music* music_{nullptr};
     std::shared_ptr<HostModuleSDL2> host_;

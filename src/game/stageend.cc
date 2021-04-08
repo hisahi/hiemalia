@@ -11,15 +11,6 @@
 #include "game/world.hh"
 
 namespace hiemalia {
-bool StageEndScript::run(GameWorld& w) {
-    if (w.isPlayerAlive()) {
-        PlayerObject& p = w.getPlayer();
-        if (p.playerInControl() && p.pos.z >= pos.z) {
-            w.endStage();
-        }
-        return p.pos.z < pos.z;
-    }
-    return true;
-}
+void StageEndScript::doScript(GameWorld& w, bool instant) { w.endStage(); }
 
 }  // namespace hiemalia

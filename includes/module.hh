@@ -18,7 +18,7 @@
 
 namespace hiemalia {
 class Module {
-   public:
+  public:
     virtual ~Module() noexcept {}
     Module(const Module& copy) = delete;
     Module& operator=(const Module& copy) = delete;
@@ -46,7 +46,7 @@ class Module {
         return module;
     }
 
-   protected:
+  protected:
     Module() {}
 };
 };  // namespace hiemalia

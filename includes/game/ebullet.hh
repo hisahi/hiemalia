@@ -14,8 +14,8 @@
 
 namespace hiemalia {
 class EnemyBulletSimple : public BulletObject {
-   public:
-    EnemyBulletSimple(const ModelPoint& v);
+  public:
+    EnemyBulletSimple(const Point3D& pos, const Point3D& v);
     bool doBulletTick(GameWorld& w, float delta);
     void impact(GameWorld& w, bool enemy);
     bool firedByPlayer() const;

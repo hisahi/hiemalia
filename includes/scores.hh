@@ -11,11 +11,22 @@
 
 #include <vector>
 
+#include "array.hh"
 #include "defs.hh"
 
 namespace hiemalia {
+
+inline const auto validScoreNameChars =
+    hiemalia::strToArray("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-");
+constexpr int highScoreNameLength = 3;
+
 struct HighScoreEntry {
-    char name[3];
+    std::array<char, highScoreNameLength> name;
+    unsigned long score;
+    int cycles;
+    int endStage;
+};
+struct PartialHighScoreEntry {
     unsigned long score;
     int cycles;
     int endStage;
@@ -26,7 +37,8 @@ struct HighScoreTable {
     std::vector<HighScoreEntry> entries;
 
     int getHighscoreRank(unsigned long score) const;
-    void insertHighscore(HighScoreEntry&& entry);
+    int insertHighscore(HighScoreEntry&& entry);
+    void resetScores();
     unsigned long getTopScore() const;
 };
 

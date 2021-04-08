@@ -8,9 +8,21 @@
 
 #include "game/script.hh"
 
-namespace hiemalia {
-ScriptObject::ScriptObject() {}
+#include "game/player.hh"
+#include "game/world.hh"
 
-bool ScriptObject::update(GameWorld& w, float delta) { return run(w); }
+namespace hiemalia {
+ScriptObject::ScriptObject(const Point3D& pos) : GameObject(pos) {}
+
+bool ScriptObject::update(GameWorld& w, float delta) {
+    if (w.isPlayerAlive()) {
+        PlayerObject& p = w.getPlayer();
+        if (p.playerInControl() && p.pos.z >= pos.z) {
+            doScript(w, false);
+        }
+        return p.pos.z < pos.z;
+    }
+    return true;
+}
 
 }  // namespace hiemalia

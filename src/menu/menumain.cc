@@ -14,6 +14,7 @@
 #include "load2d.hh"
 #include "logic.hh"
 #include "math.hh"
+#include "menu/menuhigh.hh"
 #include "menu/menuopt.hh"
 
 namespace hiemalia {
@@ -48,6 +49,7 @@ void MenuMain::select(int index, symbol_t id) {
             openMenu<MenuOptions>(holder_);
             break;
         case Item_Scores:
+            openMenu<MenuHighScore>(holder_);
             break;
         case Item_Help:
             break;
@@ -70,10 +72,10 @@ void MenuMain::progress(float interval) {
 void MenuMain::specialRender(SplinterBuffer& sbuf, float interval) {
     progress(interval);
     coord_t z = 0;
-    ModelPoint scale(1, 1, 1);
+    Point3D scale(1, 1, 1);
     for (size_t i = 0; i < (rots_.size() >> 3); ++i) {
-        rend_.renderModel(sbuf, ModelPoint(0, 0, z),
-                          Rotation3D(0, 0, rots_[i << 3]), scale, *tube_);
+        rend_.renderModel(sbuf, Point3D(0, 0, z), Orient3D(0, 0, rots_[i << 3]),
+                          scale, *tube_);
         z += z_off;
     }
     rend2_.renderShapeColor(
@@ -81,6 +83,7 @@ void MenuMain::specialRender(SplinterBuffer& sbuf, float interval) {
         Color{255, 255, 255,
               static_cast<std::uint8_t>(192 + 60 * std::sin(angle_))},
         logoSheet[0]);
+    sbuf.append(copyright);
 }
 
 MenuMain::MenuMain(MenuHandler& handler,
@@ -88,12 +91,15 @@ MenuMain::MenuMain(MenuHandler& handler,
     : Menu(handler), holder_(holder) {
     makeUncloseable();
     tube_ = getGameModel(GameModel::TitleCubeModel).model;
-    rend_.setCamera(ModelPoint(0, 0, 0), Rotation3D(0, 0, 0),
-                    ModelPoint(0.25, 0.25, 0.25));
+    rend_.setCamera(Point3D(0, 0, 0), Orient3D(0, 0, 0),
+                    Point3D(0.25, 0.25, 0.25));
     for (size_t i = 0; i < rots_.size(); ++i) {
         progress(tickInterval);
     }
     logoSheet = load2D("logo.2d");
+    rendtext_.setFont(getAssets().menuFont);
+    rendtext_.drawTextLineCenter(copyright, 0, 0.875, Color{255, 255, 255, 128},
+                                 "(C) HISAHI 2021", 0.75);
 }
 
 MenuMain::~MenuMain() noexcept {}

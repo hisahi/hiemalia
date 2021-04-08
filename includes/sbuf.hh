@@ -49,7 +49,7 @@ struct Splinter {
 };
 
 class SplinterBuffer {
-   public:
+  public:
     using container = std::vector<Splinter>;
     using const_iterator = container::const_iterator;
 
@@ -83,7 +83,7 @@ class SplinterBuffer {
     const_iterator end() const noexcept { return _splinters.end(); }
     size_t size() const noexcept { return _splinters.size(); }
 
-   private:
+  private:
     container _splinters;
 };
 };  // namespace hiemalia

@@ -11,13 +11,13 @@
 #include "game/world.hh"
 
 namespace hiemalia {
-EnemyShard::EnemyShard() {
+EnemyShard::EnemyShard(const Point3D& pos) : EnemyObject(pos) {
     useGameModel(GameModel::EnemyShard);
-    rot = Rotation3D::atPlayer;
+    rot = Orient3D::atPlayer;
+    vel = Point3D(0, 0, -1 / 4);
 }
 
 bool EnemyShard::doEnemyTick(GameWorld& w, float delta) {
-    pos.z -= delta / 32;
     killPlayerOnContact(w);
     return !isOffScreen();
 }

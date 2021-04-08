@@ -13,24 +13,25 @@
 #include "random.hh"
 
 namespace hiemalia {
-EnemyGunboat::EnemyGunboat() {
+EnemyGunboat::EnemyGunboat(const Point3D& pos) : EnemyObject(pos) {
     useGameModel(GameModel::EnemyGunboat);
-    rot = Rotation3D::atPlayer;
-    offset = random(std::uniform_real_distribution<float>(0, 1));
+    rot = Orient3D::atPlayer;
+    fireTime_ = random(std::uniform_real_distribution<float>(0, 1));
+    vel = Point3D(0, 0, -1 / 16);
 }
 
 bool EnemyGunboat::doEnemyTick(GameWorld& w, float delta) {
-    pos.z -= delta / 128;
     rot.roll = sin(pos.z * 0.1) / 8;
-    offset += delta * 0.5f * w.difficulty().getFireRateMultiplier();
+    fireTime_ += delta * 0.8f * w.difficulty().getFireRateMultiplier();
     killPlayerOnContact(w);
     if (w.isPlayerAlive() &&
-        pos.z - w.getPlayerPosition().z > getCollisionRadius() * 0.5)
-        while (offset >= 1) {
-            fireBullet<EnemyBulletSimple>(w, model().vertices[0],
-                                          aimAtPlayer(w), 0.625f, 0.125f);
-            offset -= 1;
+        pos.z - w.getPlayerPosition().z > getCollisionRadius() * 0.5) {
+        while (fireTime_ >= 1) {
+            fireBulletAtPlayer<EnemyBulletSimple>(w, model().vertices[0],
+                                                  0.625f, 0.125f, 0.0f);
+            fireTime_ -= 1;
         }
+    }
     return !isOffScreen();
 }
 

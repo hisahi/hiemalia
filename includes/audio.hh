@@ -69,7 +69,7 @@ struct AudioMessage {
         return std::get<AudioMessageSoundEffect>(x);
     }
 
-   private:
+  private:
     AudioMessage(AudioMessageType t) : type(t) {}
     AudioMessage(AudioMessageType t, AudioMessageSoundEffect sound)
         : type(t), x(sound) {
@@ -82,7 +82,7 @@ struct AudioMessage {
 };
 
 class AudioConfig : public ConfigSection {
-   public:
+  public:
     AudioConfig() noexcept : ConfigSection("Audio") {}
 
     void load(ConfigSectionStore store) override;
@@ -93,7 +93,7 @@ class AudioConfig : public ConfigSection {
 };
 
 class AudioEngine : public Module, MessageHandler<AudioMessage> {
-   public:
+  public:
     std::string name() const noexcept { return name_; }
     std::string role() const noexcept { return role_; }
 
@@ -114,7 +114,7 @@ class AudioEngine : public Module, MessageHandler<AudioMessage> {
     void gotMessage(const AudioMessage& msg);
     inline const ConfigSectionPtr<AudioConfig>& getConfig() { return config_; }
 
-   private:
+  private:
     std::shared_ptr<AudioModule> audio_;
     ConfigSectionPtr<AudioConfig> config_;
     static inline const std::string name_ = "AudioEngine";

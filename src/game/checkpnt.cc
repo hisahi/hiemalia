@@ -11,15 +11,8 @@
 #include "game/world.hh"
 
 namespace hiemalia {
-bool CheckpointScript::run(GameWorld& w) {
-    if (w.isPlayerAlive()) {
-        PlayerObject& p = w.getPlayer();
-        if (p.playerInControl() && p.pos.z >= pos.z) {
-            w.setCheckpoint();
-        }
-        return p.pos.z < pos.z;
-    }
-    return true;
+void CheckpointScript::doScript(GameWorld& w, bool instant) {
+    w.setCheckpoint(pos.z);
 }
 
 }  // namespace hiemalia
