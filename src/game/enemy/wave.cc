@@ -14,11 +14,11 @@
 namespace hiemalia {
 
 EnemyWave::EnemyWave(const Point3D& pos, coord_t sx, coord_t sy, coord_t sz,
-                     coord_t v, coord_t p)
+                     coord_t p, coord_t v)
     : EnemyObject(pos, 6.0f),
       off_(sx, sy, sz),
       v_(v * numbers::TAU<coord_t>),
-      x_(p),
+      x_(p * numbers::TAU<coord_t>),
       pos_(pos) {
     useGameModel(GameModel::EnemyWave);
     rot = Orient3D::atPlayer;
@@ -32,7 +32,7 @@ bool EnemyWave::doEnemyTick(GameWorld& w, float delta) {
     rot.roll += 0.4 * delta;
     killPlayerOnContact(w);
     if (w.isPlayerAlive() &&
-        pos.z - w.getPlayerPosition().z > getCollisionRadius() * 0.5) {
+        pos.z - w.getPlayerPosition().z > getCollisionRadius()) {
         const Point3D& p = model().vertices[13];
         const Point3D& d = Point3D(0, 0, -1);
         while (fireTime_ >= 1) {

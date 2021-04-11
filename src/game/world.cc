@@ -22,7 +22,8 @@ namespace hiemalia {
 
 constexpr int pointsPer1up = 50000;
 
-GameWorld::GameWorld() : difficulty_{1.0f} {
+GameWorld::GameWorld(ConfigSectionPtr<GameConfig> config)
+    : config_(config), difficulty_{config->difficulty} {
     moveSpeedFac = difficulty_.getStageSpeedMultiplier();
 }
 
@@ -65,7 +66,6 @@ void GameWorld::startNewStage() {
         moveSpeedFac = difficulty_.getStageSpeedMultiplier();
     }
     checkpoint = 0;
-    // checkpoint = 120; // DEBUG
     resetStage(checkpoint);
 }
 
@@ -77,20 +77,20 @@ void GameWorld::resetStage(coord_t t) {
     sections = 0;
     moveSpeedBase = 0;
     moveSpeedDst = 1;
-    bossLevel = 0;
-    bossSlideTime = 0;
     objects.clear();
     enemies.clear();
     playerBullets.clear();
     enemyBullets.clear();
     if (t > 0) {
-        moveForward(t);
-        for (auto& o : objects) {
-            o->instant(*this);
-        }
+        moveForwardSkip(t);
         objects.clear();
         enemies.clear();
+        playerBullets.clear();
+        enemyBullets.clear();
     }
+    bossLevel = 0;
+    bossSlideTime = 0;
+    if (moveSpeedDst == 0) moveSpeedDst = 1;
 }
 
 void GameWorld::addScore(unsigned int p) {
@@ -110,6 +110,25 @@ coord_t GameWorld::getObjectBackPlane() const {
 
 void GameWorld::drawStage(SplinterBuffer& sbuf, Renderer3D& r3d) {
     stage->drawStage(sbuf, r3d, 0);
+}
+
+void GameWorld::moveForwardSkip(coord_t dist) {
+    progress += dist;
+    progress_f += dist;
+    while (progress_f >= stageSectionLength) {
+        progress_f -= stageSectionLength;
+        ++sections;
+        stage->nextSection();
+    }
+
+    auto& obj = stage->spawns;
+    unsigned u = sections + stageSpawnDistance * stageDivision;
+    while (!obj.empty() && obj.front().shouldSpawn(u, progress_f)) {
+        obj.front().obj->onSpawn(*this);
+        obj.front().obj->instant(*this);
+        bossLevel = 0, bossSlideTime = 0;
+        obj.pop_front();
+    }
 }
 
 void GameWorld::moveForward(coord_t dist) {
@@ -264,6 +283,7 @@ bool GameWorld::respawn() {
 void GameWorld::setCheckpoint(coord_t z) {
     if (!isPlayerAlive() || !player->playerInControl()) return;
     checkpoint = std::max(checkpoint, sections * stageSectionLength + z);
+    LOG_DEBUG("new checkpoint: " FMT_coord_t, checkpoint);
 }
 
 void GameWorld::setNewSpeed(coord_t s, coord_t d) {

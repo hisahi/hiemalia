@@ -221,7 +221,7 @@ class LimitedVector {
         return const_reverse_iterator(cbegin());
     }
 
-    bool empty() const noexcept { return count_ == 0; }
+    [[nodiscard]] bool empty() const noexcept { return count_ == 0; }
 
     size_type size() const noexcept { return count_; }
 

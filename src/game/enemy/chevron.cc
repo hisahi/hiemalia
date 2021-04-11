@@ -17,15 +17,16 @@ namespace hiemalia {
 EnemyChevron::EnemyChevron(const Point3D& pos) : EnemyObject(pos, 10.0f) {
     useGameModel(GameModel::EnemyChevron);
     rot = Orient3D::atPlayer;
+    canHitWalls(true);
 }
 
 bool EnemyChevron::doEnemyTick(GameWorld& w, float delta) {
     if (sawPlayer_) {
+        coord_t m = std::max(w.getMoveSpeed(), 1.0);
         if (w.isPlayerAlive()) {
             Point3D d = w.getPlayerPosition() - pos;
-            coord_t m = w.getMoveSpeed() * 2;
-            d.x *= m;
-            d.y *= m;
+            d.x *= m * 1.5;
+            d.y *= m * 1.5;
             d = d.normalize();
             Point3D v = vel.normalize();
             coord_t vl = vel.length();
@@ -34,13 +35,13 @@ bool EnemyChevron::doEnemyTick(GameWorld& w, float delta) {
             vel.z = std::min(mz_, vel.z);
         }
         trot.roll = vel.x;
-        vel *= std::pow(2, delta);
+        vel *= std::pow(2, delta * m);
         if (rot.roll < trot.roll) {
             rot.roll = std::min(trot.roll, rot.roll + 0.5 * delta);
         } else if (rot.roll > trot.roll) {
             rot.roll = std::max(trot.roll, rot.roll - 0.5 * delta);
         }
-        mz_ = std::min(mz_, vel.z * 0.75);
+        mz_ = std::min(mz_, vel.z * (0.75 / m));
     } else if (w.isPlayerAlive() &&
                (pos - w.getPlayerPosition()).z < stageSpawnDistance - 0.5) {
         sawPlayer_ = true;

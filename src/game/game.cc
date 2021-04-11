@@ -20,29 +20,9 @@ namespace hiemalia {
 static const Color white{255, 255, 255, 255};
 static const bool firstPerson = true;
 
-GameMain::GameMain(GameMain&& move) noexcept
-    : LogicModule(std::move(move)),
-      world_(std::move(move.world_)),
-      r2d_(std::move(move.r2d_)),
-      r3d_(std::move(move.r3d_)),
-      font_(std::move(move.font_)),
-      statusbar_(std::move(move.statusbar_)),
-      timer(move.timer),
-      objectLateZ(farObjectBackPlane) {}
-
-GameMain& GameMain::operator=(GameMain&& move) noexcept {
-    LogicModule::operator=(std::move(move));
-    world_ = std::move(move.world_);
-    r2d_ = std::move(move.r2d_);
-    r3d_ = std::move(move.r3d_);
-    font_ = std::move(move.font_);
-    statusbar_ = std::move(move.statusbar_);
-    objectLateZ = std::move(move.objectLateZ);
-    return *this;
-}
-
-GameMain::GameMain()
-    : world_(std::make_unique<GameWorld>()),
+GameMain::GameMain(ConfigSectionPtr<GameConfig> config_)
+    : world_(std::make_unique<GameWorld>(config_)),
+      config_(config_),
       timer(0),
       objectLateZ(farObjectBackPlane) {
     font_.setFont(getAssets().menuFont);

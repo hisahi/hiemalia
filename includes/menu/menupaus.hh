@@ -27,8 +27,7 @@ class MenuPause : public Menu {
     void end(GameState& state);
 
     DELETE_COPY(MenuPause);
-    MenuPause(MenuPause&& move) noexcept;
-    MenuPause& operator=(MenuPause&& move) noexcept;
+    DEFAULT_MOVE(MenuPause);
     MenuPause(MenuHandler& handler);
     ~MenuPause() noexcept;
 

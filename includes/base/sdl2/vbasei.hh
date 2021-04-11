@@ -23,11 +23,15 @@ class VideoModuleSDL2 : public VideoModule {
   public:
     std::string name() const noexcept { return name_; }
 
+    bool canSetFullscreen();
+
     void frame();
     void blank();
     void draw(const SplinterBuffer& buffer);
     void blit();
     void sync();
+    bool isFullScreen();
+    void setFullScreen(bool flag);
 
     void onResize();
 

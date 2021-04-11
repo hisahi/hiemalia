@@ -16,11 +16,12 @@
 namespace hiemalia {
 
 template <typename T, size_t N>
-class circular_buffer {
+class CircularBuffer {
   public:
+    static_assert(N > 0, "cannot have an empty buffer");
     using array_type = std::array<T, 2 * N>;
 
-    circular_buffer() {}
+    CircularBuffer() {}
 
     void clear() {
         begin_ = 0;
@@ -51,6 +52,7 @@ class circular_buffer {
     }
 
     const T& operator[](size_t i) const { return data_[begin_ + i]; }
+    const T& at(size_t i) const { return data_[begin_ + (i % N)]; }
 
     void set(size_t i, const T& value) { place(remainder(i, 2 * N), value); }
 

@@ -8,6 +8,7 @@
 
 #include "game/pbullet.hh"
 
+#include "game/enemy.hh"
 #include "game/world.hh"
 
 namespace hiemalia {
@@ -18,7 +19,15 @@ PlayerBullet::PlayerBullet(const Point3D& pos, const Point3D& v)
     rotvel = Orient3D(1.8, 1.2, 0.6) * 16;
 }
 
-bool PlayerBullet::doBulletTick(GameWorld& w, float delta) { return true; }
+bool PlayerBullet::doBulletTick(GameWorld& w, float delta) {
+    for (auto& eptr : w.getEnemies()) {
+        if (hits(*eptr)) {
+            Point3D c = lerp(0.5);
+            impact(w, eptr->hitBullet(w, getDamage(), c));
+        }
+    }
+    return true;
+}
 
 void PlayerBullet::impact(GameWorld& w, bool enemy) {
     if (!enemy) {

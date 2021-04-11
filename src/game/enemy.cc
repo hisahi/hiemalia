@@ -21,25 +21,30 @@ EnemyObject::EnemyObject(const Point3D& pos, float health)
     : GameObject(pos), ObjectDamageable(health) {}
 
 bool EnemyObject::update(GameWorld& w, float delta) {
-    if (!alive_) return false;
-    bool alive = doEnemyTick(w, delta);
-    if (alive) {
+    if (sponge_ > 0) {
         for (auto& bptr : w.getPlayerBullets()) {
             if (bptr->hits(*this)) {
-                Point3D c = bptr->lerp(0.5);
-                float dmg = bptr->getDamage();
-                if (alive_ && hitEnemy(w, dmg, c)) {
-                    killedByPlayer_ = true;
-                    damage(w, dmg, c);
-                }
-                bptr->impact(w, !alive_);
+                bptr->impact(w, true);
             }
         }
+        sponge_ -= delta;
+        return sponge_ > 0;
     }
-    return alive;
+
+    if (!alive_) return false;
+    return doEnemyTick(w, delta);
 }
 
 void EnemyObject::kill(GameWorld& w) { alive_ = false; }
+
+bool EnemyObject::hitBullet(GameWorld& w, float dmg, const Point3D& c) {
+    if (!alive_) return false;
+    if (hitEnemy(w, dmg, c)) {
+        killedByPlayer_ = true;
+        damage(w, dmg, c);
+    }
+    return alive_;
+}
 
 void EnemyObject::hitWall(GameWorld& w) {
     killedByPlayer_ = false;
@@ -53,6 +58,10 @@ void EnemyObject::onDamage(GameWorld& w, float dmg,
 
 void EnemyObject::onDeath(GameWorld& w) {
     alive_ = alive_ && !onEnemyDeath(w, killedByPlayer_);
+    if (!alive_) {
+        noModel();
+        sponge_ = 0.04f;
+    }
 }
 
 void EnemyObject::doExplode(GameWorld& w) { doExplode(w, model()); }

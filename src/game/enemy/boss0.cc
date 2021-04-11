@@ -8,7 +8,9 @@
 
 #include "game/enemy/boss0.hh"
 
+#include "game/gamemsg.hh"
 #include "game/world.hh"
+#include "hiemalia.hh"
 
 namespace hiemalia {
 
@@ -35,7 +37,7 @@ bool EnemyBoss0::doEnemyTick(GameWorld& w, float delta) {
         const float speed = 0.75f;
         const float spew = 0.0f;
         const float lead = 0.5f;
-        const float spread = 0.375f;
+        const float spread = 0.3f;
         Point3D p(0, 0, 0.2);
         p += pos;
         Point3D pl = aimAtPlayer(w, speed, lead);
@@ -61,11 +63,12 @@ bool EnemyBoss0::doEnemyTick(GameWorld& w, float delta) {
             fireTime_ -= 1;
         }
     }
-    return !isOffScreen();
+    return true;
 }
 
 bool EnemyBoss0::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplodeBoss(w);
+    sendMessage(GameMessage::shakeCamera(0.0625));
     if (speed_ >= 0) w.popBoss(speed_);
     if (killedByPlayer) addScore(w, 2500);
     return true;

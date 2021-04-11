@@ -38,4 +38,11 @@ bool EnemyBulletSimple::firedByPlayer() const { return false; }
 
 float EnemyBulletSimple::getDamage() const { return 1.0f; }
 
+EnemyBulletSimpleScalable::EnemyBulletSimpleScalable(const Point3D& pos,
+                                                     const Point3D& v,
+                                                     coord_t scale)
+    : EnemyBulletSimple(pos, v) {
+    this->scale *= scale;
+}
+
 }  // namespace hiemalia

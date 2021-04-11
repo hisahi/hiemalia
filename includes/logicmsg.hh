@@ -40,6 +40,10 @@ struct LogicMessage {
     LogicMessageType type;
     std::variant<std::shared_ptr<ModuleHolder>> value;
 
+    inline const std::shared_ptr<ModuleHolder>& holder() const {
+        return std::get<std::shared_ptr<ModuleHolder>>(value);
+    }
+
     inline static LogicMessage mainMenu(
         const std::shared_ptr<ModuleHolder>& holder) {
         return LogicMessage(LogicMessageType::MainMenu, holder);
@@ -55,12 +59,9 @@ struct LogicMessage {
         return LogicMessage(LogicMessageType::OpenHighScores, holder, i);
     }
 
-    inline const std::shared_ptr<ModuleHolder>& holder() const {
-        return std::get<std::shared_ptr<ModuleHolder>>(value);
-    }
-
-    inline static LogicMessage startGame() {
-        return LogicMessage(LogicMessageType::StartGame);
+    inline static LogicMessage startGame(
+        const std::shared_ptr<ModuleHolder>& holder) {
+        return LogicMessage(LogicMessageType::StartGame, holder);
     }
 
     inline static LogicMessage pauseMenu() {

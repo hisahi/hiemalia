@@ -100,6 +100,14 @@ class MenuOption {
                           MenuOptionSelect{initialValue != 0, {"OFF", "ON"}});
     }
 
+    inline static MenuOption select(symbol_t id, std::string text,
+                                    std::initializer_list<std::string> options,
+                                    int initialValue = 0, bool enabled = true) {
+        if (initialValue >= static_cast<int>(options.size())) initialValue = 0;
+        return MenuOption(id, MenuOptionType::Select, enabled, text,
+                          MenuOptionSelect{initialValue, options});
+    }
+
     inline static MenuOption input(symbol_t id, std::string text,
                                    std::string initialValue = "",
                                    bool enabled = true) {
@@ -203,7 +211,7 @@ class Menu {
     inline void setActiveItem(symbol_t item);
     inline void gotMenuMessage(const MenuMessage& msg);
     inline void runMenu(GameState& state, float interval);
-    virtual inline void specialRender(SplinterBuffer& sbuf, float interval) {}
+    virtual inline void renderSpecial(SplinterBuffer& sbuf, float interval) {}
 
     DELETE_COPY(Menu);
     Menu(Menu&& move) noexcept;
@@ -232,6 +240,8 @@ class Menu {
     SplinterBuffer titlebuf_;
     std::vector<MenuOption> options_;
     coord_t getMenuOptionY(int index) const;
+    inline virtual void pageLeft() {}
+    inline virtual void pageRight(bool) {}
 
   private:
     void goUp();

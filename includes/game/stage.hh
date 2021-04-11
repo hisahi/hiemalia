@@ -54,7 +54,7 @@ struct GameStage {
     std::vector<section_t> sections;
     std::vector<section_t> sectionsLoop;
     std::deque<ObjectSpawn> spawns;
-    circular_buffer<section_t, stageVisibility> visible;
+    CircularBuffer<section_t, stageVisibility> visible;
 
     void nextSection();
     void drawStage(SplinterBuffer& sbuf, Renderer3D& r3d, coord_t offset);

@@ -28,8 +28,7 @@ class MenuAudioOptions : public Menu {
     void end(GameState& state);
 
     DELETE_COPY(MenuAudioOptions);
-    MenuAudioOptions(MenuAudioOptions&& move) noexcept;
-    MenuAudioOptions& operator=(MenuAudioOptions&& move) noexcept;
+    DEFAULT_MOVE(MenuAudioOptions);
     MenuAudioOptions(MenuHandler& handler,
                      const std::shared_ptr<ModuleHolder>& holder);
     ~MenuAudioOptions() noexcept;

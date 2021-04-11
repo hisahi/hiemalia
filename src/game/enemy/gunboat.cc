@@ -25,7 +25,7 @@ bool EnemyGunboat::doEnemyTick(GameWorld& w, float delta) {
     fireTime_ += delta * 0.8f * w.difficulty().getFireRateMultiplier();
     killPlayerOnContact(w);
     if (w.isPlayerAlive() &&
-        pos.z - w.getPlayerPosition().z > getCollisionRadius() * 0.5) {
+        pos.z - w.getPlayerPosition().z > getCollisionRadius()) {
         while (fireTime_ >= 1) {
             fireBulletAtPlayer<EnemyBulletSimple>(w, model().vertices[0],
                                                   0.625f, 0.125f, 0.0f);

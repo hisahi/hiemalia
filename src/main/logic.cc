@@ -37,7 +37,7 @@ void LogicEngine::gotMessage(const LogicMessage& msg) {
             break;
         }
         case LogicMessageType::StartGame: {
-            getOrCreate<GameMain>();
+            getOrCreate<GameMain>(msg.holder()->gconfig);
             break;
         }
         case LogicMessageType::PauseMenu: {

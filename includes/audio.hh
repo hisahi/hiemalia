@@ -114,6 +114,9 @@ class AudioEngine : public Module, MessageHandler<AudioMessage> {
     void gotMessage(const AudioMessage& msg);
     inline const ConfigSectionPtr<AudioConfig>& getConfig() { return config_; }
 
+    bool canPlayMusic();
+    bool canPlaySound();
+
   private:
     std::shared_ptr<AudioModule> audio_;
     ConfigSectionPtr<AudioConfig> config_;

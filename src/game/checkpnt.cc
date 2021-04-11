@@ -12,7 +12,7 @@
 
 namespace hiemalia {
 void CheckpointScript::doScript(GameWorld& w, bool instant) {
-    w.setCheckpoint(pos.z);
+    if (!instant) w.setCheckpoint(pos.z);
 }
 
 }  // namespace hiemalia

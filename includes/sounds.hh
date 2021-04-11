@@ -31,6 +31,8 @@ enum class SoundEffect {
     PlayerExplode,
     PlayerHit,
     PlayerFire,
+    HighScoreEntered,
+    //
     EndOfSounds
 };
 
@@ -41,6 +43,7 @@ inline auto soundEffectNames = hiemalia::makeArray<NamePair<SoundEffect>>({
     {"explode.wav", SoundEffect::PlayerExplode},
     {"hit.wav", SoundEffect::PlayerHit},
     {"fire.wav", SoundEffect::PlayerFire},
+    {"hiscore.wav", SoundEffect::HighScoreEntered},
 });
 
 };  // namespace hiemalia

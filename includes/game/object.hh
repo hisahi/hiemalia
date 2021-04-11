@@ -14,8 +14,20 @@
 #include "model.hh"
 
 namespace hiemalia {
-struct GameWorld;
+class GameWorld;
 enum class GameModel;
+
+struct ExtraCollision {
+    std::shared_ptr<const ModelCollision> collision;
+    Point3D pos;
+    Orient3D rot;
+    Point3D scale;
+
+    inline ExtraCollision(
+        const std::shared_ptr<const ModelCollision>& collision,
+        const Point3D& pos, const Orient3D& rot, const Point3D& scale)
+        : collision(collision), pos(pos), rot(rot), scale(scale) {}
+};
 
 class GameObject {
   public:
@@ -42,6 +54,7 @@ class GameObject {
     inline const ModelCollision& collision() const { return *collision_; }
     inline bool hasModel() const noexcept { return model_ != nullptr; }
     inline bool hasCollision() const noexcept { return collision_ != nullptr; }
+    virtual const std::vector<ExtraCollision>& exCollisions() const;
 
     GameObject(const Point3D& pos);
     virtual ~GameObject() noexcept {}
@@ -89,12 +102,15 @@ struct ObjectDamageable {
     float health_;
 };
 
+bool collidesLineObject(const Point3D& line1, const Point3D& line2,
+                        const GameObject& object);
 bool collidesCuboidObject(const Point3D& cuboid1, const Point3D& cuboid2,
                           const GameObject& object);
 bool collidesSphereObject(const Point3D& center, coord_t radius,
                           const GameObject& object);
 bool collidesSweepSphereObject(const Point3D& c1, const Point3D& c2, coord_t r,
                                const GameObject& object);
+bool collidesObjectObject(const GameObject& obj1, const GameObject& obj2);
 };  // namespace hiemalia
 
 #endif  // M_GAME_OBJECT_HH

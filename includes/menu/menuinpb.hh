@@ -52,8 +52,7 @@ class MenuInputControls : public Menu, MessageHandler<InputMenuMessage> {
     void gotMessage(const InputMenuMessage& msg);
 
     DELETE_COPY(MenuInputControls);
-    MenuInputControls(MenuInputControls&& move) noexcept;
-    MenuInputControls& operator=(MenuInputControls&& move) noexcept;
+    DEFAULT_MOVE(MenuInputControls);
     MenuInputControls(MenuHandler& handler,
                       const std::shared_ptr<ModuleHolder>& holder,
                       NamePair<InputDevice> pair, InputControlModule& module);

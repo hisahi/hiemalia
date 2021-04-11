@@ -17,7 +17,7 @@
 #endif
 
 namespace hiemalia {
-static inline const std::string gameVersion = "v0.4";
+static inline const std::string gameVersion = "v0.4.1";
 static inline const std::string gameTitle = "Hiemalia " + gameVersion;
 
 using coord_t = double;

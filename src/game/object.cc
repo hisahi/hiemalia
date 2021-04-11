@@ -61,14 +61,11 @@ bool GameObject::hits(const GameObject& obj) const {
 }
 
 bool GameObject::hitsSweep(const GameObject& obj) const {
-    return obj.collision_ && collidesLineModel(oldPos_, pos, *obj.collision_,
-                                               obj.getObjectModelMatrix());
+    return obj.collision_ && collidesLineObject(oldPos_, pos, obj);
 }
 
 bool GameObject::hitsInternal(const GameObject& obj) const {
-    return collision_ && obj.collision_ &&
-           collidesModelModel(*collision_, getObjectModelMatrix(),
-                              *obj.collision_, obj.getObjectModelMatrix());
+    return collision_ && obj.collision_ && collidesObjectObject(*this, obj);
 }
 
 void GameObject::setModel(std::shared_ptr<const Model>&& model) {
@@ -127,6 +124,11 @@ bool GameObject::tick(GameWorld& w, float delta) {
     return true;
 }
 
+const std::vector<ExtraCollision>& GameObject::exCollisions() const {
+    static const std::vector<ExtraCollision> exCollisionsNone{};
+    return exCollisionsNone;
+}
+
 float ObjectDamageable::getHealth() const { return health_; }
 
 bool ObjectDamageable::damage(GameWorld& w, float damage,
@@ -138,8 +140,14 @@ bool ObjectDamageable::damage(GameWorld& w, float damage,
     return dead;
 }
 
-bool collidesCuboidObject(const Point3D& c1, const Point3D& c2,
-                          const GameObject& obj) {
+static bool collidesLineObjectBasic(const Point3D& l1, const Point3D& l2,
+                                    const GameObject& obj) {
+    return obj.hasCollision() && collidesLineModel(l1, l2, obj.collision(),
+                                                   obj.getObjectModelMatrix());
+}
+
+static bool collidesCuboidObjectBasic(const Point3D& c1, const Point3D& c2,
+                                      const GameObject& obj) {
     if (obj.hasCollision())
         return collidesCuboidModel(c1, c2, obj.collision(),
                                    obj.getObjectModelMatrix());
@@ -147,7 +155,8 @@ bool collidesCuboidObject(const Point3D& c1, const Point3D& c2,
         return collidesPointCuboid(obj.pos, c1, c2);
 }
 
-bool collidesSphereObject(const Point3D& c, coord_t r, const GameObject& obj) {
+static bool collidesSphereObjectBasic(const Point3D& c, coord_t r,
+                                      const GameObject& obj) {
     if (obj.hasCollision())
         return collidesSphereModel(c, r, obj.collision(),
                                    obj.getObjectModelMatrix());
@@ -155,13 +164,122 @@ bool collidesSphereObject(const Point3D& c, coord_t r, const GameObject& obj) {
         return collidesPointSphere(obj.pos, c, r);
 }
 
-bool collidesSweepSphereObject(const Point3D& c1, const Point3D& c2, coord_t r,
-                               const GameObject& obj) {
+static bool collidesSweepSphereObjectBasic(const Point3D& c1, const Point3D& c2,
+                                           coord_t r, const GameObject& obj) {
     if (obj.hasCollision())
         return collidesSweepSphereModel(c1, c2, r, obj.collision(),
                                         obj.getObjectModelMatrix());
     else
         return collidesSweepSpherePoint(c1, c2, r, obj.pos);
+}
+
+bool collidesLineObject(const Point3D& l1, const Point3D& l2,
+                        const GameObject& obj) {
+    if (collidesLineObjectBasic(l1, l2, obj)) return true;
+    if (!obj.exCollisions().empty()) {
+        Point3D bpos = obj.pos;
+        const auto& ex = obj.exCollisions();
+        return std::any_of(
+            ex.begin(), ex.end(), [&l1, &l2, &bpos](const ExtraCollision& c) {
+                return collidesLineModel(
+                    l1, l2, *c.collision,
+                    Renderer3D::getModelMatrix(bpos + c.pos, c.rot, c.scale));
+            });
+    }
+    return false;
+}
+
+bool collidesCuboidObject(const Point3D& c1, const Point3D& c2,
+                          const GameObject& obj) {
+    if (collidesCuboidObjectBasic(c1, c2, obj)) return true;
+    if (!obj.exCollisions().empty()) {
+        Point3D bpos = obj.pos;
+        const auto& ex = obj.exCollisions();
+        return std::any_of(
+            ex.begin(), ex.end(), [&c1, &c2, &bpos](const ExtraCollision& c) {
+                return collidesCuboidModel(
+                    c1, c2, *c.collision,
+                    Renderer3D::getModelMatrix(bpos + c.pos, c.rot, c.scale));
+            });
+    }
+    return false;
+}
+
+bool collidesSphereObject(const Point3D& c, coord_t r, const GameObject& obj) {
+    if (collidesSphereObjectBasic(c, r, obj)) return true;
+    if (!obj.exCollisions().empty()) {
+        Point3D bpos = obj.pos;
+        const auto& ex = obj.exCollisions();
+        return std::any_of(ex.begin(), ex.end(),
+                           [&c, &r, &bpos](const ExtraCollision& cx) {
+                               return collidesSphereModel(
+                                   c, r, *cx.collision,
+                                   Renderer3D::getModelMatrix(
+                                       bpos + cx.pos, cx.rot, cx.scale));
+                           });
+    }
+    return false;
+}
+
+bool collidesSweepSphereObject(const Point3D& c1, const Point3D& c2, coord_t r,
+                               const GameObject& obj) {
+    if (c1 == c2) return collidesSphereObject(c1, r, obj);
+    if (collidesSweepSphereObjectBasic(c1, c2, r, obj)) return true;
+    if (!obj.exCollisions().empty()) {
+        Point3D bpos = obj.pos;
+        const auto& ex = obj.exCollisions();
+        return std::any_of(
+            ex.begin(), ex.end(),
+            [&c1, &c2, &r, &bpos](const ExtraCollision& c) {
+                return collidesSweepSphereModel(
+                    c1, c2, r, *c.collision,
+                    Renderer3D::getModelMatrix(bpos + c.pos, c.rot, c.scale));
+            });
+    }
+    return false;
+}
+
+static bool collidesObjectObjectBasic(const GameObject& obj1,
+                                      const GameObject& obj2) {
+    if (obj1.hasCollision() && obj2.hasCollision())
+        return collidesModelModel(obj1.collision(), obj1.getObjectModelMatrix(),
+                                  obj2.collision(),
+                                  obj2.getObjectModelMatrix());
+    else
+        return false;
+}
+
+bool collidesExModelObject(const ModelCollision& c1, const Matrix3D& mat1,
+                           const GameObject& obj2) {
+    if (obj2.hasCollision() && collidesModelModel(c1, mat1, obj2.collision(),
+                                                  obj2.getObjectModelMatrix()))
+        return true;
+    const auto& ex2 = obj2.exCollisions();
+    Point3D bpos2 = obj2.pos;
+    return std::any_of(
+        ex2.begin(), ex2.end(), [&bpos2, &c1, &mat1](const ExtraCollision& c) {
+            return collidesModelModel(
+                c1, mat1, *c.collision,
+                Renderer3D::getModelMatrix(bpos2 + c.pos, c.rot, c.scale));
+        });
+}
+
+bool collidesObjectObject(const GameObject& obj1, const GameObject& obj2) {
+    if (!obj1.exCollisions().empty() || !obj2.exCollisions().empty()) {
+        const auto& ex1 = obj1.exCollisions();
+        Point3D bpos1 = obj1.pos;
+        return collidesExModelObject(obj1.collision(),
+                                     obj1.getObjectModelMatrix(), obj2) ||
+               std::any_of(ex1.begin(), ex1.end(),
+                           [&bpos1, &obj2](const ExtraCollision& c) {
+                               return collidesExModelObject(
+                                   *c.collision,
+                                   Renderer3D::getModelMatrix(bpos1 + c.pos,
+                                                              c.rot, c.scale),
+                                   obj2);
+                           });
+    }
+    return collidesObjectObjectBasic(obj1, obj2);
 }
 
 }  // namespace hiemalia

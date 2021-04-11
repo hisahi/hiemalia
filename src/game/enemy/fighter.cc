@@ -38,7 +38,7 @@ void EnemyFighter::movePattern(GameWorld& w, float dt) {
             fireTime_ += dt * w.difficulty().getFireRateMultiplier();
             killPlayerOnContact(w);
             if (w.isPlayerAlive() &&
-                pos.z - w.getPlayerPosition().z > getCollisionRadius() * 0.5) {
+                pos.z - w.getPlayerPosition().z > getCollisionRadius()) {
                 while (fireTime_ >= 1) {
                     fireBulletAtPlayer<EnemyBulletSimple>(
                         w, model().vertices[0], 0.625f, 0.125f, 1.0f);

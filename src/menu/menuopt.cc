@@ -10,14 +10,23 @@
 
 #include "defs.hh"
 #include "menu/menuaud.hh"
+#include "menu/menugame.hh"
 #include "menu/menuinp.hh"
+#include "menu/menuvid.hh"
 
 namespace hiemalia {
 
-enum Item : symbol_t { Item_Graphics, Item_Audio, Item_Input, Item_Back };
+enum Item : symbol_t {
+    Item_Game,
+    Item_Video,
+    Item_Audio,
+    Item_Input,
+    Item_Back
+};
 
 void MenuOptions::begin(GameState& state) {
-    option(MenuOption::button(Item_Graphics, "GRAPHICS", false));
+    option(MenuOption::button(Item_Game, "GAME"));
+    option(MenuOption::button(Item_Video, "VIDEO"));
     option(MenuOption::button(Item_Audio, "AUDIO"));
     option(MenuOption::button(Item_Input, "INPUT"));
     option(MenuOption::spacer(symbol_none));
@@ -26,7 +35,11 @@ void MenuOptions::begin(GameState& state) {
 
 void MenuOptions::select(int index, symbol_t id) {
     switch (id) {
-        case Item_Graphics:
+        case Item_Game:
+            openMenu<MenuGameOptions>(holder_);
+            break;
+        case Item_Video:
+            openMenu<MenuVideoOptions>(holder_);
             break;
         case Item_Audio:
             openMenu<MenuAudioOptions>(holder_);
@@ -41,15 +54,6 @@ void MenuOptions::select(int index, symbol_t id) {
 }
 
 void MenuOptions::end(GameState& state) {}
-
-MenuOptions::MenuOptions(MenuOptions&& move) noexcept
-    : Menu(std::move(move)), holder_(std::move(move.holder_)) {}
-
-MenuOptions& MenuOptions::operator=(MenuOptions&& move) noexcept {
-    Menu::operator=(std::move(move));
-    holder_ = std::move(move.holder_);
-    return *this;
-}
 
 MenuOptions::MenuOptions(MenuHandler& handler,
                          const std::shared_ptr<ModuleHolder>& holder)

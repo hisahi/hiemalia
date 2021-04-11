@@ -42,18 +42,6 @@ void MenuYesNo::end(GameState& state) {
         sendMessage(MenuMessage::yes(myId_));
 }
 
-MenuYesNo::MenuYesNo(MenuYesNo&& move) noexcept
-    : Menu(std::move(move)),
-      myId_(move.myId_),
-      title_(std::move(move.title_)) {}
-
-MenuYesNo& MenuYesNo::operator=(MenuYesNo&& move) noexcept {
-    Menu::operator=(std::move(move));
-    myId_ = move.myId_;
-    title_ = std::move(move.title_);
-    return *this;
-}
-
 MenuYesNo::MenuYesNo(MenuHandler& handler, symbol_t id,
                      const std::string& title)
     : Menu(handler), myId_(id), title_(title) {}

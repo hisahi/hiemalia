@@ -39,9 +39,8 @@ class GameMain : public LogicModule,
     bool run(GameState& state, float interval);
 
     DELETE_COPY(GameMain);
-    GameMain(GameMain&& move) noexcept;
-    GameMain& operator=(GameMain&& move) noexcept;
-    GameMain();
+    DEFAULT_MOVE(GameMain);
+    GameMain(ConfigSectionPtr<GameConfig> config);
     virtual ~GameMain() noexcept;
 
   private:
@@ -49,6 +48,7 @@ class GameMain : public LogicModule,
     static inline const std::string role_ = "game module";
 
     std::unique_ptr<GameWorld> world_;
+    ConfigSectionPtr<GameConfig> config_;
     Renderer2D r2d_;
     Renderer3D r3d_;
     RendererText font_;

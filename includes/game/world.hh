@@ -18,6 +18,7 @@
 #include "game/object.hh"
 #include "game/player.hh"
 #include "game/stage.hh"
+#include "gconfig.hh"
 #include "lvector.hh"
 
 namespace hiemalia {
@@ -38,8 +39,13 @@ using ObjectList = ObjectListBase<GameObject>;
 using BulletList = ObjectListBase<BulletObject>;
 using EnemyList = ObjectListBase<EnemyObject>;
 
-struct GameWorld {
-    GameWorld();
+class GameWorld {
+  public:
+    GameWorld(ConfigSectionPtr<GameConfig> config);
+
+    DELETE_COPY(GameWorld);
+    DEFAULT_MOVE(GameWorld);
+    inline virtual ~GameWorld(){};
 
     void startNewStage();
     void resetStage(coord_t t);
@@ -103,6 +109,7 @@ struct GameWorld {
     }
 
   private:
+    ConfigSectionPtr<GameConfig> config_;
     std::unique_ptr<PlayerObject> player;
     std::unique_ptr<Explosion> playerExplosion;
     std::unique_ptr<GameStage> stage;
@@ -130,6 +137,9 @@ struct GameWorld {
     int lives{3};
     Point3D lastPos{0, 0, 0};
     GameDifficulty difficulty_;
+
+    void moveForwardSkip(coord_t dist);
+
     friend class GameMain;
     friend class PlayerObject;
 };

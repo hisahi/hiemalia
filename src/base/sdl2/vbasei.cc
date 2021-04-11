@@ -135,4 +135,35 @@ void VideoModuleSDL2::blit() { SDL_RenderPresent(renderer_); }
 
 void VideoModuleSDL2::sync() { host_->sync(); }
 
+bool VideoModuleSDL2::canSetFullscreen() { return true; }
+
+bool VideoModuleSDL2::isFullScreen() {
+    auto flags = SDL_GetWindowFlags(window_);
+    return (flags & SDL_WINDOW_FULLSCREEN) ||
+           (flags & SDL_WINDOW_FULLSCREEN_DESKTOP);
+}
+
+void VideoModuleSDL2::setFullScreen(bool flag) {
+    if (flag) {
+        bool ok = false;
+        if (SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN_DESKTOP) <
+            0) {
+            if (SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN) < 0) {
+                LOG_ERROR("could not set program to fullscreen");
+            } else
+                ok = true;
+        } else
+            ok = true;
+        if (ok) {
+            SDL_ShowCursor(SDL_DISABLE);
+            onResize();
+        }
+    } else if (SDL_SetWindowFullscreen(window_, 0) < 0) {
+        LOG_ERROR("could not set program to fullscreen");
+    } else {
+        SDL_ShowCursor(SDL_ENABLE);
+        onResize();
+    }
+}
+
 }  // namespace hiemalia

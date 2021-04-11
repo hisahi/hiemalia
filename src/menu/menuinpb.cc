@@ -68,25 +68,6 @@ std::string MenuInputControls::getControlText(ControlInput input) {
     return module_.get().getButtonName(input);
 }
 
-MenuInputControls::MenuInputControls(MenuInputControls&& move) noexcept
-    : Menu(std::move(move)),
-      holder_(std::move(move.holder_)),
-      title_(move.title_),
-      device_(move.device_),
-      module_(std::move(move.module_)),
-      settingButton_(move.settingButton_) {}
-
-MenuInputControls& MenuInputControls::operator=(
-    MenuInputControls&& move) noexcept {
-    Menu::operator=(std::move(move));
-    holder_ = std::move(move.holder_);
-    title_ = move.title_;
-    device_ = move.device_;
-    module_ = std::move(move.module_);
-    settingButton_ = move.settingButton_;
-    return *this;
-}
-
 MenuInputControls::MenuInputControls(
     MenuHandler& handler, const std::shared_ptr<ModuleHolder>& holder,
     NamePair<InputDevice> pair, InputControlModule& module)

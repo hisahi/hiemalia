@@ -22,6 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{1CC2C91B-F3F0-476C-8950-8584BCD7079D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -67,11 +68,15 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)includes;$(ProjectDir)libs\SDL2\include;$(ProjectDir)libs\SDL2_mixer\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)libs\SDL2\lib\x86;$(ProjectDir)libs\SDL2_mixer\lib\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)includes;$(ProjectDir)libs\SDL2\include;$(ProjectDir)libs\SDL2_mixer\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)libs\SDL2\lib\x86;$(ProjectDir)libs\SDL2_mixer\lib\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -159,6 +164,7 @@
     <ClCompile Include="src\main\collide.cc" />
     <ClCompile Include="src\main\config.cc" />
     <ClCompile Include="src\main\file.cc" />
+    <ClCompile Include="src\main\gconfig.cc" />
     <ClCompile Include="src\main\hiemalia.cc" />
     <ClCompile Include="src\main\input.cc" />
     <ClCompile Include="src\main\logger.cc" />
@@ -169,12 +175,15 @@
     <ClCompile Include="src\main\video.cc" />
     <ClCompile Include="src\menu\menu.cc" />
     <ClCompile Include="src\menu\menuaud.cc" />
+    <ClCompile Include="src\menu\menugame.cc" />
+    <ClCompile Include="src\menu\menuhelp.cc" />
     <ClCompile Include="src\menu\menuhigh.cc" />
     <ClCompile Include="src\menu\menuinp.cc" />
     <ClCompile Include="src\menu\menuinpb.cc" />
     <ClCompile Include="src\menu\menumain.cc" />
     <ClCompile Include="src\menu\menuopt.cc" />
     <ClCompile Include="src\menu\menupaus.cc" />
+    <ClCompile Include="src\menu\menuvid.cc" />
     <ClCompile Include="src\menu\menuyn.cc" />
     <ClCompile Include="src\render\load2d.cc" />
     <ClCompile Include="src\render\load3d.cc" />
@@ -235,6 +244,7 @@
     <ClInclude Include="includes\game\stage.hh" />
     <ClInclude Include="includes\game\stageend.hh" />
     <ClInclude Include="includes\game\world.hh" />
+    <ClInclude Include="includes\gconfig.hh" />
     <ClInclude Include="includes\hbase.hh" />
     <ClInclude Include="includes\helpers.hh" />
     <ClInclude Include="includes\hiemalia.hh" />
@@ -248,7 +258,10 @@
     <ClInclude Include="includes\logic.hh" />
     <ClInclude Include="includes\logicmsg.hh" />
     <ClInclude Include="includes\lvector.hh" />
+    <ClInclude Include="includes\menu\menugame.hh" />
+    <ClInclude Include="includes\menu\menuhelp.hh" />
     <ClInclude Include="includes\menu\menuhigh.hh" />
+    <ClInclude Include="includes\menu\menuvid.hh" />
     <ClInclude Include="includes\menu\menuyn.hh" />
     <ClInclude Include="includes\mstream.hh" />
     <ClInclude Include="includes\math.hh" />

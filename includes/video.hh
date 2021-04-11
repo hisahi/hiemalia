@@ -22,6 +22,16 @@ struct VideoMessage {
     int todo_;
 };
 
+class VideoConfig : public ConfigSection {
+  public:
+    VideoConfig() noexcept : ConfigSection("Video") {}
+
+    void load(ConfigSectionStore store) override;
+    void save(ConfigSectionStore store) const override;
+
+    bool fullScreen{false};
+};
+
 class VideoEngine : public Module, MessageHandler<VideoMessage> {
   public:
     std::string name() const noexcept { return name_; }
@@ -41,11 +51,17 @@ class VideoEngine : public Module, MessageHandler<VideoMessage> {
 
     void frame(const SplinterBuffer& sbuf);
     void sync();
+    void readConfig();
+
+    bool isFullScreen();
+    bool canSetFullScreen();
 
     void gotMessage(const VideoMessage& msg);
+    inline const ConfigSectionPtr<VideoConfig>& getConfig() { return config_; }
 
   private:
     std::shared_ptr<VideoModule> video_;
+    ConfigSectionPtr<VideoConfig> config_;
     static inline const std::string name_ = "VideoEngine";
     static inline const std::string role_ = "video engine";
 };

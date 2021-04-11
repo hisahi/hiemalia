@@ -56,6 +56,9 @@ class AudioModuleSDLMixer2 : public AudioModule {
   public:
     std::string name() const noexcept { return name_; }
 
+    inline bool canPlayMusic() { return true; }
+    inline bool canPlaySound() { return true; }
+
     void tick();
     void pause();
     void resume();

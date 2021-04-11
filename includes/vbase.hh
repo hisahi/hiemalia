@@ -26,11 +26,15 @@ class VideoModule : public Module {
     virtual std::string name() const noexcept = 0;
     std::string role() const noexcept { return role_; }
 
+    virtual bool canSetFullscreen() = 0;
+
     virtual void frame() = 0;
     virtual void blank() = 0;
     virtual void draw(const SplinterBuffer& buffer) = 0;
     virtual void blit() = 0;
     virtual void sync() = 0;
+    virtual bool isFullScreen() = 0;
+    virtual void setFullScreen(bool flag) = 0;
 
     DELETE_COPY(VideoModule);
     INHERIT_MOVE(VideoModule, Module);

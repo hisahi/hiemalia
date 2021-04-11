@@ -213,6 +213,18 @@
     <ClCompile Include="src\game\nameentr.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\menu\menuvid.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menu\menugame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\gconfig.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menu\menuhelp.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\abase.hh">
@@ -507,6 +519,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\sort.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\menu\menugame.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\menu\menuvid.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gconfig.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\menu\menuhelp.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -31,6 +31,9 @@ struct Color {
     uint8_t g;  // 0-255
     uint8_t b;  // 0-255
     uint8_t a;  // 0-255
+
+    // video.cc
+    static Color fromHSVA(float h, float s, float v, float a);
 };
 
 struct Splinter {

@@ -21,6 +21,12 @@ EnemyTurret::EnemyTurret(const Point3D& p, Orient3D r)
     rot = r + Orient3D::atPlayer;
     pos += rot.rotate(model().vertices[9]);
     fireTime_ = random(std::uniform_real_distribution<float>(0, 1));
+    exCol_.emplace_back(baseModel_.collision, Point3D(0, 0, 0), baseRot_,
+                        scale);
+}
+
+const std::vector<ExtraCollision>& EnemyTurret::exCollisions() const {
+    return exCol_;
 }
 
 void EnemyTurret::aim(GameWorld& w, float delta) {
@@ -40,14 +46,6 @@ void EnemyTurret::aim(GameWorld& w, float delta) {
     targetRot_ = newActual;
 }
 
-bool EnemyTurret::hitsInternal(const GameObject& obj) const {
-    return EnemyObject::hitsInternal(obj) ||
-           (obj.hasCollision() &&
-            collidesModelModel(*baseModel_.collision,
-                               Renderer3D::getModelMatrix(pos, baseRot_, scale),
-                               obj.collision(), obj.getObjectModelMatrix()));
-}
-
 void EnemyTurret::render(SplinterBuffer& sbuf, Renderer3D& r3d) {
     EnemyObject::render(sbuf, r3d);
     r3d.renderModel(sbuf, pos, baseRot_, scale, *baseModel_.model);
@@ -60,10 +58,13 @@ void EnemyTurret::onSpawn(GameWorld& w) {
 bool EnemyTurret::doEnemyTick(GameWorld& w, float delta) {
     if (w.isPlayerAlive()) {
         aim(w, delta);
-        if (rot != targetRot_) rot = rot.tendTo(targetRot_, delta);
+        if (rot != targetRot_) {
+            rot = rot.tendTo(targetRot_, delta);
+            exCol_[0].rot.yaw = baseRot_.yaw = rot.yaw;
+        }
         if (rot == targetRot_)
-            fireTime_ += delta * 2.0f * w.difficulty().getFireRateMultiplier();
-        if (pos.z - w.getPlayerPosition().z > getCollisionRadius() * 0.5) {
+            fireTime_ += delta * 1.5f * w.difficulty().getFireRateMultiplier();
+        if (pos.z - w.getPlayerPosition().z > getCollisionRadius()) {
             while (fireTime_ >= 1) {
                 fireBulletAtPlayer<EnemyBulletSimple>(w, model().vertices[10],
                                                       0.5f, 0.0625f, 1.0f);

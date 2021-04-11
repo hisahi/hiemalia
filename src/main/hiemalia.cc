@@ -82,7 +82,7 @@ void Hiemalia::run() {
         m.video->sync();
         sbuf.clear();
         m.audio->tick();
-        m.input->update(state_);
+        m.input->update(state_, tickInterval);
         m.logic->run(state_, tickInterval);
     }
     LOG_DEBUG("Finishing up");

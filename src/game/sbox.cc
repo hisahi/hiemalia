@@ -47,15 +47,20 @@ SlidingBox::SlidingBox(const Point3D& pos, coord_t dir, coord_t x0, coord_t y0,
             break;
     }
     if (inv) {
-        pmin_ = &pos_;
-        pmax_ = &p1_;
-        pos_ = p0_;
+        if (isY_ && p0_.x < p1_.x) std::swap(p0_.x, p1_.x);
+        if (!isY_ && p0_.y < p1_.y) std::swap(p0_.y, p1_.y);
+        pmin_ = &pos_, pmax_ = &p0_;
     } else {
-        pmin_ = &p0_;
-        pmax_ = &pos_;
-        pos_ = p1_;
+        if (isY_ && p0_.x > p1_.x) std::swap(p0_.x, p1_.x);
+        if (!isY_ && p0_.y > p1_.y) std::swap(p0_.y, p1_.y);
+        pmin_ = &p0_, pmax_ = &pos_;
     }
+    pos_ = p1_;
+    lerpA_ = isY_ ? p0_.y : p0_.x;
+    lerpB_ = isY_ ? p1_.y : p1_.x;
     collision_->shapes.push_back(CollisionShape::cuboid(*pmin_, *pmax_));
+    collision_->shapes[0].p.z = std::min(z0, z1);
+    collision_->shapes[0].p1.z = std::max(z0, z1);
 }
 
 void SlidingBox::absorbBullets(GameWorld& w, const BulletList& list) {
@@ -95,6 +100,7 @@ void SlidingBox::updateBox() {
     v[13].x = x0, v[13].y = y0;
     v[14].x = x0, v[14].y = y1;
     v[15].x = x1, v[15].y = y0;
+
     collision_->shapes[0].p.x = x0;
     collision_->shapes[0].p.y = y0;
     collision_->shapes[0].p1.x = x1;
@@ -104,10 +110,7 @@ void SlidingBox::updateBox() {
 coord_t SlidingBox::getLerp(coord_t t) { return t >= 0.5 ? 2 - t * 2 : t * 2; }
 
 bool SlidingBox::update(GameWorld& w, float delta) {
-    if (isY_)
-        pos_.y = lerp(p0_.y, getLerp(x_), p1_.y);
-    else
-        pos_.x = lerp(p0_.x, getLerp(x_), p1_.x);
+    (isY_ ? pos_.y : pos_.x) = lerp(lerpA_, getLerp(x_), lerpB_);
     updateBox();
     x_ = frac(x_ + v_ * delta);
     if (w.isPlayerAlive() && w.getPlayer().hits(*this)) {
@@ -135,6 +138,6 @@ SlidingBoxSine::SlidingBoxSine(const Point3D& pos, coord_t dir, coord_t x0,
     : SlidingBox(pos, dir, x0, y0, z0, x1, y1, z1, t, p) {}
 
 coord_t SlidingBoxSine::getLerp(coord_t t) {
-    return (sin(t / numbers::TAU<coord_t>) + 1) * 0.5;
+    return (sin(t * numbers::TAU<coord_t>) + 1) * 0.5;
 }
 }  // namespace hiemalia

@@ -18,15 +18,16 @@ class EnemyTurret : public EnemyObject {
     bool doEnemyTick(GameWorld& w, float delta);
     void render(SplinterBuffer& sbuf, Renderer3D& r3d);
     void onSpawn(GameWorld& w);
+    const std::vector<ExtraCollision>& exCollisions() const;
 
   protected:
     bool onEnemyDeath(GameWorld& w, bool killedByPlayer);
-    bool hitsInternal(const GameObject& obj) const;
 
   private:
     void aim(GameWorld& w, float delta);
     float fireTime_{0};
     LoadedGameModel baseModel_;
+    std::vector<ExtraCollision> exCol_;
     Orient3D baseRot_;
     Orient3D targetRot_;
 };

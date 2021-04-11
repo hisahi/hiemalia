@@ -22,6 +22,12 @@ class EnemyBulletSimple : public BulletObject {
     float getDamage() const;
     virtual ~EnemyBulletSimple() {}
 };
+
+class EnemyBulletSimpleScalable : public EnemyBulletSimple {
+  public:
+    EnemyBulletSimpleScalable(const Point3D& pos, const Point3D& v,
+                              coord_t scale);
+};
 };  // namespace hiemalia
 
 #endif  // M_GAME_EBULLET_HH

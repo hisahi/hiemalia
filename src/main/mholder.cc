@@ -23,19 +23,22 @@ ModuleHolder::ModuleHolder(const std::shared_ptr<HostModule> host,
     : input(Module::create_unique<InputEngine>(host, state)),
       video(Module::create_unique<VideoEngine>(host, state)),
       audio(Module::create_unique<AudioEngine>(host, state)),
-      logic(Module::create_unique<LogicEngine>()) {}
+      logic(Module::create_unique<LogicEngine>()),
+      gconfig(state.config.section<GameConfig>()) {}
 
 ModuleHolder::ModuleHolder(ModuleHolder &&move) noexcept
     : input(std::move(move.input)),
       video(std::move(move.video)),
       audio(std::move(move.audio)),
-      logic(std::move(move.logic)) {}
+      logic(std::move(move.logic)),
+      gconfig(std::move(move.gconfig)) {}
 
 ModuleHolder &ModuleHolder::operator=(ModuleHolder &&move) noexcept {
     input = std::move(move.input);
     video = std::move(move.video);
     audio = std::move(move.audio);
     logic = std::move(move.logic);
+    gconfig = std::move(move.gconfig);
     return *this;
 }
 

@@ -22,7 +22,7 @@ static std::uniform_real_distribution<coord_t> rd_negative(-0.5, 0.0);
 static std::uniform_real_distribution<coord_t> rd_positive(0.0, 0.5);
 static std::uniform_real_distribution<coord_t> rd_both(-0.5, 0.5);
 static std::uniform_real_distribution<coord_t> rd_speed(0.25, 0.5);
-static std::uniform_real_distribution<coord_t> rd_rotation(-24.0, 24.0);
+static std::uniform_real_distribution<coord_t> rd_rotation(-48.0, 48.0);
 
 static std::uniform_real_distribution<coord_t>& pick_distribution(coord_t m) {
     if (m < 0)

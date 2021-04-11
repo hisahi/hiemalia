@@ -13,6 +13,7 @@
 
 #include "audio.hh"
 #include "defs.hh"
+#include "gconfig.hh"
 #include "hbase.hh"
 #include "input.hh"
 #include "logic.hh"
@@ -25,6 +26,7 @@ struct ModuleHolder {
     std::shared_ptr<VideoEngine> video;
     std::shared_ptr<AudioEngine> audio;
     std::shared_ptr<LogicEngine> logic;
+    ConfigSectionPtr<GameConfig> gconfig;
 
     ModuleHolder(const std::shared_ptr<HostModule> host, GameState& state);
     ~ModuleHolder() noexcept {}

@@ -4,39 +4,39 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// menu/menuyn.hh: header file for menuyn.cc (yes/no menu)
+// menu/menugame.hh: header file for menugame.cc (game option menu)
 
-#ifndef M_MENUYN_HH
-#define M_MENUYN_HH
+#ifndef M_MENUGAME_HH
+#define M_MENUGAME_HH
 
 #include <string>
 
+#include "audio.hh"
 #include "defs.hh"
 #include "menu.hh"
+#include "mholder.hh"
 #include "symbol.hh"
 
 namespace hiemalia {
-class MenuYesNo : public Menu {
+class MenuGameOptions : public Menu {
   public:
     std::string name() const noexcept { return name_; }
-    std::string title() const noexcept { return title_; }
+    std::string title() const noexcept { return "Game"; }
 
     void begin(GameState& state);
     void select(int index, symbol_t id);
     void end(GameState& state);
 
-    DELETE_COPY(MenuYesNo);
-    DEFAULT_MOVE(MenuYesNo);
-    MenuYesNo(MenuHandler& handler, symbol_t id, const std::string& title);
-    ~MenuYesNo() noexcept;
+    DELETE_COPY(MenuGameOptions);
+    DEFAULT_MOVE(MenuGameOptions);
+    MenuGameOptions(MenuHandler& handler,
+                    const std::shared_ptr<ModuleHolder>& holder);
+    ~MenuGameOptions() noexcept;
 
   private:
-    static inline const std::string name_ = "MenuYesNo";
-    symbol_t myId_;
-    std::string title_;
-    bool yes_{false};
-    bool no_{false};
+    static inline const std::string name_ = "MenuGameOptions";
+    std::shared_ptr<ModuleHolder> holder_;
 };
 };  // namespace hiemalia
 
-#endif  // M_MENUYN_HH
+#endif  // M_MENUGAME_HH

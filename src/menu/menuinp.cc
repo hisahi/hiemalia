@@ -43,16 +43,6 @@ void MenuInputDevices::select(int index, symbol_t id) {
 
 void MenuInputDevices::end(GameState& state) {}
 
-MenuInputDevices::MenuInputDevices(MenuInputDevices&& move) noexcept
-    : Menu(std::move(move)), holder_(std::move(move.holder_)) {}
-
-MenuInputDevices& MenuInputDevices::operator=(
-    MenuInputDevices&& move) noexcept {
-    Menu::operator=(std::move(move));
-    holder_ = std::move(move.holder_);
-    return *this;
-}
-
 MenuInputDevices::MenuInputDevices(MenuHandler& handler,
                                    const std::shared_ptr<ModuleHolder>& holder)
     : Menu(handler), holder_(holder) {}

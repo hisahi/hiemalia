@@ -126,7 +126,7 @@ end
 # .
 begin
 move 0,0.875
-line 0,0,1
+line 0,1
 end
 
 # /

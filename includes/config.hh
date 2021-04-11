@@ -22,14 +22,9 @@ namespace hiemalia {
 
 class ConfigStore {
   public:
-    void validate_key(const std::string& key) const {
-        if (key.find('=') != std::string::npos)
-            throw std::invalid_argument("key");
-    }
-
     template <typename T>
     bool has(const std::string& key) const {
-        validate_key(key);
+        validateKey(key);
         typename decltype(map_)::const_iterator it = map_.find(key);
         if (it == map_.end()) return false;
 
@@ -38,13 +33,13 @@ class ConfigStore {
 
     template <typename T>
     T get(const std::string& key) const {
-        validate_key(key);
+        validateKey(key);
         return get<T>(key, {});
     }
 
     template <typename T>
     T get(const std::string& key, T def) const {
-        validate_key(key);
+        validateKey(key);
         typename decltype(map_)::const_iterator it = map_.find(key);
         if (it == map_.end() || !canFromString<T>(it->second)) return def;
 
@@ -53,7 +48,7 @@ class ConfigStore {
 
     template <typename T>
     void set(const std::string& key, T value) {
-        validate_key(key);
+        validateKey(key);
         map_.insert_or_assign(key, toString<T>(value));
     }
 
@@ -62,6 +57,11 @@ class ConfigStore {
     void writeStream(std::ostream& stream) const;
 
   private:
+    inline void validateKey(const std::string& key) const {
+        if (key.find('=') != std::string::npos)
+            throw std::invalid_argument("key");
+    }
+
     std::map<std::string, std::string> map_;
 };
 

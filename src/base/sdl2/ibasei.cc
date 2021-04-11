@@ -50,9 +50,10 @@ InputModuleSDL2& InputModuleSDL2::operator=(InputModuleSDL2&& move) noexcept {
     return *this;
 }
 
-void InputModuleSDL2::update(ControlState& state, MenuControlState& menustate) {
+void InputModuleSDL2::update(ControlState& state, MenuControlState& menustate,
+                             float interval) {
     state.update(state_);
-    menustate.update(menustate_);
+    menustate.update(menustate_, interval);
 }
 
 bool InputModuleSDL2::hasInputDevice(InputDevice device) const {

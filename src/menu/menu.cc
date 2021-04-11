@@ -80,12 +80,20 @@ void Menu::goUp() {
     if (i < 0) i = 0;
     do {
         --i;
-        if (i < 0) i += options_.size();
+        if (i < 0) {
+            if (index_ < 0) {
+                i = index_;
+                break;
+            }
+            i += options_.size();
+        }
         if (options_[i].enabled) {
             options_[i].dirty = true;
             break;
         }
     } while (i != index_);
+
+    if (i < 0) return;
 
     if (i != index_) {
         options_[index_].dirty = true;
@@ -102,12 +110,20 @@ void Menu::goDown() {
     if (i < 0) i = 0;
     do {
         ++i;
-        if (i >= static_cast<int>(options_.size())) i = 0;
+        if (i >= static_cast<int>(options_.size())) {
+            if (index_ < 0) {
+                i = index_;
+                break;
+            }
+            i = 0;
+        }
         if (options_[i].enabled) {
             options_[i].dirty = true;
             break;
         }
     } while (i != index_);
+
+    if (i < 0) return;
 
     if (i != index_) {
         options_[index_].dirty = true;
@@ -120,6 +136,10 @@ void Menu::goDown() {
 }
 
 void Menu::doLeft() {
+    if (index_ < 0) {
+        pageLeft();
+        return;
+    }
     MenuOption& option = options_[index_];
     if (option.type == MenuOptionType::Select) {
         MenuOptionSelect& sel = option.asSelect();
@@ -127,10 +147,16 @@ void Menu::doLeft() {
         option.dirty = true;
         select(index_, option.id);
         sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
+    } else {
+        pageLeft();
     }
 }
 
 void Menu::doRight() {
+    if (index_ < 0) {
+        pageRight(false);
+        return;
+    }
     MenuOption& option = options_[index_];
     if (option.type == MenuOptionType::Select) {
         MenuOptionSelect& sel = option.asSelect();
@@ -138,6 +164,8 @@ void Menu::doRight() {
         option.dirty = true;
         select(index_, option.id);
         sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
+    } else {
+        pageRight(false);
     }
 }
 
@@ -179,11 +207,13 @@ void Menu::gotMenuMessage(const MenuMessage& msg) {
     switch (msg.type) {
         case MenuMessageType::MenuUp:
             goUp();
-            sendMessage(AudioMessage::playSound(SoundEffect::MenuChange));
+            if (index_ >= 0)
+                sendMessage(AudioMessage::playSound(SoundEffect::MenuChange));
             break;
         case MenuMessageType::MenuDown:
             goDown();
-            sendMessage(AudioMessage::playSound(SoundEffect::MenuChange));
+            if (index_ >= 0)
+                sendMessage(AudioMessage::playSound(SoundEffect::MenuChange));
             break;
         case MenuMessageType::MenuLeft:
             doLeft();
@@ -192,7 +222,10 @@ void Menu::gotMenuMessage(const MenuMessage& msg) {
             doRight();
             break;
         case MenuMessageType::MenuSelect:
-            if (index_ >= 0) doSelect();
+            if (index_ >= 0)
+                doSelect();
+            else
+                pageRight(true);
             break;
         case MenuMessageType::MenuExit:
             exiting_ = exitable_;
@@ -254,7 +287,7 @@ void Menu::runMenu(GameState& state, float interval) {
                              menuTitleColor, t);
     }
 
-    specialRender(state.sbuf, interval);
+    renderSpecial(state.sbuf, interval);
     coord_t x1 = -0.75;
     coord_t x2 = 0.75;
     for (int i = 0, e = options_.size(); i < e; ++i) {

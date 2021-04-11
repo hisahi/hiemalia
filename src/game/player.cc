@@ -153,7 +153,7 @@ void PlayerObject::doFire(GameWorld& w) {
     Matrix3D mat = getObjectModelMatrix();
     Point3D leftTurret = mat.project(Point3D(-2, 0.0625, 0.25) * 0.0625);
     Point3D rightTurret = mat.project(Point3D(2, 0.0625, 0.25) * 0.0625);
-    Point3D target = pos + Point3D(0, 0, farObjectBackPlane);
+    Point3D target = pos + Point3D(0, 0, farObjectBackPlane * 1.5);
     w.firePlayerBullet<PlayerBullet>(leftTurret,
                                      (target - leftTurret).normalize() * 6);
     w.firePlayerBullet<PlayerBullet>(rightTurret,

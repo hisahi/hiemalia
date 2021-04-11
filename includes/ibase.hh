@@ -25,7 +25,8 @@ class InputModule : public Module {
     virtual std::string name() const noexcept = 0;
     std::string role() const noexcept { return role_; }
 
-    virtual void update(ControlState& state, MenuControlState& menustate) = 0;
+    virtual void update(ControlState& state, MenuControlState& menustate,
+                        float interval) = 0;
     virtual bool hasInputDevice(InputDevice device) const = 0;
     virtual InputControlModule& getInputDevice(InputDevice device) = 0;
     // these MUST be destroyed before/with the InputModule!

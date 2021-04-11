@@ -24,7 +24,8 @@ class InputModuleSDL2 : public InputModule {
   public:
     std::string name() const noexcept { return name_; }
 
-    void update(ControlState& state, MenuControlState& menustate);
+    void update(ControlState& state, MenuControlState& menustate,
+                float interval);
     bool hasInputDevice(InputDevice device) const;
     InputControlModule& getInputDevice(InputDevice device);
     InputControlModule& addInputDevice(

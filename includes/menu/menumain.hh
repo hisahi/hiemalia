@@ -12,6 +12,7 @@
 #include <array>
 #include <string>
 
+#include "cbuffer.hh"
 #include "defs.hh"
 #include "menu.hh"
 #include "mholder.hh"
@@ -27,11 +28,10 @@ class MenuMain : public Menu {
     void begin(GameState& state);
     void select(int index, symbol_t id);
     void end(GameState& state);
-    void specialRender(SplinterBuffer& sbuf, float interval);
+    void renderSpecial(SplinterBuffer& sbuf, float interval);
 
     DELETE_COPY(MenuMain);
-    MenuMain(MenuMain&& move) noexcept;
-    MenuMain& operator=(MenuMain&& move) noexcept;
+    DEFAULT_MOVE(MenuMain);
     MenuMain(MenuHandler& handler, const std::shared_ptr<ModuleHolder>& holder);
     ~MenuMain() noexcept;
 
@@ -43,7 +43,7 @@ class MenuMain : public Menu {
     RendererText rendtext_;
     Renderer3D rend_;
     coord_t angle_{0};
-    std::array<coord_t, 512> rots_;
+    CircularBuffer<coord_t, 512> rots_;
     ShapeSheet logoSheet;
     SplinterBuffer copyright;
 

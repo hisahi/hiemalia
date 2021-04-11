@@ -32,6 +32,8 @@ class SlidingBox : public GameObject {
     Point3D* pmin_;
     Point3D* pmax_;
     bool isY_;
+    coord_t lerpA_;
+    coord_t lerpB_;
     std::shared_ptr<Model> model_;
     std::shared_ptr<ModelCollision> collision_;
     virtual coord_t getLerp(coord_t t);

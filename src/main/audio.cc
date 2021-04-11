@@ -104,4 +104,8 @@ void AudioEngine::gotMessage(const AudioMessage& msg) {
             break;
     }
 }
+
+bool AudioEngine::canPlayMusic() { return audio_->canPlayMusic(); }
+
+bool AudioEngine::canPlaySound() { return audio_->canPlaySound(); }
 }  // namespace hiemalia

@@ -58,6 +58,17 @@ inline bool updateInputEdge(bool& next, bool& prev, bool state) {
     return next;
 }
 
+class RepeatControl {
+  public:
+    // input.cc
+    bool update(bool down, float interval);
+
+  private:
+    bool lastDown_{false};
+    float repeatTime_{0};
+    int repeatCount_{0};
+};
+
 struct ControlState {
     bool up{false};
     bool down{false};
@@ -139,23 +150,23 @@ struct MenuControlState {
         throw 0;
     }
 
-    MenuControlState& update(const MenuControlState& state) {
+    MenuControlState& update(const MenuControlState& state, float interval) {
         updateInputEdge(exit, exit_prev_, state.exit);
         updateInputEdge(select, select_prev_, state.select);
-        updateInputEdge(up, up_prev_, state.up);
-        updateInputEdge(down, down_prev_, state.down);
-        updateInputEdge(left, left_prev_, state.left);
-        updateInputEdge(right, right_prev_, state.right);
+        up = up_ramp_.update(state.up, interval);
+        down = down_ramp_.update(state.down, interval);
+        left = left_ramp_.update(state.left, interval);
+        right = right_ramp_.update(state.right, interval);
         return *this;
     }
 
   private:
-    bool exit_prev_{false};
-    bool select_prev_{false};
-    bool up_prev_{false};
-    bool down_prev_{false};
-    bool left_prev_{false};
-    bool right_prev_{false};
+    bool exit_prev_;
+    bool select_prev_;
+    RepeatControl up_ramp_;
+    RepeatControl down_ramp_;
+    RepeatControl left_ramp_;
+    RepeatControl right_ramp_;
 };
 
 using control_t = int;

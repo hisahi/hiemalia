@@ -42,13 +42,6 @@ void MenuPause::end(GameState& state) {
     }
 }
 
-MenuPause::MenuPause(MenuPause&& move) noexcept : Menu(std::move(move)) {}
-
-MenuPause& MenuPause::operator=(MenuPause&& move) noexcept {
-    Menu::operator=(std::move(move));
-    return *this;
-}
-
 MenuPause::MenuPause(MenuHandler& handler) : Menu(handler) {}
 
 MenuPause::~MenuPause() noexcept {}

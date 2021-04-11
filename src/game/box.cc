@@ -35,7 +35,7 @@ void Box::absorbBullets(GameWorld& w, const BulletList& list) {
 
 void Box::absorbEnemies(GameWorld& w, const EnemyList& list) {
     for (auto& e : list) {
-        if (e->hits(*this)) {
+        if (e->canHitWalls() && e->hits(*this)) {
             e->hitWall(w);
         }
     }

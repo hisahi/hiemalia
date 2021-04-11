@@ -39,7 +39,7 @@ class InputEngine : public Module {
 
     bool hasInputDevice(InputDevice device) const;
     InputControlModule& getInputDevice(InputDevice device);
-    void update(GameState& state);
+    void update(GameState& state, float interval);
 
   private:
     MenuControlState controlsmenu_;

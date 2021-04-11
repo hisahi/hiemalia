@@ -11,16 +11,44 @@
 
 #include <array>
 #include <string>
+#include <vector>
 
 #include "defs.hh"
+#include "lvector.hh"
 #include "menu.hh"
 #include "mholder.hh"
 #include "rend2d.hh"
-#include "rend3d.hh"
 #include "sbuf.hh"
 #include "scores.hh"
 
 namespace hiemalia {
+
+struct FireworkShard {
+    Point2D pos;
+    Point2D rot;
+    Point2D vpos;
+    Point2D vrot;
+};
+
+class Firework {
+  public:
+    Firework();
+    bool update(SplinterBuffer& sbuf, Renderer2D& rend, float interval);
+
+  private:
+    Point2D pos;
+    Point2D vel;
+    bool explode_{false};
+    Color explodeColor_;
+    float explodeAlpha_{1.0f};
+    float explodeFade_{1.0f};
+    float explodeSize_{1.0f};
+    std::vector<FireworkShard> explodePieces_;
+
+    void explode();
+    bool updateRocket(SplinterBuffer& sbuf, Renderer2D& rend, float interval);
+    bool updateExplode(SplinterBuffer& sbuf, Renderer2D& rend, float interval);
+};
 
 class NameEntry : public LogicModule, MessageHandler<MenuMessage> {
   public:
@@ -46,11 +74,15 @@ class NameEntry : public LogicModule, MessageHandler<MenuMessage> {
     HighScoreTable* table_;
     std::array<int, highScoreNameLength> name_;
     int index_{0};
+    int rank_{0};
     float t_{0};
     bool continue_{true};
     RendererText rendtext_;
+    Renderer2D rend2d_;
     SplinterBuffer maintext_;
     std::array<SplinterBuffer, highScoreNameLength> namebuf_;
+    std::array<bool, highScoreNameLength> nameok_{true, false, false};
+    LimitedVector<std::unique_ptr<Firework>, 64> fireworks_;
 
     void redrawChar(size_t i);
 };

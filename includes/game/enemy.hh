@@ -28,7 +28,9 @@ class EnemyObject : public GameObject, public ObjectDamageable {
                                  const Point3D& pointOfContact) {
         return true;
     }
+    inline bool canHitWalls() const { return canHitWalls_; }
     void kill(GameWorld& w);
+    bool hitBullet(GameWorld& w, float damage, const Point3D& pointOfContact);
     void hitWall(GameWorld& w);
     virtual ~EnemyObject() {}
 
@@ -44,6 +46,7 @@ class EnemyObject : public GameObject, public ObjectDamageable {
     void doExplodeBoss(GameWorld& w, const Model& m);
     void addScore(GameWorld& w, unsigned int score);
     void killPlayerOnContact(GameWorld& w);
+    inline void canHitWalls(bool flag) { canHitWalls_ = flag; }
 
     template <typename T, typename... Ts>
     void fireBullet(GameWorld& w, const Point3D& turret, const Point3D& dir,
@@ -67,6 +70,8 @@ class EnemyObject : public GameObject, public ObjectDamageable {
   private:
     bool alive_{true};
     bool killedByPlayer_{false};
+    bool canHitWalls_{false};
+    float sponge_{0.0f};
     void onDamage(GameWorld& w, float dmg, const Point3D& pointOfContact);
     void onDeath(GameWorld& w);
 };

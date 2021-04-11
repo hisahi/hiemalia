@@ -12,25 +12,71 @@
 #include <vector>
 
 #include "defs.hh"
+#include "math.hh"
 #include "sbuf.hh"
 
 namespace hiemalia {
-struct ShapePoint {
+struct Point2D {
     coord_t x;
     coord_t y;
 
-    ShapePoint(coord_t x, coord_t y) : x(x), y(y) {}
+    Point2D(coord_t x, coord_t y) : x(x), y(y) {}
+
+    inline Point2D operator-() const { return Point2D(-x, -y); }
+
+    inline Point2D& operator+=(const Point2D& r) noexcept {
+        x += r.x;
+        y += r.y;
+        return *this;
+    }
+    inline Point2D& operator-=(const Point2D& r) noexcept {
+        x -= r.x;
+        y -= r.y;
+        return *this;
+    }
+    inline Point2D& operator*=(const coord_t& f) noexcept {
+        x *= f;
+        y *= f;
+        return *this;
+    }
+
+    friend inline Point2D operator+(Point2D a, const Point2D& b) noexcept {
+        return a += b;
+    }
+    friend inline Point2D operator-(Point2D a, const Point2D& b) noexcept {
+        return a -= b;
+    }
+    friend inline Point2D operator*(const coord_t& f, Point2D a) noexcept {
+        return a *= f;
+    }
+    friend inline Point2D operator*(Point2D a, const coord_t& f) noexcept {
+        return a *= f;
+    }
+
+    inline bool operator==(const Point2D& b) const noexcept {
+        return x == b.x && y == b.y;
+    }
+    inline bool operator!=(const Point2D& b) const noexcept {
+        return !(*this == b);
+    }
+
+    inline coord_t lengthSquared() const noexcept { return x * x + y * y; }
+    inline coord_t length() const noexcept { return sqrt(lengthSquared()); }
+    inline Point2D normalize() const {
+        dynamic_assert(x != 0 || y != 0, "attempt to normalize zero vector!");
+        return *this * (1 / sqrt(lengthSquared()));
+    }
 };
 
 struct ShapeFragment {
     Color color;
-    ShapePoint start;
-    std::vector<ShapePoint> points;
+    Point2D start;
+    std::vector<Point2D> points;
 
-    ShapeFragment(const Color& color, ShapePoint start)
+    ShapeFragment(const Color& color, Point2D start)
         : color(color), start(start), points() {}
-    ShapeFragment(const Color& color, ShapePoint start,
-                  std::vector<ShapePoint>&& points) noexcept
+    ShapeFragment(const Color& color, Point2D start,
+                  std::vector<Point2D>&& points) noexcept
         : color(color), start(start), points(std::move(points)) {}
 };
 

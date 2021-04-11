@@ -29,6 +29,8 @@ class Renderer2D {
   public:
     void renderShape(SplinterBuffer& buf, coord_t x, coord_t y,
                      const Shape& s) const;
+    void renderLine(SplinterBuffer& buf, coord_t x, coord_t y, const Color& clr,
+                    const Point2D& a, const Point2D& b) const;
     void renderShapeColor(SplinterBuffer& buf, coord_t x, coord_t y,
                           const Color& clr, const Shape& s) const;
     coord_t projectX(coord_t x, coord_t y) const {

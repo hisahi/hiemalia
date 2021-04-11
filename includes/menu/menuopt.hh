@@ -27,8 +27,7 @@ class MenuOptions : public Menu {
     void end(GameState& state);
 
     DELETE_COPY(MenuOptions);
-    MenuOptions(MenuOptions&& move) noexcept;
-    MenuOptions& operator=(MenuOptions&& move) noexcept;
+    DEFAULT_MOVE(MenuOptions);
     MenuOptions(MenuHandler& handler,
                 const std::shared_ptr<ModuleHolder>& holder);
     ~MenuOptions() noexcept;

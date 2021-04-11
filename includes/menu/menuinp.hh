@@ -27,8 +27,7 @@ class MenuInputDevices : public Menu {
     void end(GameState& state);
 
     DELETE_COPY(MenuInputDevices);
-    MenuInputDevices(MenuInputDevices&& move) noexcept;
-    MenuInputDevices& operator=(MenuInputDevices&& move) noexcept;
+    DEFAULT_MOVE(MenuInputDevices);
     MenuInputDevices(MenuHandler& handler,
                      const std::shared_ptr<ModuleHolder>& holder);
     ~MenuInputDevices() noexcept;

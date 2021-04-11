@@ -26,6 +26,9 @@ class AudioModule : public Module {
     virtual std::string name() const noexcept = 0;
     std::string role() const noexcept { return role_; }
 
+    virtual bool canPlayMusic() = 0;
+    virtual bool canPlaySound() = 0;
+
     virtual void tick() = 0;
     virtual void pause() = 0;
     virtual void resume() = 0;
@@ -59,6 +62,9 @@ class AudioModule : public Module {
 class AudioModuleNull : public AudioModule {
   public:
     inline std::string name() const noexcept { return name_; }
+
+    inline bool canPlayMusic() { return false; }
+    inline bool canPlaySound() { return false; }
 
     inline void tick() {}
     inline void pause() {}

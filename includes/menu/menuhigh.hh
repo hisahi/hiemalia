@@ -14,6 +14,8 @@
 #include "defs.hh"
 #include "menu.hh"
 #include "mholder.hh"
+#include "rend2d.hh"
+#include "rend3d.hh"
 #include "symbol.hh"
 
 namespace hiemalia {
@@ -25,7 +27,7 @@ class MenuHighScore : public Menu {
     void begin(GameState& state);
     void select(int index, symbol_t id);
     void end(GameState& state);
-    void specialRender(SplinterBuffer& sbuf, float interval);
+    void renderSpecial(SplinterBuffer& sbuf, float interval);
     void highlight(int index);
 
     DELETE_COPY(MenuHighScore);
@@ -42,8 +44,12 @@ class MenuHighScore : public Menu {
     void resetScores();
     HighScoreTable* table_;
     Renderer2D rend2d_;
+    Renderer3D rend3d_;
+    std::shared_ptr<Model> donut_;
     int listIndex_{0};
     int highlightIndex_{-1};
+    float t_{0};
+    float bgr_{0};
 };
 };  // namespace hiemalia
 

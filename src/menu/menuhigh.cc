@@ -8,8 +8,10 @@
 
 #include "menu/menuhigh.hh"
 
+#include "assets.hh"
 #include "defs.hh"
 #include "logger.hh"
+#include "math.hh"
 #include "menu/menuyn.hh"
 #include "scores.hh"
 
@@ -25,7 +27,7 @@ enum Item : symbol_t {
 
 void MenuHighScore::begin(GameState& state) {
     option(MenuOption::label(index_to_symbol(0),
-                             "      Round/Stage                  "));
+                             "       Loop/Stage                  "));
     option(MenuOption::spacer(symbol_none));
     listIndex_ = options_.size();
     for (int i = 0, n = HighScoreTable::size; i < n; ++i) {
@@ -71,11 +73,18 @@ void MenuHighScore::select(int index, symbol_t id) {
 
 void MenuHighScore::end(GameState& state) {}
 
-void MenuHighScore::specialRender(SplinterBuffer& sbuf, float interval) {
+void MenuHighScore::renderSpecial(SplinterBuffer& sbuf, float interval) {
+    bgr_ = wrapAngle(bgr_ + interval * 0.2f);
+    rend3d_.renderModel(sbuf, Point3D(0, 0, 0.375),
+                        Orient3D(bgr_, sin(bgr_ * 2), 0), Point3D(1, 1, 1),
+                        *donut_);
+
     if (highlightIndex_ >= 0) {
-        rend2d_.renderShapeColor(sbuf, 0,
-                                 getMenuOptionY(highlightIndex_ + listIndex_),
-                                 Color{255, 255, 0, 224}, highlight_);
+        rend2d_.renderShapeColor(
+            sbuf, 0, getMenuOptionY(highlightIndex_ + listIndex_),
+            Color{255, 255, 0, static_cast<uint8_t>(176 + 64 * sin(t_))},
+            highlight_);
+        t_ = wrapAngle(t_ + interval);
     }
 }
 
@@ -83,19 +92,31 @@ MenuHighScore::MenuHighScore(MenuHighScore&& move) noexcept
     : Menu(std::move(move)),
       holder_(std::move(move.holder_)),
       table_(move.table_),
-      rend2d_(std::move(move.rend2d_)) {}
+      rend2d_(std::move(move.rend2d_)),
+      rend3d_(std::move(move.rend3d_)),
+      donut_(std::move(move.donut_)),
+      t_(move.t_),
+      bgr_(move.bgr_) {}
 
 MenuHighScore& MenuHighScore::operator=(MenuHighScore&& move) noexcept {
     Menu::operator=(std::move(move));
     holder_ = std::move(move.holder_);
     table_ = move.table_;
     rend2d_ = std::move(move.rend2d_);
+    rend3d_ = std::move(move.rend3d_);
+    donut_ = std::move(move.donut_);
+    t_ = move.t_;
+    bgr_ = move.bgr_;
     return *this;
 }
 
 MenuHighScore::MenuHighScore(MenuHandler& handler,
                              const std::shared_ptr<ModuleHolder>& holder)
-    : Menu(handler), holder_(holder), table_(nullptr) {}
+    : Menu(handler), holder_(holder), table_(nullptr) {
+    rend3d_.setCamera(Point3D(0, 0, 0), Orient3D(0, 0, 0),
+                      Point3D(1, 1, 1) * 0.25);
+    donut_ = getGameModel(GameModel::Donut).model;
+}
 
 MenuHighScore::~MenuHighScore() noexcept {}
 

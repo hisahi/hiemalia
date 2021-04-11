@@ -30,11 +30,11 @@ Color parseColor(std::string s) {
     return Color{r, g, b, a};
 }
 
-static ShapePoint parseShapePoint(std::string s, coord_t scale) {
+static Point2D parseShapePoint(std::string s, coord_t scale) {
     coord_t x = 0, y = 0;
     if (s_sscanf(s.c_str(), FMT_coord_t "," FMT_coord_t, &x, &y) < 2)
         never("Invalid point");
-    return ShapePoint(x * scale, y * scale);
+    return Point2D(x * scale, y * scale);
 }
 
 static ShapeSheet loadStream2D(std::istream& in) {

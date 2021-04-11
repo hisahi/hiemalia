@@ -10,12 +10,14 @@
 #define M_GAME_DIFFIC_HH
 
 #include "defs.hh"
+#include "gconfig.hh"
 
 namespace hiemalia {
 
 class GameDifficulty {
   public:
     GameDifficulty(float level);
+    GameDifficulty(GameDifficultyLevel level);
     float getDifficultyLevel() const;
     float getStageSpeedMultiplier() const;
     float getFireRateMultiplier() const;
@@ -26,6 +28,9 @@ class GameDifficulty {
 
   private:
     float level_;
+    float speed_;
+    float lead_;
+    float spew_;
 };
 
 };  // namespace hiemalia
