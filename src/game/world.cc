@@ -43,6 +43,15 @@ MoveRegion GameWorld::getPlayerMoveRegion() const {
     return getMoveRegionForZ(player->pos.z);
 }
 
+MoveRegion GameWorld::getPlayerMoveRegion0() const {
+    coord_t fz = player->pos.z * stageDivision - stageSectionOffset;
+    auto u = floatToWholeFrac<int>(fz);
+    if (u < 0) return getSectionById(stage->visible.front()).region;
+    if (u + 1 >= static_cast<int>(stage->visible.size()))
+        return getSectionById(stage->visible.back()).region;
+    return getSectionById(stage->visible[u]).region;
+}
+
 Orient3D GameWorld::getSectionRotation() const {
     int u =
         static_cast<int>(player->pos.z * stageDivision - stageSectionOffset);
@@ -52,7 +61,7 @@ Orient3D GameWorld::getSectionRotation() const {
 
 Point3D GameWorld::rotateInSection(Point3D v, coord_t z) const {
     int u = static_cast<int>(z * stageDivision - stageSectionOffset);
-    return Matrix3D::rotate(getSectionById(stage->visible[u]).rotation)
+    return Matrix3D3::rotate(getSectionById(stage->visible[u]).rotation)
         .project(v);
 }
 
@@ -65,6 +74,7 @@ void GameWorld::startNewStage() {
             GameDifficulty(difficulty_.getDifficultyLevel() * log<float>(2, 8));
         moveSpeedFac = difficulty_.getStageSpeedMultiplier();
     }
+    killed_ = 0;
     checkpoint = 0;
     resetStage(checkpoint);
 }
@@ -72,7 +82,6 @@ void GameWorld::startNewStage() {
 void GameWorld::resetStage(coord_t t) {
     player = std::make_unique<PlayerObject>(Point3D::origin);
     stage = std::make_unique<GameStage>(GameStage::load(stageNum));
-    progress = 0;
     progress_f = 0;
     sections = 0;
     moveSpeedBase = 0;
@@ -113,7 +122,6 @@ void GameWorld::drawStage(SplinterBuffer& sbuf, Renderer3D& r3d) {
 }
 
 void GameWorld::moveForwardSkip(coord_t dist) {
-    progress += dist;
     progress_f += dist;
     while (progress_f >= stageSectionLength) {
         progress_f -= stageSectionLength;
@@ -124,7 +132,6 @@ void GameWorld::moveForwardSkip(coord_t dist) {
     auto& obj = stage->spawns;
     unsigned u = sections + stageSpawnDistance * stageDivision;
     while (!obj.empty() && obj.front().shouldSpawn(u, progress_f)) {
-        obj.front().obj->onSpawn(*this);
         obj.front().obj->instant(*this);
         bossLevel = 0, bossSlideTime = 0;
         obj.pop_front();
@@ -133,13 +140,12 @@ void GameWorld::moveForwardSkip(coord_t dist) {
 
 void GameWorld::moveForward(coord_t dist) {
     if (!player) return;
-    progress += dist;
     progress_f += dist;
     player->move(0, 0, dist);
     while (progress_f >= stageSectionLength) {
         const coord_t moveDist = -stageSectionLength;
         progress_f -= stageSectionLength;
-        ++sections;
+        if (bossLevel == 0) ++sections;
         player->move(0, 0, moveDist);
         for (auto& obj : objects) obj->move(0, 0, moveDist);
         for (auto& obj : enemies) obj->move(0, 0, moveDist);
@@ -246,6 +252,8 @@ std::unique_ptr<PlayerObject>&& GameWorld::explodePlayer(
     return std::move(player);
 }
 
+void GameWorld::onEnemyKilled(const GameObject& obj) { ++killed_; }
+
 void GameWorld::explodeEnemy(GameObject& obj, const Model& model) {
     auto expl = std::make_shared<Explosion>(obj.pos, obj, 0.0, 0.0, 0.0, 2.0f);
     expl->adjustSpeed(4.0);
@@ -298,13 +306,18 @@ void GameWorld::endStage() {
     sendMessage(GameMessage::stageComplete());
 }
 
-coord_t GameWorld::pushBoss() {
+bool GameWorld::shouldGetNABonus() const { return killed_ <= bosses_; }
+
+coord_t GameWorld::pushBoss(std::initializer_list<section_t> bossLoop,
+                            coord_t v) {
     if (bossLevel++ == 0) {
         moveSpeedOverride = 0;
         moveSpeedVel = 1;
         bossSlideTime = 0;
+        stage->enterBossLoop(bossLoop);
     }
-    return std::exchange(moveSpeedDst, 0);
+    ++bosses_;
+    return std::exchange(moveSpeedDst, v);
 }
 
 void GameWorld::popBoss(coord_t x) {
@@ -312,6 +325,7 @@ void GameWorld::popBoss(coord_t x) {
     if (--bossLevel == 0) {
         moveSpeedVel = 0.25;
         bossSlideTime = 5;
+        stage->exitBossLoop();
         if (moveSpeedOverride > 0) moveSpeedDst = moveSpeedOverride;
     }
 }

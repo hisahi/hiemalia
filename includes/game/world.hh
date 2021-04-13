@@ -54,6 +54,7 @@ class GameWorld {
     void go(float interval);
     void moveForward(coord_t dist);
     MoveRegion getPlayerMoveRegion() const;
+    MoveRegion getPlayerMoveRegion0() const;
     MoveRegion getMoveRegionForZ(coord_t z) const;
     PlayerObject& getPlayer();
     bool isPlayerAlive() const;
@@ -80,8 +81,10 @@ class GameWorld {
     void endStage();
     void updateMoveSpeedInput(ControlState& controls, float delta);
     const GameDifficulty& difficulty() const noexcept;
-    coord_t pushBoss();
+    coord_t pushBoss(std::initializer_list<section_t> bossLoop, coord_t v);
     void popBoss(coord_t x);
+    void onEnemyKilled(const GameObject& obj);
+    bool shouldGetNABonus() const;
 
     template <typename T, typename... Ts>
     void spawn(Point3D p, Ts&&... args) {
@@ -119,7 +122,6 @@ class GameWorld {
     BulletList enemyBullets;
     unsigned sections{0};
     coord_t checkpoint{0};
-    coord_t progress{0};
     coord_t progress_f{0};
     coord_t moveSpeedBase{0};
     coord_t moveSpeedDst{1.25};
@@ -135,6 +137,8 @@ class GameWorld {
     int cycle{1};
     bool nextStage{true};
     int lives{3};
+    int bosses_{0};
+    int killed_{0};
     Point3D lastPos{0, 0, 0};
     GameDifficulty difficulty_;
 

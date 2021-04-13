@@ -37,7 +37,10 @@ bool EnemyGunboat::doEnemyTick(GameWorld& w, float delta) {
 
 bool EnemyGunboat::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
-    if (killedByPlayer) addScore(w, 200);
+    if (killedByPlayer) {
+        addScore(w, 200);
+        w.onEnemyKilled(*this);
+    }
     return true;
 }
 

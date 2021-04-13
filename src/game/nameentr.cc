@@ -150,6 +150,8 @@ void NameEntry::redrawChar(size_t i) {
         6.0f);
 }
 
+static const std::array<int, 10> rankDividers = { 1, 2, 2, 3, 3, 3, 4, 4, 5, 5 };
+
 bool NameEntry::run(GameState& state, float interval) {
     if (!continue_) {
         std::array<char, highScoreNameLength> n;
@@ -171,7 +173,7 @@ bool NameEntry::run(GameState& state, float interval) {
                                                            interval);
                                     }),
                      fireworks_.end());
-    if (random(rd_firework_spawn) < (HighScoreTable::size / rank_))
+    if (random(rd_firework_spawn) < (HighScoreTable::size / rankDividers[rank_]))
         fireworks_.emplace_back(std::make_unique<Firework>());
 
     t_ = wrapAngle(t_ + interval * 4);

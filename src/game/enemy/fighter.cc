@@ -28,7 +28,10 @@ bool EnemyFighter::doEnemyTick(GameWorld& w, float delta) {
 
 bool EnemyFighter::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
-    if (killedByPlayer) addScore(w, 500);
+    if (killedByPlayer) {
+        addScore(w, 500);
+        w.onEnemyKilled(*this);
+    }
     return true;
 }
 

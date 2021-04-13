@@ -24,12 +24,13 @@ class Obstacle : public GameObject {
     bool update(GameWorld& w, float delta);
     virtual ~Obstacle() {}
 
-  private:
+  protected:
     bool alive_{true};
     void absorbBullets(GameWorld& w, const BulletList& list);
+    void absorbEnemies(GameWorld& w, const EnemyList& list);
 };
 
-class DestroyableObstacle : public GameObject, public ObjectDamageable {
+class DestroyableObstacle : public Obstacle, public ObjectDamageable {
   public:
     DestroyableObstacle(const Point3D& pos, const Orient3D& rot,
                         GameModel model, float health);
@@ -37,10 +38,8 @@ class DestroyableObstacle : public GameObject, public ObjectDamageable {
     virtual ~DestroyableObstacle() {}
 
   private:
-    bool alive_{true};
     void onDamage(GameWorld& w, float dmg, const Point3D& pointOfContact);
     void onDeath(GameWorld& w);
-    void absorbBullets(GameWorld& w, const BulletList& list);
 };
 };  // namespace hiemalia
 

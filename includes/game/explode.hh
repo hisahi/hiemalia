@@ -12,17 +12,20 @@
 #include "assets.hh"
 #include "controls.hh"
 #include "game/object.hh"
+#include "lvector.hh"
 #include "model.hh"
 
 namespace hiemalia {
-struct ExplosionShard {
+inline constexpr size_t maxShards = 128;
+
+/*struct ExplosionShard {
     Point3D p0;
     Point3D p1;
     Point3D pos;
     Orient3D rot;
     Point3D dpos;
     Orient3D drot;
-};
+};*/
 
 class Explosion : public GameObject {
   public:
@@ -36,7 +39,13 @@ class Explosion : public GameObject {
     void onMove(const Point3D& newPos);
 
   private:
-    std::vector<ExplosionShard> shards_;
+    LimitedVector<Point3D, maxShards> shards_p0_;
+    LimitedVector<Point3D, maxShards> shards_p1_;
+    LimitedVector<Point3D, maxShards> shards_pos_;
+    LimitedVector<Point3D, maxShards> shards_dpos_;
+    LimitedVector<Orient3D, maxShards> shards_rot_;
+    LimitedVector<Orient3D, maxShards> shards_drot_;
+
     Model tempModel_;
     float alpha_{1};
     float explspeed_{1};
@@ -51,6 +60,8 @@ class Explosion : public GameObject {
     inline bool collideSphereInternal(const Point3D& p, coord_t r2) const {
         return false;
     }
+
+    void cutShards(coord_t xm, coord_t ym, coord_t zm);
 };
 };  // namespace hiemalia
 

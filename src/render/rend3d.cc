@@ -23,33 +23,33 @@ Matrix3D Matrix3D::translate(const Point3D& p) {
     return Matrix3D(1, 0, 0, p.x, 0, 1, 0, p.y, 0, 0, 1, p.z, 0, 0, 0, 1);
 }
 
-Matrix3D Matrix3D::scale(const Point3D& s) {
-    return Matrix3D(s.x, 0, 0, 0, 0, s.y, 0, 0, 0, 0, s.z, 0, 0, 0, 0, 1);
+Matrix3D3 Matrix3D3::scale(const Point3D& s) {
+    return Matrix3D3(s.x, 0, 0, 0, s.y, 0, 0, 0, s.z);
 }
 
-Matrix3D Matrix3D::scale(coord_t s) {
-    return Matrix3D(s, 0, 0, 0, 0, s, 0, 0, 0, 0, s, 0, 0, 0, 0, 1);
+Matrix3D3 Matrix3D3::scale(coord_t s) {
+    return Matrix3D3(s, 0, 0, 0, s, 0, 0, 0, s);
 }
 
-Matrix3D Matrix3D::yaw(coord_t theta) {
+Matrix3D3 Matrix3D3::yaw(coord_t theta) {
     coord_t s = sin(theta), c = cos(theta);
-    return Matrix3D(c, 0, s, 0, 0, 1, 0, 0, -s, 0, c, 0, 0, 0, 0, 1);
+    return Matrix3D3(c, 0, s, 0, 1, 0, -s, 0, c);
 }
 
-Matrix3D Matrix3D::pitch(coord_t theta) {
+Matrix3D3 Matrix3D3::pitch(coord_t theta) {
     coord_t s = sin(theta), c = cos(theta);
-    return Matrix3D(1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1);
+    return Matrix3D3(1, 0, 0, 0, c, s, 0, -s, c);
 }
 
-Matrix3D Matrix3D::roll(coord_t theta) {
+Matrix3D3 Matrix3D3::roll(coord_t theta) {
     coord_t s = sin(theta), c = cos(theta);
-    return Matrix3D(c, -s, 0, 0, s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    return Matrix3D3(c, -s, 0, s, c, 0, 0, 0, 1);
 }
 
-Matrix3D Matrix3D::rotate(const Orient3D& r) {
-    Matrix3D m = r.yaw != 0 ? Matrix3D::yaw(r.yaw) : Matrix3D::identity();
-    if (r.pitch != 0) m *= Matrix3D::pitch(r.pitch);
-    if (r.roll != 0) m *= Matrix3D::roll(r.roll);
+Matrix3D3 Matrix3D3::rotate(const Orient3D& r) {
+    Matrix3D3 m = r.yaw != 0 ? Matrix3D3::yaw(r.yaw) : Matrix3D3::identity();
+    if (r.pitch != 0) m *= Matrix3D3::pitch(r.pitch);
+    if (r.roll != 0) m *= Matrix3D3::roll(r.roll);
     return m;
 }
 
@@ -75,6 +75,18 @@ Point3D Vector3D::toCartesian() const {
     dynamic_assert(wf > 0, "negative w -- unexpected degenerate case");
     return Point3D(x * wf, y * wf, z * wf);
 }
+
+Vector3D Matrix3D3::project(const Vector3D& v) const {
+    coord_t x = v.x, y = v.y, z = v.z, w = v.w;
+    return Vector3D(x * m[0] + y * m[1] + z * m[2],
+                    x * m[3] + y * m[4] + z * m[5],
+                    x * m[6] + y * m[7] + z * m[8], w);
+}
+
+Point3D Matrix3D3::project(const Point3D& p) const {
+    return project(Vector3D(p)).toCartesian();
+}
+
 Vector3D Matrix3D::project(const Vector3D& v) const {
     coord_t x = v.x, y = v.y, z = v.z, w = v.w;
     return Vector3D(x * m[0] + y * m[1] + z * m[2] + w * m[3],
@@ -89,8 +101,8 @@ Point3D Matrix3D::project(const Point3D& p) const {
 
 Matrix3D Renderer3D::getModelMatrix(Point3D p, Orient3D r, Point3D s) {
     Matrix3D wrld = Matrix3D::translate(p);
-    wrld *= Matrix3D::rotate(r);
-    wrld *= Matrix3D::scale(s);
+    wrld *= Matrix3D3::rotate(r);
+    wrld *= Matrix3D3::scale(s);
     return wrld;
 }
 
@@ -101,7 +113,7 @@ coord_t Orient3D::offBy(const Orient3D& other) const noexcept {
 }
 
 Point3D Orient3D::rotate(const Point3D& vector, coord_t scale) const noexcept {
-    return Matrix3D::rotate(*this).project(vector) * scale;
+    return Matrix3D3::rotate(*this).project(vector) * scale;
 }
 
 Orient3D Orient3D::toPolar(const Point3D& p, coord_t roll) noexcept {
@@ -132,10 +144,10 @@ void Renderer3D::setCamera(Point3D pos, Orient3D rot, Point3D scale) {
     view = Matrix3D(s_fov, 0, 0, 0, 0, s_fov, 0, 0, 0, 0, wherever_you_are,
                     near * wherever_you_are, 0, 0, 1, 0);
     // view. in reverse order from the model matrix!
-    view *= Matrix3D::scale(scale);
-    if (rot.roll != 0) view *= Matrix3D::roll(-rot.roll);
-    if (rot.pitch != 0) view *= Matrix3D::pitch(-rot.pitch);
-    if (rot.yaw != 0) view *= Matrix3D::yaw(-rot.yaw);
+    view *= Matrix3D3::scale(scale);
+    if (rot.roll != 0) view *= Matrix3D3::roll(-rot.roll);
+    if (rot.pitch != 0) view *= Matrix3D3::pitch(-rot.pitch);
+    if (rot.yaw != 0) view *= Matrix3D3::yaw(-rot.yaw);
     view *= Matrix3D::translate(-pos);
 }
 

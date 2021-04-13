@@ -49,7 +49,10 @@ void EnemyWave::onMove(const Point3D& newPos) {
 
 bool EnemyWave::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
-    if (killedByPlayer) addScore(w, 300);
+    if (killedByPlayer) {
+        addScore(w, 300);
+        w.onEnemyKilled(*this);
+    }
     return true;
 }
 }  // namespace hiemalia

@@ -70,6 +70,92 @@ struct Vector3D {
     }
 };
 
+struct Matrix3D3 {
+    coord_t m[9];
+
+    Matrix3D3() : m{0} {}
+    Matrix3D3(coord_t a00, coord_t a01, coord_t a02, coord_t a10, coord_t a11,
+              coord_t a12, coord_t a20, coord_t a21, coord_t a22)
+        : m{a00, a01, a02, a10, a11, a12, a20, a21, a22} {}
+
+    inline coord_t& operator[](size_t i) { return m[i]; }
+    inline const coord_t& operator[](size_t i) const { return m[i]; }
+
+    inline static Matrix3D3 identity() {
+        return Matrix3D3({1, 0, 0, 0, 1, 0, 0, 0, 1});
+    }
+
+    static Matrix3D3 rotate(const Orient3D& r);
+    static Matrix3D3 scale(const Point3D& s);
+    static Matrix3D3 scale(coord_t s);
+    static Matrix3D3 yaw(coord_t theta);
+    static Matrix3D3 pitch(coord_t theta);
+    static Matrix3D3 roll(coord_t theta);
+
+    Point3D project(const Point3D& p) const;
+    Vector3D project(const Vector3D& v) const;
+
+    inline bool operator==(const Matrix3D3& r) const {
+        for (size_t i = 0; i < 9; ++i)
+            if (m[i] != r.m[i]) return false;
+        return true;
+    }
+
+    inline bool operator!=(const Matrix3D3& r) const { return !(*this == r); }
+
+    inline Matrix3D3& operator+=(const Matrix3D3& r) {
+        m[0] += r[0];
+        m[1] += r[1];
+        m[2] += r[2];
+        m[3] += r[3];
+        m[4] += r[4];
+        m[5] += r[5];
+        m[6] += r[6];
+        m[7] += r[7];
+        m[8] += r[8];
+        return *this;
+    }
+    inline Matrix3D3& operator-=(const Matrix3D3& r) {
+        m[0] -= r[0];
+        m[1] -= r[1];
+        m[2] -= r[2];
+        m[3] -= r[3];
+        m[4] -= r[4];
+        m[5] -= r[5];
+        m[6] -= r[6];
+        m[7] -= r[7];
+        m[8] -= r[8];
+        return *this;
+    }
+    inline Matrix3D3& operator*=(const Matrix3D3& r) {
+        *this = *this * r;
+        return *this;
+    }
+
+    inline Matrix3D3 operator-() const {
+        return Matrix3D3(-m[0], -m[1], -m[2], -m[3], -m[4], -m[5], -m[6], -m[7],
+                         -m[8]);
+    }
+
+    friend inline Matrix3D3 operator+(Matrix3D3 a, const Matrix3D3& b) {
+        return a += b;
+    }
+    friend inline Matrix3D3 operator-(Matrix3D3 a, const Matrix3D3& b) {
+        return a -= b;
+    }
+    friend inline Matrix3D3 operator*(const Matrix3D3& a, const Matrix3D3& b) {
+        return Matrix3D3(a.m[0] * b.m[0] + a.m[1] * b.m[3] + a.m[2] * b.m[6],
+                         a.m[0] * b.m[1] + a.m[1] * b.m[4] + a.m[2] * b.m[7],
+                         a.m[0] * b.m[2] + a.m[1] * b.m[5] + a.m[2] * b.m[8],
+                         a.m[3] * b.m[0] + a.m[4] * b.m[3] + a.m[5] * b.m[6],
+                         a.m[3] * b.m[1] + a.m[4] * b.m[4] + a.m[5] * b.m[7],
+                         a.m[3] * b.m[2] + a.m[4] * b.m[5] + a.m[5] * b.m[8],
+                         a.m[6] * b.m[0] + a.m[7] * b.m[3] + a.m[8] * b.m[6],
+                         a.m[6] * b.m[1] + a.m[7] * b.m[4] + a.m[8] * b.m[7],
+                         a.m[6] * b.m[2] + a.m[7] * b.m[5] + a.m[8] * b.m[8]);
+    }
+};
+
 struct Matrix3D {
     coord_t m[16];
 
@@ -89,12 +175,6 @@ struct Matrix3D {
     }
 
     static Matrix3D translate(const Point3D& p);
-    static Matrix3D rotate(const Orient3D& r);
-    static Matrix3D scale(const Point3D& s);
-    static Matrix3D scale(coord_t s);
-    static Matrix3D yaw(coord_t theta);
-    static Matrix3D pitch(coord_t theta);
-    static Matrix3D roll(coord_t theta);
 
     Point3D project(const Point3D& p) const;
     Vector3D project(const Vector3D& v) const;
@@ -149,6 +229,10 @@ struct Matrix3D {
         *this = *this * r;
         return *this;
     }
+    inline Matrix3D& operator*=(const Matrix3D3& r) {
+        *this = *this * r;
+        return *this;
+    }
 
     inline Matrix3D operator-() const {
         return Matrix3D(-m[0], -m[1], -m[2], -m[3], -m[4], -m[5], -m[6], -m[7],
@@ -195,6 +279,21 @@ struct Matrix3D {
                             a.m[14] * b.m[10] + a.m[15] * b.m[14],
                         a.m[12] * b.m[3] + a.m[13] * b.m[7] +
                             a.m[14] * b.m[11] + a.m[15] * b.m[15]);
+    }
+    friend inline Matrix3D operator*(const Matrix3D& a, const Matrix3D3& b) {
+        return Matrix3D(
+            a.m[0] * b.m[0] + a.m[1] * b.m[3] + a.m[2] * b.m[6],
+            a.m[0] * b.m[1] + a.m[1] * b.m[4] + a.m[2] * b.m[7],
+            a.m[0] * b.m[2] + a.m[1] * b.m[5] + a.m[2] * b.m[8], a.m[3],
+            a.m[4] * b.m[0] + a.m[5] * b.m[3] + a.m[6] * b.m[6],
+            a.m[4] * b.m[1] + a.m[5] * b.m[4] + a.m[6] * b.m[7],
+            a.m[4] * b.m[2] + a.m[5] * b.m[5] + a.m[6] * b.m[8], a.m[7],
+            a.m[8] * b.m[0] + a.m[9] * b.m[3] + a.m[10] * b.m[6],
+            a.m[8] * b.m[1] + a.m[9] * b.m[4] + a.m[10] * b.m[7],
+            a.m[8] * b.m[2] + a.m[9] * b.m[5] + a.m[10] * b.m[8], a.m[11],
+            a.m[12] * b.m[0] + a.m[13] * b.m[3] + a.m[14] * b.m[6],
+            a.m[12] * b.m[1] + a.m[13] * b.m[4] + a.m[14] * b.m[7],
+            a.m[12] * b.m[2] + a.m[13] * b.m[5] + a.m[14] * b.m[8], a.m[15]);
     }
 };
 

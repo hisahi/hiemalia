@@ -46,7 +46,10 @@ bool EnemyVolcano::doEnemyTick(GameWorld& w, float delta) {
 
 bool EnemyVolcano::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
-    if (killedByPlayer) addScore(w, 250);
+    if (killedByPlayer) {
+        addScore(w, 250);
+        w.onEnemyKilled(*this);
+    }
     return true;
 }
 

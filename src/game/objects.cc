@@ -19,6 +19,7 @@
 #include "game/checkpnt.hh"
 #include "game/enemy/all.hh"
 #include "game/object.hh"
+#include "game/obstacle.hh"
 #include "game/sbox.hh"
 #include "game/setspeed.hh"
 #include "game/stageend.hh"
@@ -117,6 +118,16 @@ std::shared_ptr<GameObject> makeArgPropObject(const Point3D& p,
     return makeArgPropObject_<T, Ts...>(p, v, prop, I{});
 }
 
+template <GameModel V>
+std::shared_ptr<GameObject> makeObstacleObject(const Point3D& p,
+                                               const std::string& prop) {
+    coord_t sx = 0, sy = 0, sz = 0;
+    if (s_sscanf(prop.c_str(), FMT_coord_t " " FMT_coord_t " " FMT_coord_t, &sx,
+                 &sy, &sz) < 3)
+        LOG_WARN("invalid angled object prop");
+    return std::make_shared<Obstacle>(p, Orient3D(sx, sy, sz), V);
+}
+
 using object_maker_t = std::function<std::shared_ptr<GameObject>(
     const Point3D&, const std::string&)>;
 
@@ -136,6 +147,13 @@ static const std::unordered_map<std::string, object_maker_t> nameMap = {
     {"turret", makeAngleObject<EnemyTurret>},
     {"boss0", makeStandardObject<EnemyBoss0>},
     {"boss1", makeStandardObject<EnemyBoss1>},
+    {"cavep0", makeObstacleObject<GameModel::CavePillar0>},
+    {"cavep1", makeObstacleObject<GameModel::CavePillar1>},
+    {"cavep2", makeObstacleObject<GameModel::CavePillar2>},
+    {"column0", makeObstacleObject<GameModel::Column0>},
+    {"column1", makeObstacleObject<GameModel::Column1>},
+    {"column2", makeObstacleObject<GameModel::Column2>},
+    {"column3", makeObstacleObject<GameModel::Column3>},
 };
 
 std::shared_ptr<GameObject> loadObjectSpawn(Point3D p, const std::string& name,

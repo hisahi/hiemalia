@@ -74,7 +74,6 @@ MenuInputControls::MenuInputControls(
     : Menu(handler),
       holder_(holder),
       title_(pair.name),
-      device_(pair.value),
       module_(module) {}
 
 MenuInputControls::~MenuInputControls() noexcept {}

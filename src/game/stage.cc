@@ -35,6 +35,11 @@ GameStage::GameStage(std::vector<section_t>&& sections, int loopLength,
 }
 
 void GameStage::nextSection() {
+    if (inBoss_) {
+        visible.push_back(bossLoop_[inBossIndex_]);
+        inBossIndex_ = (inBossIndex_ + 1) % bossLoop_.size();
+        return;
+    }
     if (nextSection_ >= sections.size()) {
         visible.push_back(sectionsLoop[nextSectionLoop_]);
         nextSectionLoop_ = (nextSectionLoop_ + 1) % sectionsLoop.size();
@@ -58,18 +63,19 @@ void GameStage::drawStage(SplinterBuffer& sbuf, Renderer3D& r3d,
     Point3D p = Point3D(0, 0, stageSectionOffset * stageSectionLength - offset);
     Point3D v = Point3D(0, 0, stageSectionLength);
     Orient3D r = Orient3D(0, 0, 0);
-    Matrix3D m;
+    // Matrix3D m;
     static const Point3D s = Point3D(1, 1, 1);
     for (auto section : visible) {
         const GameSection& sec = getSectionById(section);
-        m = Matrix3D::rotate(r);
+        // m = Matrix3D::rotate(r);
         r3d.renderModel(sbuf, p, r, s, sec.model);
-        if (i < 0)
+        /*if (i < 0)
             p += v;
         else {
             p += m.project(v);
             r += sec.rotation;
-        }
+        }*/
+        p += v;
         ++i;
     }
 }
@@ -156,6 +162,31 @@ static ObjectSpawn parseObject(std::string v, coord_t& dist, int lineNum,
         ptr, std::dynamic_pointer_cast<EnemyObject>(ptr) != nullptr, u, f};
 }
 
+static ObjectSpawn parseObjectZ(std::string v, coord_t& dist, int lineNum) {
+    coord_t x, y, z;
+    unsigned n, q;
+    q = s_sscanf(v.c_str(), FMT_coord_t " " FMT_coord_t " " FMT_coord_t "%n",
+                 &x, &y, &z, &n);
+    if (q < 3)
+        throw std::runtime_error("invalid object spawn on line number " +
+                                 std::to_string(lineNum));
+    std::string name = trimLeft(v.substr(n));
+    std::string prop = "";
+    size_t i = name.find_first_of(" \t");
+    if (i != std::string::npos) {
+        prop = name.substr(i + 1);
+        name = name.substr(0, i);
+    }
+
+    coord_t f = stageDivision * z - stageSpawnDistance;
+    unsigned u = floatToWholeFrac<unsigned>(f);
+    f *= stageSectionLength;
+    z = stageSpawnDistance;
+    auto ptr = loadObjectSpawn(Point3D(x, y, z), name, prop);
+    return ObjectSpawn{
+        ptr, std::dynamic_pointer_cast<EnemyObject>(ptr) != nullptr, u, f};
+}
+
 void GameStage::processSectionCommand(std::vector<section_t>& sections,
                                       std::string s) {
     static const decltype(std::string::npos) npos = std::string::npos;
@@ -203,17 +234,20 @@ GameStage GameStage::load(int stagenum) {
             loopLength = std::atoi(value.c_str());
         } else if (command == "o") {  // o <reldist> <x> <y> <z> <name> [prop]
             spawns.push_back(parseObject(value, offset, lineNum, false, false));
-        } else if (command == "or") {  // o <reldist> <x> <y> <z> <name> [prop]
+        } else if (command == "or") {  // or <reldist> <x> <y> <z> <name> [prop]
             spawns.push_back(parseObject(value, offset, lineNum, false, true));
-        } else if (command == "x") {  // o <reldist> <x> <y> <z> <name> [prop]
+        } else if (command == "x") {  // x <reldist> <x> <y> <z> <name> [prop]
             spawns.push_back(parseObject(value, offset, lineNum, true, false));
-        } else if (command == "xr") {  // o <reldist> <x> <y> <z> <name> [prop]
+        } else if (command == "xr") {  // xr <reldist> <x> <y> <z> <name> [prop]
             spawns.push_back(parseObject(value, offset, lineNum, true, true));
+        } else if (command == "z") {  // z <x> <y> <z> <name> [prop]
+            spawns.push_back(parseObjectZ(value, offset, lineNum));
         } else if (command == "od") {  // od <reldist>
             offset += fromString<coord_t>(value);
         }
     }
 
+    LOG_TRACE("sections=%d", sections.size());
     std::sort(spawns.begin(), spawns.end(),
               [&](const ObjectSpawn& a, const ObjectSpawn& b) {
                   return a.pos_i < b.pos_i ||
@@ -222,5 +256,15 @@ GameStage GameStage::load(int stagenum) {
     std::deque<ObjectSpawn> realSpawns(spawns.begin(), spawns.end());
     return GameStage(std::move(sections), loopLength, std::move(realSpawns));
 }
+
+void GameStage::enterBossLoop(std::initializer_list<section_t> loop) {
+    inBoss_ = true;
+    bossLoop_ = loop;
+    inBossIndex_ = 0;
+    dynamic_assert(bossLoop_.size() > 0,
+                   "must have at least one section to loop");
+}
+
+void GameStage::exitBossLoop() { inBoss_ = false; }
 
 }  // namespace hiemalia

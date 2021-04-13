@@ -60,6 +60,8 @@ struct GameStage {
     void drawStage(SplinterBuffer& sbuf, Renderer3D& r3d, coord_t offset);
     coord_t getObjectBackPlane(coord_t offset) const;
     static GameStage load(int stagenum);
+    void enterBossLoop(std::initializer_list<section_t> loop);
+    void exitBossLoop();
 
   private:
     GameStage(std::vector<section_t>&& sections, int loopLength,
@@ -68,6 +70,9 @@ struct GameStage {
                                       std::string s);
     size_t nextSection_{0};
     size_t nextSectionLoop_{0};
+    bool inBoss_{false};
+    size_t inBossIndex_{0};
+    std::vector<section_t> bossLoop_;
 };
 };  // namespace hiemalia
 

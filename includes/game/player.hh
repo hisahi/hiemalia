@@ -41,7 +41,7 @@ class PlayerObject : public GameObject, public ObjectDamageable {
     void doWoundedBird(float delta);
     void inputsVelocity(float delta);
     void inputsAngles(float delta);
-    void checkBounds(const MoveRegion& r, GameWorld& w);
+    void checkBounds(const MoveRegion& r, const MoveRegion& r0, GameWorld& w);
     void doFire(GameWorld& w);
 };
 };  // namespace hiemalia

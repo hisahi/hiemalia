@@ -15,7 +15,7 @@ EnemyBulletSimple::EnemyBulletSimple(const Point3D& pos, const Point3D& v)
     : BulletObject(pos) {
     useGameModel(GameModel::BulletEnemy);
     vel = v;
-    rotvel = Orient3D(1.8, 1.2, 0.6) * 24;
+    rotvel = Orient3D(1.8, 1.2, 0.6) * 16;
 }
 
 bool EnemyBulletSimple::doBulletTick(GameWorld& w, float delta) {
@@ -43,6 +43,7 @@ EnemyBulletSimpleScalable::EnemyBulletSimpleScalable(const Point3D& pos,
                                                      coord_t scale)
     : EnemyBulletSimple(pos, v) {
     this->scale *= scale;
+    useGameModel(GameModel::BulletEnemy2);
 }
 
 }  // namespace hiemalia

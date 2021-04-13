@@ -24,9 +24,7 @@ class EnemyBoss1 : public EnemyObject {
   private:
     Orient3D trot{0, 0, 0};
     float fireTime_{0};
-    int fireCounter_{0};
     int wall_{0};
-    coord_t t_{0};
     coord_t speed_{-1};
 };
 };  // namespace hiemalia

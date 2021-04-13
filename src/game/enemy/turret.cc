@@ -79,7 +79,10 @@ bool EnemyTurret::doEnemyTick(GameWorld& w, float delta) {
 bool EnemyTurret::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
     w.explodeEnemy(*this, *baseModel_.model);
-    if (killedByPlayer) addScore(w, 400);
+    if (killedByPlayer) {
+        addScore(w, 400);
+        w.onEnemyKilled(*this);
+    }
     return true;
 }
 

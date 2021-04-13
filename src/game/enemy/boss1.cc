@@ -19,13 +19,13 @@ EnemyBoss1::EnemyBoss1(const Point3D& pos) : EnemyObject(pos, 150.0f) {
     fireTime_ = random(std::uniform_real_distribution<float>(0, 1));
 }
 
-void EnemyBoss1::onSpawn(GameWorld& w) { speed_ = w.pushBoss(); }
+void EnemyBoss1::onSpawn(GameWorld& w) { speed_ = w.pushBoss({40}, 0.5); }
 
 bool EnemyBoss1::doEnemyTick(GameWorld& w, float delta) {
     if (pos.z - getCollisionRadius() > stageSpawnDistance) return true;
     coord_t tx = w.getPlayerPosition().x * 0.5;
     coord_t ty = w.getPlayerPosition().y * 0.5;
-    coord_t tz = w.getPlayerPosition().z + 2.25;
+    coord_t tz = w.getPlayerPosition().z + 2.5;
     if (pos.x < tx)
         pos.x = std::min(tx, pos.x + delta * 0.0625);
     else if (pos.x > tx)
@@ -35,15 +35,18 @@ bool EnemyBoss1::doEnemyTick(GameWorld& w, float delta) {
     else if (pos.y > ty)
         pos.y = std::max(ty, pos.y - delta * 0.0625);
     if (pos.z < tz)
-        pos.z = std::min(tz, pos.z + delta * 0.25);
+        pos.z = std::min(tz, pos.z + delta * 0.75);
     else if (pos.z > tz)
-        pos.z = std::max(tz, pos.z - delta * 0.25);
+        pos.z = std::max(tz, pos.z - delta * 0.75);
     fireTime_ +=
         delta * (wall_ ? 3.6f : 0.6f) * w.difficulty().getFireRateMultiplier();
     killPlayerOnContact(w);
     if (w.isPlayerAlive()) {
         if (wall_ > 0) {
             while (fireTime_ >= 1 && wall_ > 0) {
+                if (wall_ == 11)
+                    fireBulletAtPlayer<EnemyBulletSimple>(
+                        w, model().vertices[0], 0.75f, 0.03125f, 0.03125f);
                 fireBullet<EnemyBulletSimpleScalable>(w, model().vertices[0],
                                                       Point3D(0, 0, -10), 2.5f,
                                                       0.0f, 0.5f);
@@ -81,7 +84,10 @@ bool EnemyBoss1::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplodeBoss(w);
     sendMessage(GameMessage::shakeCamera(0.125));
     if (speed_ >= 0) w.popBoss(speed_);
-    if (killedByPlayer) addScore(w, 2500);
+    if (killedByPlayer) {
+        addScore(w, 2500);
+        w.onEnemyKilled(*this);
+    }
     return true;
 }
 

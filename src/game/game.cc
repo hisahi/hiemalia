@@ -257,8 +257,17 @@ void GameMain::doStageCompleteTick(GameState& state, float interval) {
         ++bonusIndex_;
         bonus_ += timeBonus;
     }
-    if (timerCrossesP(timer, interval, 1.5) && w.stageNum == stageCount) {
-        const unsigned completeBonus_ = 5000;
+    if (timerCrossesP(timer, interval, 1.5) && w.shouldGetNABonus()) {
+        const unsigned naBonus_ = 10000;
+        font_.drawTextLineLeft(textscreen_, -0.75, getBonusY(bonusIndex_),
+                               white, "NONAGGRESSION BONUS", 1);
+        font_.drawTextLineRight(textscreen_, 0.75, getBonusY(bonusIndex_),
+                                white, std::to_string(naBonus_), 1);
+        bonus_ += naBonus_;
+        ++bonusIndex_;
+    }
+    if (timerCrossesP(timer, interval, 2) && w.stageNum == stageCount) {
+        const unsigned completeBonus_ = 7500;
         font_.drawTextLineLeft(textscreen_, -0.75, getBonusY(bonusIndex_),
                                white, "COMPLETE BONUS", 1);
         font_.drawTextLineRight(textscreen_, 0.75, getBonusY(bonusIndex_),
@@ -266,14 +275,14 @@ void GameMain::doStageCompleteTick(GameState& state, float interval) {
         bonus_ += completeBonus_;
         ++bonusIndex_;
     }
-    if (timerCrossesP(timer, interval, 2)) {
+    if (timerCrossesP(timer, interval, 2.5)) {
         font_.drawTextLineLeft(textscreen_, -0.75, getBonusY(bonusIndex_),
                                white, "TOTAL BONUS", 1);
         font_.drawTextLineRight(textscreen_, 0.75, getBonusY(bonusIndex_),
                                 white, std::to_string(bonus_), 1);
         ++bonusIndex_;
     }
-    if (timerCrossesP(timer, interval, 3)) {
+    if (timerCrossesP(timer, interval, 3.5)) {
         ++bonusIndex_;
         font_.drawTextLineLeft(textscreen_, -0.75, getBonusY(bonusIndex_),
                                white, "OLD SCORE", 1);
@@ -374,7 +383,6 @@ bool GameMain::run(GameState& state, float interval) {
         bool playerAlive = w.runPlayer(interval);
         const Point3D& p = w.getPlayerPosition();
         stageTime += interval;
-        w.drawStage(state.sbuf, r3d_);
         if (w.isPlayerAlive()) {
             auto& plr = w.player;
             envRot = w.getSectionRotation();
@@ -411,6 +419,7 @@ bool GameMain::run(GameState& state, float interval) {
                            c_scale);
             cameraShake_ = 0;
         }
+        w.drawStage(state.sbuf, r3d_);
         objectLateZ = w.getObjectBackPlane();
         processObjects(state, interval, w.objects);
         processObjects(state, interval, w.enemies);

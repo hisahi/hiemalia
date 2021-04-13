@@ -19,7 +19,7 @@ EnemyBoss0::EnemyBoss0(const Point3D& pos) : EnemyObject(pos, 75.0f) {
     fireTime_ = random(std::uniform_real_distribution<float>(0, 1));
 }
 
-void EnemyBoss0::onSpawn(GameWorld& w) { speed_ = w.pushBoss(); }
+void EnemyBoss0::onSpawn(GameWorld& w) { speed_ = w.pushBoss({39}, 0.333); }
 
 bool EnemyBoss0::doEnemyTick(GameWorld& w, float delta) {
     if (pos.z - getCollisionRadius() > stageSpawnDistance) return true;
@@ -34,7 +34,7 @@ bool EnemyBoss0::doEnemyTick(GameWorld& w, float delta) {
     killPlayerOnContact(w);
     if (w.isPlayerAlive() &&
         pos.z - w.getPlayerPosition().z > getCollisionRadius() * 0.5) {
-        const float speed = 0.75f;
+        const float speed = 0.625f;
         const float spew = 0.0f;
         const float lead = 0.5f;
         const float spread = 0.3f;
@@ -70,7 +70,10 @@ bool EnemyBoss0::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplodeBoss(w);
     sendMessage(GameMessage::shakeCamera(0.0625));
     if (speed_ >= 0) w.popBoss(speed_);
-    if (killedByPlayer) addScore(w, 2500);
+    if (killedByPlayer) {
+        addScore(w, 2500);
+        w.onEnemyKilled(*this);
+    }
     return true;
 }
 

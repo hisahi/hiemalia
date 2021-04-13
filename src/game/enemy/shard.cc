@@ -24,7 +24,10 @@ bool EnemyShard::doEnemyTick(GameWorld& w, float delta) {
 
 bool EnemyShard::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
-    if (killedByPlayer) addScore(w, 100);
+    if (killedByPlayer) {
+        addScore(w, 100);
+        w.onEnemyKilled(*this);
+    }
     return true;
 }
 

@@ -62,7 +62,6 @@ class MenuInputControls : public Menu, MessageHandler<InputMenuMessage> {
     static inline const std::string name_ = "MenuInputControls";
     std::shared_ptr<ModuleHolder> holder_;
     std::string title_;
-    InputDevice device_;
     std::reference_wrapper<InputControlModule> module_;
     int settingButton_{-1};
 

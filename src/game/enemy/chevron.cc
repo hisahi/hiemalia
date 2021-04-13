@@ -60,7 +60,10 @@ bool EnemyChevron::doEnemyTick(GameWorld& w, float delta) {
 
 bool EnemyChevron::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
-    if (killedByPlayer) addScore(w, 200);
+    if (killedByPlayer) {
+        addScore(w, 200);
+        w.onEnemyKilled(*this);
+    }
     return true;
 }
 };  // namespace hiemalia

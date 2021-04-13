@@ -23,6 +23,7 @@ static std::uniform_real_distribution<coord_t> rd_positive(0.0, 0.5);
 static std::uniform_real_distribution<coord_t> rd_both(-0.5, 0.5);
 static std::uniform_real_distribution<coord_t> rd_speed(0.25, 0.5);
 static std::uniform_real_distribution<coord_t> rd_rotation(-48.0, 48.0);
+static std::uniform_int_distribution<int> rd_split(0, 3);
 
 static std::uniform_real_distribution<coord_t>& pick_distribution(coord_t m) {
     if (m < 0)
@@ -59,6 +60,25 @@ static Orient3D getRandomRotation(coord_t xm, coord_t ym, coord_t zm) {
                     random(rd_rotation)};
 }
 
+void Explosion::cutShards(coord_t xm, coord_t ym, coord_t zm) {
+    float explspeedinv = 1.0f / explspeed_;
+    for (int i = 0, e = shards_p0_.size(); i < e; ++i) {
+        if ((shards_p1_[i] - shards_p0_[i]).lengthSquared() > 0.015625 &&
+            random(rd_split) != 0) {
+            shards_p0_[i] *= 0.5;
+            shards_p1_[i] *= 0.5;
+            shards_p0_.push_back(shards_p0_[i]);
+            shards_p1_.push_back(shards_p1_[i]);
+            shards_pos_.push_back(pos + shards_p0_[i]);
+            shards_dpos_.push_back(getRandomVelocity(xm, ym, zm) *
+                                   explspeedinv);
+            shards_rot_.push_back(rot);
+            shards_drot_.push_back(getRandomRotation(xm, ym, zm));
+            shards_pos_[i] += shards_p1_[i];
+        }
+    }
+}
+
 Explosion::Explosion(const Point3D& pos, const GameObject& o, coord_t xm,
                      coord_t ym, coord_t zm, float explspeed)
     : Explosion(pos, o, o.model(), xm, ym, zm, explspeed) {}
@@ -78,21 +98,28 @@ Explosion::Explosion(const Point3D& p, const GameObject& o, const Model& model,
             const Point3D& p0 = *prev;
             const Point3D& p1 = model.vertices[pi];
             Point3D c = Point3D::average(p0, p1);
-            shards_.push_back({p0 - c, p1 - c, pos + c, rot,
-                               getRandomVelocity(xm, ym, zm) * explspeedinv,
-                               getRandomRotation(xm, ym, zm)});
+            shards_p0_.push_back(p0 - c);
+            shards_p1_.push_back(p1 - c);
+            shards_pos_.push_back(pos + c);
+            shards_dpos_.push_back(getRandomVelocity(xm, ym, zm) *
+                                   explspeedinv);
+            shards_rot_.push_back(rot);
+            shards_drot_.push_back(getRandomRotation(xm, ym, zm));
             prev = &p1;
         }
     }
+
+    for (int i = 0; i < 3 && shards_p0_.size() <= maxShards / 2; ++i)
+        cutShards(xm, ym, zm);
 }
 
 bool Explosion::update(GameWorld& w, float delta) {
     alpha_ -= delta * 0.4f * explspeed_;
-    coord_t mul = std::pow(0.5, 1.0 / delta);
-    for (ExplosionShard& shard : shards_) {
-        shard.pos += shard.dpos * delta;
-        shard.rot += shard.drot * delta;
-        shard.drot *= mul;
+    // coord_t mul = std::pow(0.5, 1.0 / delta);
+    for (int i = 0, e = shards_pos_.size(); i < e; ++i) {
+        shards_pos_[i] += shards_dpos_[i] * delta;
+        shards_rot_[i] += shards_drot_[i] * delta;
+        // shards_drot_[i] *= mul;
     }
     tempModel_.shapes[0].color.a =
         static_cast<uint8_t>(255 * std::sqrt(alpha_));
@@ -100,24 +127,25 @@ bool Explosion::update(GameWorld& w, float delta) {
 }
 
 void Explosion::render(SplinterBuffer& sbuf, Renderer3D& r3d) {
-    for (ExplosionShard& shard : shards_) {
-        tempModel_.vertices[0] = shard.p0;
-        tempModel_.vertices[1] = shard.p1;
-        r3d.renderModel(sbuf, shard.pos, shard.rot, scale, tempModel_);
+    for (int i = 0, e = shards_pos_.size(); i < e; ++i) {
+        tempModel_.vertices[0] = shards_p0_[i];
+        tempModel_.vertices[1] = shards_p1_[i];
+        r3d.renderModel(sbuf, shards_pos_[i], shards_rot_[i], scale,
+                        tempModel_);
     }
 }
 
 void Explosion::adjustSpeed(coord_t s) {
-    for (ExplosionShard& shard : shards_) {
-        shard.dpos *= s;
-        shard.drot *= s;
+    for (int i = 0, e = shards_pos_.size(); i < e; ++i) {
+        shards_dpos_[i] *= s;
+        shards_drot_[i] *= s;
     }
 }
 
 void Explosion::onMove(const Point3D& p) {
     const Point3D& d = p - pos;
-    for (ExplosionShard& shard : shards_) {
-        shard.pos += d;
+    for (int i = 0, e = shards_pos_.size(); i < e; ++i) {
+        shards_pos_[i] += d;
     }
 }
 
