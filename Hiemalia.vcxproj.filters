@@ -225,6 +225,18 @@
     <ClCompile Include="src\menu\menuhelp.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\enemy\gunboat2.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\enemy\walker.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\enemy\spider.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\mbox.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\abase.hh">
@@ -531,6 +543,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\menu\menuhelp.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\enemy\walker.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\enemy\spider.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\enemy\gunboat2.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\mbox.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

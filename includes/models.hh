@@ -43,6 +43,11 @@ enum class GameModel {
     Column1,
     Column2,
     Column3,
+    EnemyGunboat2,
+    EnemyWalker,
+    EnemyWalkerLeg,
+    EnemySpider,
+    EnemySpiderLeg,
 
     EndOfModels
 };
@@ -53,8 +58,8 @@ inline auto modelFileNames = hiemalia::makeArray<std::string>({
     "fighter.3d", "wave.3d",    "turret.3d",   "turretp.3d", "turretc.3d",
     "sbox.3d",    "shipwcr.3d", "boss0.3d",    "boss1.3d",   "donut.3d",
     "cavep0.3d",  "cavep1.3d",  "cavep2.3d",   "column0.3d", "column1.3d",
-    "column2.3d", "column3.3d"
-    // more
+    "column2.3d", "column3.3d", "gunboat2.3d", "walker.3d",  "walkerl.3d",
+    "spider.3d",  "spiderl.3d",
 });
 };  // namespace hiemalia
 

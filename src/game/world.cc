@@ -25,6 +25,7 @@ constexpr int pointsPer1up = 50000;
 GameWorld::GameWorld(ConfigSectionPtr<GameConfig> config)
     : config_(config), difficulty_{config->difficulty} {
     moveSpeedFac = difficulty_.getStageSpeedMultiplier();
+    stageNum += 1;
 }
 
 MoveRegion GameWorld::getMoveRegionForZ(coord_t z) const {

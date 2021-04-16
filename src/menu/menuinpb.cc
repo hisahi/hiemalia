@@ -71,10 +71,7 @@ std::string MenuInputControls::getControlText(ControlInput input) {
 MenuInputControls::MenuInputControls(
     MenuHandler& handler, const std::shared_ptr<ModuleHolder>& holder,
     NamePair<InputDevice> pair, InputControlModule& module)
-    : Menu(handler),
-      holder_(holder),
-      title_(pair.name),
-      module_(module) {}
+    : Menu(handler), holder_(holder), title_(pair.name), module_(module) {}
 
 MenuInputControls::~MenuInputControls() noexcept {}
 

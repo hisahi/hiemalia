@@ -69,8 +69,8 @@ class AudioModuleSDLMixer2 : public AudioModule {
     bool isMusicPlaying();
 
     sound_t loadSound(const std::string& filename);
-    void playSound(sound_t soundId, float volume, float pan, size_t loopCount,
-                   int channel);
+    void playSound(sound_t soundId, float volume, float pan, float pitch,
+                   size_t loopCount, int channel);
     void stopSound(int channel);
     void stopSounds();
 

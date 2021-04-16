@@ -110,7 +110,8 @@ sound_t AudioModuleSDLMixer2::loadSound(const std::string &filename) {
 }
 
 void AudioModuleSDLMixer2::playSound(sound_t soundId, float volume, float pan,
-                                     size_t loopCount, int channel) {
+                                     float pitch, size_t loopCount,
+                                     int channel) {
     if (soundId < 0 || soundId >= static_cast<int>(sounds_.size())) {
         return;
     }

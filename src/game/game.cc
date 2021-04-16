@@ -258,7 +258,7 @@ void GameMain::doStageCompleteTick(GameState& state, float interval) {
         bonus_ += timeBonus;
     }
     if (timerCrossesP(timer, interval, 1.5) && w.shouldGetNABonus()) {
-        const unsigned naBonus_ = 10000;
+        const unsigned naBonus_ = 20000;
         font_.drawTextLineLeft(textscreen_, -0.75, getBonusY(bonusIndex_),
                                white, "NONAGGRESSION BONUS", 1);
         font_.drawTextLineRight(textscreen_, 0.75, getBonusY(bonusIndex_),
@@ -267,7 +267,7 @@ void GameMain::doStageCompleteTick(GameState& state, float interval) {
         ++bonusIndex_;
     }
     if (timerCrossesP(timer, interval, 2) && w.stageNum == stageCount) {
-        const unsigned completeBonus_ = 7500;
+        const unsigned completeBonus_ = 10000;
         font_.drawTextLineLeft(textscreen_, -0.75, getBonusY(bonusIndex_),
                                white, "COMPLETE BONUS", 1);
         font_.drawTextLineRight(textscreen_, 0.75, getBonusY(bonusIndex_),

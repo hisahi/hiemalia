@@ -38,6 +38,7 @@ void MenuMain::begin(GameState& state) {
     option(MenuOption::button(Item_Scores, "HIGH SCORES"));
     option(MenuOption::button(Item_Help, "HELP"));
     option(MenuOption::button(Item_Exit, "EXIT"));
+    sendMessage(AudioMessage::playMusic(MusicTrack::Ambience));
 }
 
 void MenuMain::select(int index, symbol_t id) {

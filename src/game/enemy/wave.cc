@@ -8,7 +8,9 @@
 
 #include "game/enemy/wave.hh"
 
+#include "audio.hh"
 #include "game/world.hh"
+#include "hiemalia.hh"
 #include "math.hh"
 
 namespace hiemalia {
@@ -36,6 +38,8 @@ bool EnemyWave::doEnemyTick(GameWorld& w, float delta) {
         const Point3D& p = model().vertices[13];
         const Point3D& d = Point3D(0, 0, -1);
         while (fireTime_ >= 1) {
+            sendMessage(AudioMessage::playSound(SoundEffect::EnemyFire2,
+                                                pos - w.getPlayerPosition()));
             fireBullet<EnemyBulletSimple>(w, p, d, 1.0f, 0.0f);
             fireTime_ -= 1;
         }
@@ -49,6 +53,8 @@ void EnemyWave::onMove(const Point3D& newPos) {
 
 bool EnemyWave::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
+    sendMessage(AudioMessage::playSound(SoundEffect::ExplodeMedium,
+                                        pos - w.getPlayerPosition()));
     if (killedByPlayer) {
         addScore(w, 300);
         w.onEnemyKilled(*this);

@@ -16,6 +16,7 @@
 
 namespace hiemalia {
 enum class MusicTrack {
+    Ambience,
     StageStart,
     Stage1,
     Stage2,
@@ -32,19 +33,20 @@ enum class SoundEffect {
     PlayerHit,
     PlayerFire,
     HighScoreEntered,
+    ExplodeSmall,
+    ExplodeMedium,
+    ExplodeLarge,
+    BulletFizz,
+    BulletDamage,
+    BulletNoDamage,
+    EnemyFire1,
+    EnemyFire2,
+    EnemyFire3,
+    EnemyFire4,
+    EnemyFire5,
     //
     EndOfSounds
 };
-
-inline auto soundEffectNames = hiemalia::makeArray<NamePair<SoundEffect>>({
-    {"mselect.wav", SoundEffect::MenuSelect},
-    {"mmove.wav", SoundEffect::MenuChange},
-    {"pause.wav", SoundEffect::Pause},
-    {"explode.wav", SoundEffect::PlayerExplode},
-    {"hit.wav", SoundEffect::PlayerHit},
-    {"fire.wav", SoundEffect::PlayerFire},
-    {"hiscore.wav", SoundEffect::HighScoreEntered},
-});
 
 };  // namespace hiemalia
 

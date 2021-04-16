@@ -9,8 +9,10 @@
 #include "game/enemy.hh"
 
 #include "assets.hh"
+#include "audio.hh"
 #include "collide.hh"
 #include "game/world.hh"
+#include "hiemalia.hh"
 #include "model.hh"
 #include "rend3d.hh"
 
@@ -42,7 +44,10 @@ bool EnemyObject::hitBullet(GameWorld& w, float dmg, const Point3D& c) {
     if (hitEnemy(w, dmg, c)) {
         killedByPlayer_ = true;
         damage(w, dmg, c);
-    }
+        if (alive_)
+            sendMessage(AudioMessage::playSound(SoundEffect::BulletDamage));
+    } else
+        sendMessage(AudioMessage::playSound(SoundEffect::BulletNoDamage));
     return alive_;
 }
 

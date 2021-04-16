@@ -18,6 +18,7 @@
 #include "game/box.hh"
 #include "game/checkpnt.hh"
 #include "game/enemy/all.hh"
+#include "game/mbox.hh"
 #include "game/object.hh"
 #include "game/obstacle.hh"
 #include "game/sbox.hh"
@@ -154,6 +155,12 @@ static const std::unordered_map<std::string, object_maker_t> nameMap = {
     {"column1", makeObstacleObject<GameModel::Column1>},
     {"column2", makeObstacleObject<GameModel::Column2>},
     {"column3", makeObstacleObject<GameModel::Column3>},
+    {"walker", makeArgPropObject<EnemyWalker, int>},
+    {"spider", makeStandardObject<EnemySpider>},
+    {"gunboat2", makeStandardObject<EnemyGunboat2>},
+    {"mbox", makeArgPropObject<MovingBox, int, coord_t, coord_t, coord_t,
+                               coord_t, coord_t, coord_t, coord_t, coord_t>},
+    //{"boss2", makeStandardObject<EnemyBoss2>},
 };
 
 std::shared_ptr<GameObject> loadObjectSpawn(Point3D p, const std::string& name,

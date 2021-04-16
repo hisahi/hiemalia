@@ -14,6 +14,27 @@
 #include "file.hh"
 
 namespace hiemalia {
+static auto soundEffectNames = hiemalia::makeArray<NamePair<SoundEffect>>({
+    {"mselect.wav", SoundEffect::MenuSelect},
+    {"mmove.wav", SoundEffect::MenuChange},
+    {"pause.wav", SoundEffect::Pause},
+    {"explode.wav", SoundEffect::PlayerExplode},
+    {"hit.wav", SoundEffect::PlayerHit},
+    {"fire.wav", SoundEffect::PlayerFire},
+    {"hiscore.wav", SoundEffect::HighScoreEntered},
+    {"expsmall.wav", SoundEffect::ExplodeSmall},
+    {"expmed.wav", SoundEffect::ExplodeMedium},
+    {"explarge.wav", SoundEffect::ExplodeLarge},
+    {"fizz.wav", SoundEffect::BulletFizz},
+    {"bhit.wav", SoundEffect::BulletDamage},
+    {"bnohit.wav", SoundEffect::BulletNoDamage},
+    {"fire1.wav", SoundEffect::EnemyFire1},
+    {"fire2.wav", SoundEffect::EnemyFire2},
+    {"fire3.wav", SoundEffect::EnemyFire3},
+    {"fire4.wav", SoundEffect::EnemyFire4},
+    {"fire5.wav", SoundEffect::EnemyFire5},
+});
+
 void AudioConfig::load(ConfigSectionStore store) {
     music = store.get<bool>("Music", music);
     sound = store.get<bool>("Sound", sound);
@@ -58,8 +79,14 @@ static int getLoopCount(MusicTrack track) {
 
 static int getSoundChannel(SoundEffect sfx) {
     switch (sfx) {
+        case SoundEffect::BulletFizz:
+            return 0;
         case SoundEffect::PlayerFire:
             return 1;
+        case SoundEffect::BulletDamage:
+            return 2;
+        case SoundEffect::BulletNoDamage:
+            return 3;
         default:
             return channelAny;
     }
@@ -74,7 +101,7 @@ void AudioEngine::gotMessage(const AudioMessage& msg) {
             const AudioMessageSoundEffect& e = msg.getSound();
             sound_t s = getAssets().sounds.at(static_cast<size_t>(e.sound));
             if (s != -1)
-                audio_->playSound(s, e.volume, e.pan, 1,
+                audio_->playSound(s, e.volume, e.pan, e.pitch, 1,
                                   getSoundChannel(e.sound));
             break;
         }

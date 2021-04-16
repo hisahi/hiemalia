@@ -8,7 +8,9 @@
 
 #include "game/enemy/gunboat.hh"
 
+#include "audio.hh"
 #include "game/world.hh"
+#include "hiemalia.hh"
 #include "math.hh"
 #include "random.hh"
 
@@ -27,8 +29,10 @@ bool EnemyGunboat::doEnemyTick(GameWorld& w, float delta) {
     if (w.isPlayerAlive() &&
         pos.z - w.getPlayerPosition().z > getCollisionRadius()) {
         while (fireTime_ >= 1) {
+            sendMessage(AudioMessage::playSound(SoundEffect::EnemyFire2,
+                                                pos - w.getPlayerPosition()));
             fireBulletAtPlayer<EnemyBulletSimple>(w, model().vertices[0],
-                                                  0.625f, 0.125f, 0.0f);
+                                                  0.625f, 0.25f, 0.0f);
             fireTime_ -= 1;
         }
     }
@@ -37,6 +41,8 @@ bool EnemyGunboat::doEnemyTick(GameWorld& w, float delta) {
 
 bool EnemyGunboat::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
+    sendMessage(AudioMessage::playSound(SoundEffect::ExplodeSmall,
+                                        pos - w.getPlayerPosition()));
     if (killedByPlayer) {
         addScore(w, 200);
         w.onEnemyKilled(*this);

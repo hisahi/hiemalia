@@ -8,7 +8,9 @@
 
 #include "game/enemy/volcano.hh"
 
+#include "audio.hh"
 #include "game/world.hh"
+#include "hiemalia.hh"
 
 namespace hiemalia {
 EnemyVolcano::EnemyVolcano(const Point3D& pos, const Orient3D& r,
@@ -29,6 +31,8 @@ bool EnemyVolcano::doEnemyTick(GameWorld& w, float delta) {
         const Point3D& d = rot.rotate(p, 1.0);
         static const coord_t spread = 0.25;
         while (fireTime_ >= 1) {
+            sendMessage(AudioMessage::playSound(SoundEffect::EnemyFire1,
+                                                pos - w.getPlayerPosition()));
             fireBullet<EnemyBulletSimple>(w, p, d, 0.5f, 0.0f);
             fireBullet<EnemyBulletSimple>(w, p, d + Point3D(spread, spread, 0),
                                           0.5f, 0.0f);
@@ -46,6 +50,8 @@ bool EnemyVolcano::doEnemyTick(GameWorld& w, float delta) {
 
 bool EnemyVolcano::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
+    sendMessage(AudioMessage::playSound(SoundEffect::ExplodeSmall,
+                                        pos - w.getPlayerPosition()));
     if (killedByPlayer) {
         addScore(w, 250);
         w.onEnemyKilled(*this);

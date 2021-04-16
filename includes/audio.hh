@@ -14,6 +14,8 @@
 #include "abase.hh"
 #include "config.hh"
 #include "inherit.hh"
+#include "math.hh"
+#include "model.hh"
 #include "module.hh"
 #include "msg.hh"
 #include "sbuf.hh"
@@ -35,15 +37,24 @@ struct AudioMessageSoundEffect {
     SoundEffect sound;
     float volume;
     float pan;
+    float pitch;
 };
 
 struct AudioMessage {
     AudioMessageType type;
 
     inline static AudioMessage playSound(SoundEffect sound, float volume = 1.0f,
-                                         float pan = 0.0f) {
+                                         float pan = 0.0f, float pitch = 1.0f) {
         return AudioMessage(AudioMessageType::PlaySound,
-                            AudioMessageSoundEffect{sound, volume, pan});
+                            AudioMessageSoundEffect{sound, volume, pan, pitch});
+    }
+    inline static AudioMessage playSound(SoundEffect sound, Point3D relative) {
+        return AudioMessage(
+            AudioMessageType::PlaySound,
+            AudioMessageSoundEffect{
+                sound,
+                clamp(0.5f, static_cast<float>(4.0 / relative.length()), 1.0f),
+                static_cast<float>(relative.normalize().x * 0.5), 1.0f});
     }
     inline static AudioMessage playMusic(MusicTrack track) {
         return AudioMessage(AudioMessageType::PlayMusic, track);

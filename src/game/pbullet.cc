@@ -8,8 +8,10 @@
 
 #include "game/pbullet.hh"
 
+#include "audio.hh"
 #include "game/enemy.hh"
 #include "game/world.hh"
+#include "hiemalia.hh"
 
 namespace hiemalia {
 PlayerBullet::PlayerBullet(const Point3D& pos, const Point3D& v)

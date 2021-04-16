@@ -11,7 +11,9 @@
 
 #include <cmath>
 
+#include "audio.hh"
 #include "game/world.hh"
+#include "hiemalia.hh"
 
 namespace hiemalia {
 EnemyChevron::EnemyChevron(const Point3D& pos) : EnemyObject(pos, 10.0f) {
@@ -60,6 +62,8 @@ bool EnemyChevron::doEnemyTick(GameWorld& w, float delta) {
 
 bool EnemyChevron::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
+    sendMessage(AudioMessage::playSound(SoundEffect::ExplodeSmall,
+                                        pos - w.getPlayerPosition()));
     if (killedByPlayer) {
         addScore(w, 200);
         w.onEnemyKilled(*this);

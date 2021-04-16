@@ -8,7 +8,9 @@
 
 #include "game/ebullet.hh"
 
+#include "audio.hh"
 #include "game/world.hh"
+#include "hiemalia.hh"
 
 namespace hiemalia {
 EnemyBulletSimple::EnemyBulletSimple(const Point3D& pos, const Point3D& v)

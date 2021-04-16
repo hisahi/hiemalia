@@ -8,7 +8,9 @@
 
 #include "game/enemy/shard.hh"
 
+#include "audio.hh"
 #include "game/world.hh"
+#include "hiemalia.hh"
 
 namespace hiemalia {
 EnemyShard::EnemyShard(const Point3D& pos) : EnemyObject(pos) {
@@ -24,6 +26,8 @@ bool EnemyShard::doEnemyTick(GameWorld& w, float delta) {
 
 bool EnemyShard::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
+    sendMessage(AudioMessage::playSound(SoundEffect::ExplodeSmall,
+                                        pos - w.getPlayerPosition()));
     if (killedByPlayer) {
         addScore(w, 100);
         w.onEnemyKilled(*this);

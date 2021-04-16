@@ -22,8 +22,6 @@ class Box : public GameObject {
     bool update(GameWorld& w, float delta);
 
   private:
-    Point3D pmin_{0, 0, 0};
-    Point3D pmax_{0, 0, 0};
     void absorbBullets(GameWorld& w, const BulletList& list);
     void absorbEnemies(GameWorld& w, const EnemyList& list);
 };

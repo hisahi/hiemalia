@@ -44,6 +44,8 @@ bool EnemyBoss1::doEnemyTick(GameWorld& w, float delta) {
     if (w.isPlayerAlive()) {
         if (wall_ > 0) {
             while (fireTime_ >= 1 && wall_ > 0) {
+                sendMessage(AudioMessage::playSound(
+                    SoundEffect::EnemyFire5, pos - w.getPlayerPosition()));
                 if (wall_ == 11)
                     fireBulletAtPlayer<EnemyBulletSimple>(
                         w, model().vertices[0], 0.75f, 0.03125f, 0.03125f);
@@ -70,6 +72,8 @@ bool EnemyBoss1::doEnemyTick(GameWorld& w, float delta) {
             if (wall_ == 0) fireTime_ = 0.2f;
         } else {
             while (fireTime_ >= 1) {
+                sendMessage(AudioMessage::playSound(
+                    SoundEffect::EnemyFire4, pos - w.getPlayerPosition()));
                 fireBulletAtPlayer<EnemyBulletSimple>(
                     w, model().vertices[0], 0.75f, 0.03125f, 0.03125f);
                 fireTime_ -= 1;
@@ -82,6 +86,8 @@ bool EnemyBoss1::doEnemyTick(GameWorld& w, float delta) {
 
 bool EnemyBoss1::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplodeBoss(w);
+    sendMessage(AudioMessage::playSound(SoundEffect::ExplodeLarge,
+                                        pos - w.getPlayerPosition()));
     sendMessage(GameMessage::shakeCamera(0.125));
     if (speed_ >= 0) w.popBoss(speed_);
     if (killedByPlayer) {

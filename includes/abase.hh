@@ -44,7 +44,7 @@ class AudioModule : public Module {
     // loopCount 0 = infinite, others = play N times.
     // channel may be channelAny, in which case "play on any free channel"
     virtual void playSound(sound_t soundId, float volume, float pan,
-                           size_t loopCount, int channel) = 0;
+                           float pitch, size_t loopCount, int channel) = 0;
     virtual void stopSound(int channel) = 0;
     virtual void stopSounds() = 0;
 
@@ -75,7 +75,7 @@ class AudioModuleNull : public AudioModule {
     inline bool isMusicPlaying() { return false; }
 
     inline sound_t loadSound(const std::string& filename) { return 0; }
-    inline void playSound(sound_t soundId, float volume, float pan,
+    inline void playSound(sound_t soundId, float volume, float pan, float pitch,
                           size_t loopCount, int channel) {}
     inline virtual void fadeOutMusic(
         unsigned int duration = defaultFadeoutDuration) {}

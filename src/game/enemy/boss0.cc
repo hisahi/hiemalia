@@ -37,12 +37,14 @@ bool EnemyBoss0::doEnemyTick(GameWorld& w, float delta) {
         const float speed = 0.625f;
         const float spew = 0.0f;
         const float lead = 0.5f;
-        const float spread = 0.3f;
+        const float spread = 0.375f;
         Point3D p(0, 0, 0.2);
         p += pos;
         Point3D pl = aimAtPlayer(w, speed, lead);
         coord_t s = sin(rot.roll), c = cos(rot.roll);
         while (fireTime_ >= 1) {
+            sendMessage(AudioMessage::playSound(SoundEffect::EnemyFire2,
+                                                pos - w.getPlayerPosition()));
             w.fireEnemyBullet<EnemyBulletSimple>(
                 p, getBulletVelocity(w, pl, speed, spew));
             w.fireEnemyBullet<EnemyBulletSimple>(
@@ -68,6 +70,8 @@ bool EnemyBoss0::doEnemyTick(GameWorld& w, float delta) {
 
 bool EnemyBoss0::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplodeBoss(w);
+    sendMessage(AudioMessage::playSound(SoundEffect::ExplodeLarge,
+                                        pos - w.getPlayerPosition()));
     sendMessage(GameMessage::shakeCamera(0.0625));
     if (speed_ >= 0) w.popBoss(speed_);
     if (killedByPlayer) {

@@ -8,7 +8,9 @@
 
 #include "game/enemy/fighter.hh"
 
+#include "audio.hh"
 #include "game/world.hh"
+#include "hiemalia.hh"
 #include "math.hh"
 
 namespace hiemalia {
@@ -28,6 +30,7 @@ bool EnemyFighter::doEnemyTick(GameWorld& w, float delta) {
 
 bool EnemyFighter::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
+    sendMessage(AudioMessage::playSound(SoundEffect::ExplodeMedium));
     if (killedByPlayer) {
         addScore(w, 500);
         w.onEnemyKilled(*this);

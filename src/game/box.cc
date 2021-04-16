@@ -27,7 +27,7 @@ Box::Box(const Point3D& pos, coord_t x, coord_t y, coord_t z)
 void Box::absorbBullets(GameWorld& w, const BulletList& list) {
     for (auto& bptr : list) {
         if (bptr->hits(*this)) {
-            bptr->backtrackCuboid(pmin_, pmax_);
+            bptr->backtrackCuboid(pos - scale, pos + scale);
             bptr->impact(w, false);
         }
     }
@@ -42,8 +42,6 @@ void Box::absorbEnemies(GameWorld& w, const EnemyList& list) {
 }
 
 bool Box::update(GameWorld& w, float delta) {
-    pmin_ = pos - scale;
-    pmax_ = pos + scale;
     if (w.isPlayerAlive() && w.getPlayer().hits(*this)) {
         const Point3D& ppos = w.getPlayer().pos;
         coord_t dx = (ppos.x - pos.x) / scale.x;

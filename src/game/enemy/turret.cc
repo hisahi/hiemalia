@@ -8,8 +8,10 @@
 
 #include "game/enemy/turret.hh"
 
+#include "audio.hh"
 #include "game/obstacle.hh"
 #include "game/world.hh"
+#include "hiemalia.hh"
 
 namespace hiemalia {
 EnemyTurret::EnemyTurret(const Point3D& p, Orient3D r)
@@ -66,6 +68,8 @@ bool EnemyTurret::doEnemyTick(GameWorld& w, float delta) {
             fireTime_ += delta * 1.5f * w.difficulty().getFireRateMultiplier();
         if (pos.z - w.getPlayerPosition().z > getCollisionRadius()) {
             while (fireTime_ >= 1) {
+                sendMessage(AudioMessage::playSound(
+                    SoundEffect::EnemyFire1, pos - w.getPlayerPosition()));
                 fireBulletAtPlayer<EnemyBulletSimple>(w, model().vertices[10],
                                                       0.5f, 0.0625f, 1.0f);
                 fireTime_ -= 1;
@@ -78,6 +82,8 @@ bool EnemyTurret::doEnemyTick(GameWorld& w, float delta) {
 
 bool EnemyTurret::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     doExplode(w);
+    sendMessage(AudioMessage::playSound(SoundEffect::ExplodeMedium,
+                                        pos - w.getPlayerPosition()));
     w.explodeEnemy(*this, *baseModel_.model);
     if (killedByPlayer) {
         addScore(w, 400);

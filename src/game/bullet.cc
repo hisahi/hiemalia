@@ -78,9 +78,7 @@ bool BulletObject::checkInBounds(GameWorld& w) {
 }
 
 bool BulletObject::isBulletOffScreen() const {
-    if (vel.z < 0)
-        return isOffScreen();
-    else
-        return pos.z > stageSpawnDistance + getCollisionRadius();
+    return isOffScreen() ||
+           (vel.z > 0 && pos.z > farObjectBackPlane + getCollisionRadius());
 }
 }  // namespace hiemalia
