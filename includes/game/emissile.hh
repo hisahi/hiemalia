@@ -4,29 +4,28 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// game/enemy/fighter.hh: header file for game/enemy/fighter.cc
+// game/emissile.hh: header file for enemy missiles (game/emissile.cc)
 
-#ifndef M_GAME_ENEMY_FIGHTER_HH
-#define M_GAME_ENEMY_FIGHTER_HH
+#ifndef M_GAME_EMISSILE_HH
+#define M_GAME_EMISSILE_HH
 
-#include "game/enemy.hh"
+#include "game/bullet.hh"
+#include "model.hh"
 
 namespace hiemalia {
-class EnemyFighter : public EnemyObject {
+class EnemyMissileHoming : public BulletObject {
   public:
-    EnemyFighter(const Point3D& pos, int pattern);
-    bool doEnemyTick(GameWorld& w, float delta);
-
-  protected:
-    bool onEnemyDeath(GameWorld& w, bool killedByPlayer);
+    EnemyMissileHoming(const Point3D& pos, const Point3D& v);
+    virtual bool doBulletTick(GameWorld& w, float delta);
+    void impact(GameWorld& w, bool enemy);
+    bool firedByPlayer() const;
+    float getDamage() const;
+    virtual ~EnemyMissileHoming() {}
 
   private:
-    int pattern_;
-    float fireTime_{0};
-    /*int fireCounter_{0};
-    coord_t t_{0};*/
-    void movePattern(GameWorld& w, float delta);
+    coord_t roll_{0};
 };
+
 };  // namespace hiemalia
 
-#endif  // M_GAME_ENEMY_FIGHTER_HH
+#endif  // M_GAME_EMISSILE_HH

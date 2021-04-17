@@ -16,11 +16,17 @@ namespace hiemalia {
 class EnemyBulletSimple : public BulletObject {
   public:
     EnemyBulletSimple(const Point3D& pos, const Point3D& v);
-    bool doBulletTick(GameWorld& w, float delta);
+    virtual bool doBulletTick(GameWorld& w, float delta);
     void impact(GameWorld& w, bool enemy);
     bool firedByPlayer() const;
     float getDamage() const;
     virtual ~EnemyBulletSimple() {}
+};
+
+class EnemyBulletHoming : public EnemyBulletSimple {
+  public:
+    EnemyBulletHoming(const Point3D& pos, const Point3D& v);
+    bool doBulletTick(GameWorld& w, float delta);
 };
 
 class EnemyBulletSimpleScalable : public EnemyBulletSimple {

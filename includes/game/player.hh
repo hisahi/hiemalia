@@ -35,6 +35,7 @@ class PlayerObject : public GameObject, public ObjectDamageable {
     coord_t wbird_fr_{0};
     Orient3D wbird_vel_{0, 0, 0};
     coord_t shipRadius_;
+    coord_t dropY_{0};
 
     void onDamage(GameWorld& w, float dmg, const Point3D& pointOfContact);
     void onDeath(GameWorld& w);

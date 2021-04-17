@@ -77,6 +77,8 @@ class GameObject {
     void doMove(float delta, const Point3D& v);
     virtual bool hitsSweep(const GameObject& obj) const;
     virtual bool hitsInternal(const GameObject& obj) const;
+    void renderExCol(SplinterBuffer& sbuf, Renderer3D& r3d,
+                     const ExtraCollision& col, const Model& model) const;
 
   private:
     coord_t collideRadius_{0};

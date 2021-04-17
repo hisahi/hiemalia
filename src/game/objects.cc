@@ -160,7 +160,10 @@ static const std::unordered_map<std::string, object_maker_t> nameMap = {
     {"gunboat2", makeStandardObject<EnemyGunboat2>},
     {"mbox", makeArgPropObject<MovingBox, int, coord_t, coord_t, coord_t,
                                coord_t, coord_t, coord_t, coord_t, coord_t>},
-    //{"boss2", makeStandardObject<EnemyBoss2>},
+    {"wasp", makeStandardObject<EnemyWasp>},
+    {"rammer", makeStandardObject<EnemyRammer>},
+    {"boss2", makeStandardObject<EnemyBoss2>},
+    {"boss3", makeStandardObject<EnemyBoss3>},
 };
 
 std::shared_ptr<GameObject> loadObjectSpawn(Point3D p, const std::string& name,

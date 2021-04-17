@@ -154,10 +154,12 @@ bool PlayerObject::playerInControl() const { return !woundedBird_; }
 
 void PlayerObject::doWoundedBird(float delta) {
     wbird_fr_ += delta;
-    vel.y += wbird_fr_ * wbird_mul_;
+    dropY_ += wbird_fr_ * wbird_mul_;
     rot += wbird_vel_ * delta;
     if (wbird_vel_.pitch > 2 || wbird_vel_.pitch < -2)
         wbird_vel_.pitch = -wbird_vel_.pitch;
+    pos += rot.rotate(vel) * delta;
+    pos.y += dropY_ * delta;
 }
 
 void PlayerObject::doFire(GameWorld& w) {

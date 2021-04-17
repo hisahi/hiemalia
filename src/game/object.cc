@@ -129,6 +129,12 @@ const std::vector<ExtraCollision>& GameObject::exCollisions() const {
     return exCollisionsNone;
 }
 
+void GameObject::renderExCol(SplinterBuffer& sbuf, Renderer3D& r3d,
+                             const ExtraCollision& col,
+                             const Model& model) const {
+    r3d.renderModel(sbuf, col.pos, col.rot, col.scale, model);
+}
+
 float ObjectDamageable::getHealth() const { return health_; }
 
 bool ObjectDamageable::damage(GameWorld& w, float damage,

@@ -4,29 +4,27 @@
 /*   SEE THE LICENSE FILE IN THE SOURCE ROOT DIRECTORY FOR LICENSE INFO.    */
 /*                                                                          */
 /****************************************************************************/
-// game/enemy/fighter.hh: header file for game/enemy/fighter.cc
+// game/enemy/boss2.hh: header file for game/enemy/boss2.cc
 
-#ifndef M_GAME_ENEMY_FIGHTER_HH
-#define M_GAME_ENEMY_FIGHTER_HH
+#ifndef M_GAME_ENEMY_BOSS2_HH
+#define M_GAME_ENEMY_BOSS2_HH
 
 #include "game/enemy.hh"
 
 namespace hiemalia {
-class EnemyFighter : public EnemyObject {
+class EnemyBoss2 : public EnemyObject {
   public:
-    EnemyFighter(const Point3D& pos, int pattern);
+    EnemyBoss2(const Point3D& pos);
     bool doEnemyTick(GameWorld& w, float delta);
+    void onSpawn(GameWorld& w);
 
   protected:
     bool onEnemyDeath(GameWorld& w, bool killedByPlayer);
 
   private:
-    int pattern_;
     float fireTime_{0};
-    /*int fireCounter_{0};
-    coord_t t_{0};*/
-    void movePattern(GameWorld& w, float delta);
+    coord_t speed_{-1};
 };
 };  // namespace hiemalia
 
-#endif  // M_GAME_ENEMY_FIGHTER_HH
+#endif  // M_GAME_ENEMY_BOSS2_HH

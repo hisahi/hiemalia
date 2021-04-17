@@ -50,7 +50,7 @@ void EnemyWalker::doWalk(GameWorld& w, float delta) {
         rightAngle_ = wrapAngle(rightAngle_) + delta * 3.0;
         leftPitch_ = sin(leftAngle_);
         rightPitch_ = sin(rightAngle_);
-        pos += 1.0 / 64 * pitchMul_ * rot.rotate(Point3D(0, 0, 1)) *
+        pos += rot.direction(1.0 / 64 * pitchMul_) *
                std::max(cos(leftAngle_), cos(rightAngle_));
     } else if (pitchMul_ > 0) {
         pitchMul_ = std::max<coord_t>(0, pitchMul_ - delta * 2.0);
@@ -62,7 +62,7 @@ bool EnemyWalker::doEnemyTick(GameWorld& w, float delta) {
     exCol_[0].rot.yaw = exCol_[1].rot.yaw = rot.yaw;
     exCol_[0].rot.pitch = leftPitch_ * pitchMul_ * 0.5;
     exCol_[1].rot.pitch = rightPitch_ * pitchMul_ * 0.5;
-    fireTime_ += 1.25f * delta;
+    fireTime_ += 1.25f * delta * w.difficulty().getFireRateMultiplier();
     if (w.isPlayerAlive()) {
         if (pos.z - w.getPlayerPosition().z > getCollisionRadius()) {
             while (fireTime_ >= 1) {

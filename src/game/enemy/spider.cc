@@ -29,7 +29,7 @@ bool EnemySpider::doEnemyTick(GameWorld& w, float delta) {
     }
     if (pounce_) {
         pos += vel * delta;
-        fireTime_ += delta * 1.5f;
+        fireTime_ += delta * 1.5f * w.difficulty().getFireRateMultiplier();
         if (w.isPlayerAlive()) {
             if (pos.z - w.getPlayerPosition().z > getCollisionRadius()) {
                 while (fireTime_ >= 1) {
@@ -69,7 +69,7 @@ bool EnemySpider::doEnemyTick(GameWorld& w, float delta) {
         if (angleDiff != 0) {
             walkMul_ = std::max(coord_t(0), walkMul_ - angleDiff);
         }
-        pos += rot.rotate(Point3D(0, 0, 1)) * walkMul_ * delta;
+        pos += rot.direction(1) * walkMul_ * delta;
 
         if (pounce_) {
             vel = target.normalize() * 1.75;

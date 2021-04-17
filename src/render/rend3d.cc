@@ -116,6 +116,10 @@ Point3D Orient3D::rotate(const Point3D& vector, coord_t scale) const noexcept {
     return Matrix3D3::rotate(*this).project(vector) * scale;
 }
 
+Point3D Orient3D::direction(coord_t scale /* = 1 */) const noexcept {
+    return rotate(Point3D(0, 0, scale));
+}
+
 Orient3D Orient3D::toPolar(const Point3D& p, coord_t roll) noexcept {
     coord_t yaw = atan2(p.x, p.z);
     coord_t pitch = atan2(p.y, hypot(p.x, p.z));

@@ -15,7 +15,7 @@
 #include "random.hh"
 
 namespace hiemalia {
-EnemyGunboat2::EnemyGunboat2(const Point3D& pos) : EnemyObject(pos) {
+EnemyGunboat2::EnemyGunboat2(const Point3D& pos) : EnemyObject(pos, 8.0f) {
     useGameModel(GameModel::EnemyGunboat2);
     rot = Orient3D::atPlayer;
     fireTime_ = random(std::uniform_real_distribution<float>(0, 1));
@@ -24,7 +24,7 @@ EnemyGunboat2::EnemyGunboat2(const Point3D& pos) : EnemyObject(pos) {
 
 bool EnemyGunboat2::doEnemyTick(GameWorld& w, float delta) {
     rot.roll = sin(pos.z * 0.1) / 8;
-    fireTime_ += delta * 1.0f * w.difficulty().getFireRateMultiplier();
+    fireTime_ += delta * 1.25f * w.difficulty().getFireRateMultiplier();
     killPlayerOnContact(w);
     if (w.isPlayerAlive() &&
         pos.z - w.getPlayerPosition().z > getCollisionRadius()) {

@@ -26,14 +26,12 @@ bool EnemyBoss1::doEnemyTick(GameWorld& w, float delta) {
     coord_t tx = w.getPlayerPosition().x * 0.5;
     coord_t ty = w.getPlayerPosition().y * 0.5;
     coord_t tz = w.getPlayerPosition().z + 2.5;
-    if (pos.x < tx)
-        pos.x = std::min(tx, pos.x + delta * 0.0625);
-    else if (pos.x > tx)
-        pos.x = std::max(tx, pos.x - delta * 0.0625);
-    if (pos.y < ty)
-        pos.y = std::min(ty, pos.y + delta * 0.0625);
-    else if (pos.y > ty)
-        pos.y = std::max(ty, pos.y - delta * 0.0625);
+    Point3D op = pos;
+    Point3D np = Point3D(tx, ty, pos.z);
+    coord_t v = 0.0625 * delta;
+    Point3D dp = np - op;
+    if (dp.length() > v) dp = dp.normalize() * v;
+    pos += dp;
     if (pos.z < tz)
         pos.z = std::min(tz, pos.z + delta * 0.75);
     else if (pos.z > tz)

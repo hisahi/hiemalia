@@ -25,7 +25,7 @@ namespace hiemalia {
 class GameMain;
 class EnemyObject;
 
-constexpr int objectsMax = 256;
+constexpr int objectsMax = 512;
 constexpr int stageCount = 4;
 inline const coord_t farObjectBackPlane =
     static_cast<coord_t>(1 * stageSpawnDistance);

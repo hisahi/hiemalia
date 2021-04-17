@@ -22,8 +22,10 @@ EnemyBulletSimple::EnemyBulletSimple(const Point3D& pos, const Point3D& v)
 
 bool EnemyBulletSimple::doBulletTick(GameWorld& w, float delta) {
     doMove(delta);
+    rot += rotvel;
     if (w.isPlayerAlive() && hits(w.getPlayer())) {
-        if (w.getPlayer().playerInControl()) w.getPlayer().damage(w, 1.0f, pos);
+        if (w.getPlayer().playerInControl())
+            w.getPlayer().damage(w, getDamage(), pos);
         impact(w, false);
     }
     return true;
@@ -39,6 +41,24 @@ void EnemyBulletSimple::impact(GameWorld& w, bool enemy) {
 bool EnemyBulletSimple::firedByPlayer() const { return false; }
 
 float EnemyBulletSimple::getDamage() const { return 1.0f; }
+
+EnemyBulletHoming::EnemyBulletHoming(const Point3D& pos, const Point3D& v)
+    : EnemyBulletSimple(pos, v) {
+    useGameModel(GameModel::BulletEnemy3);
+}
+
+bool EnemyBulletHoming::doBulletTick(GameWorld& w, float delta) {
+    if (w.isPlayerAlive()) {
+        Point3D ppos = w.getPlayerPosition();
+        if (pos.z > ppos.z) {
+            Orient3D cur = Orient3D::toPolar(vel);
+            Orient3D unr = Orient3D::toPolar(ppos - pos);
+            Orient3D target = cur.tendTo(unr, delta * 2);
+            vel = target.direction(vel.length());
+        }
+    }
+    return EnemyBulletSimple::doBulletTick(w, delta);
+}
 
 EnemyBulletSimpleScalable::EnemyBulletSimpleScalable(const Point3D& pos,
                                                      const Point3D& v,

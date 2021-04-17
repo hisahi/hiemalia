@@ -166,6 +166,7 @@ struct Orient3D {
     // implemented in rend3d.cc
     coord_t offBy(const Orient3D& other) const noexcept;
     Point3D rotate(const Point3D& vector, coord_t scale = 1) const noexcept;
+    Point3D direction(coord_t scale = 1) const noexcept;
     static Orient3D toPolar(const Point3D& p, coord_t roll = 0) noexcept;
     Orient3D tendTo(const Orient3D& target, coord_t rate) const noexcept;
 

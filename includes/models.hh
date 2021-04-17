@@ -48,18 +48,29 @@ enum class GameModel {
     EnemyWalkerLeg,
     EnemySpider,
     EnemySpiderLeg,
+    EnemyWasp,
+    EnemyWaspWing,
+    EnemyRammer,
+    EnemyBoss2,
+    EnemyBoss3,
+    EnemyBoss3B,
+    BulletEnemy3,
+    BulletEnemyMissile,
+    EnemyFuzzball,
 
     EndOfModels
 };
 
 inline auto modelFileNames = hiemalia::makeArray<std::string>({
-    "ship.3d",    "box.3d",     "tcube.3d",    "tetra.3d",   "shard.3d",
-    "gunboat.3d", "ebullet.3d", "ebullet2.3d", "volcano.3d", "chevron.3d",
-    "fighter.3d", "wave.3d",    "turret.3d",   "turretp.3d", "turretc.3d",
-    "sbox.3d",    "shipwcr.3d", "boss0.3d",    "boss1.3d",   "donut.3d",
-    "cavep0.3d",  "cavep1.3d",  "cavep2.3d",   "column0.3d", "column1.3d",
-    "column2.3d", "column3.3d", "gunboat2.3d", "walker.3d",  "walkerl.3d",
-    "spider.3d",  "spiderl.3d",
+    "ship.3d",     "box.3d",     "tcube.3d",    "tetra.3d",    "shard.3d",
+    "gunboat.3d",  "ebullet.3d", "ebullet2.3d", "volcano.3d",  "chevron.3d",
+    "fighter.3d",  "wave.3d",    "turret.3d",   "turretp.3d",  "turretc.3d",
+    "sbox.3d",     "shipwcr.3d", "boss0.3d",    "boss1.3d",    "donut.3d",
+    "cavep0.3d",   "cavep1.3d",  "cavep2.3d",   "column0.3d",  "column1.3d",
+    "column2.3d",  "column3.3d", "gunboat2.3d", "walker.3d",   "walkerl.3d",
+    "spider.3d",   "spiderl.3d", "wasp.3d",     "waspw.3d",    "rammer.3d",
+    "boss2.3d",    "boss3.3d",   "boss3b.3d",   "ebullet3.3d", "emissile.3d",
+    "fuzzball.3d",
 });
 };  // namespace hiemalia
 
