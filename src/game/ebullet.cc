@@ -42,6 +42,11 @@ bool EnemyBulletSimple::firedByPlayer() const { return false; }
 
 float EnemyBulletSimple::getDamage() const { return 1.0f; }
 
+EnemyBulletLaser::EnemyBulletLaser(const Point3D& pos, const Point3D& v)
+    : EnemyBulletSimple(pos, v) {
+    useGameModel(GameModel::BulletEnemy4);
+}
+
 EnemyBulletHoming::EnemyBulletHoming(const Point3D& pos, const Point3D& v)
     : EnemyBulletSimple(pos, v) {
     useGameModel(GameModel::BulletEnemy3);
@@ -62,10 +67,30 @@ bool EnemyBulletHoming::doBulletTick(GameWorld& w, float delta) {
 
 EnemyBulletSimpleScalable::EnemyBulletSimpleScalable(const Point3D& pos,
                                                      const Point3D& v,
-                                                     coord_t scale)
+                                                     coord_t scale, int palette)
     : EnemyBulletSimple(pos, v) {
     this->scale *= scale;
-    useGameModel(GameModel::BulletEnemy2);
+    useGameModel(palette ? GameModel::BulletEnemy6 : GameModel::BulletEnemy2);
+}
+
+EnemyBulletSlideScalable::EnemyBulletSlideScalable(const Point3D& pos,
+                                                   const Point3D& v,
+                                                   const Point3D& dst,
+                                                   const Point3D& nv,
+                                                   coord_t scale)
+    : EnemyBulletSimpleScalable(pos, v, scale), target_(dst), newVel_(nv) {}
+
+bool EnemyBulletSlideScalable::doBulletTick(GameWorld& w, float delta) {
+    bool result = EnemyBulletSimpleScalable::doBulletTick(w, delta);
+    if (result && !cross_ &&
+        ((vel.z > 0 && pos.z >= target_.z) ||
+         (vel.z < 0 && pos.z <= target_.z))) {
+        cross_ = true;
+        pos.x = target_.x;
+        pos.y = target_.y;
+        vel = newVel_;
+    }
+    return result;
 }
 
 }  // namespace hiemalia

@@ -23,6 +23,11 @@ class EnemyBulletSimple : public BulletObject {
     virtual ~EnemyBulletSimple() {}
 };
 
+class EnemyBulletLaser : public EnemyBulletSimple {
+  public:
+    EnemyBulletLaser(const Point3D& pos, const Point3D& v);
+};
+
 class EnemyBulletHoming : public EnemyBulletSimple {
   public:
     EnemyBulletHoming(const Point3D& pos, const Point3D& v);
@@ -32,8 +37,22 @@ class EnemyBulletHoming : public EnemyBulletSimple {
 class EnemyBulletSimpleScalable : public EnemyBulletSimple {
   public:
     EnemyBulletSimpleScalable(const Point3D& pos, const Point3D& v,
-                              coord_t scale);
+                              coord_t scale, int palette = 0);
 };
+
+class EnemyBulletSlideScalable : public EnemyBulletSimpleScalable {
+  public:
+    EnemyBulletSlideScalable(const Point3D& pos, const Point3D& v,
+                             const Point3D& dst, const Point3D& nv,
+                             coord_t scale);
+    bool doBulletTick(GameWorld& w, float delta);
+
+  private:
+    bool cross_{false};
+    Point3D target_;
+    Point3D newVel_;
+};
+
 };  // namespace hiemalia
 
 #endif  // M_GAME_EBULLET_HH

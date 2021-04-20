@@ -62,6 +62,7 @@ struct GameStage {
     static GameStage load(int stagenum);
     void enterBossLoop(std::initializer_list<section_t> loop);
     void exitBossLoop();
+    void doOverride(std::initializer_list<section_t> sec);
 
   private:
     GameStage(std::vector<section_t>&& sections, int loopLength,
@@ -73,6 +74,9 @@ struct GameStage {
     bool inBoss_{false};
     size_t inBossIndex_{0};
     std::vector<section_t> bossLoop_;
+    bool overridden_{false};
+    size_t overrideIndex_{0};
+    std::vector<section_t> overrideSec_;
 };
 };  // namespace hiemalia
 

@@ -27,7 +27,7 @@ bool BulletObject::update(GameWorld& w, float delta) {
     Orient3D frotvel = rotvel * delta;
     if (!checkInBounds(w)) return false;
     rot += frotvel;
-    return alive_ && !isBulletOffScreen();
+    return alive_ && !isOffScreen2();
 }
 
 void BulletObject::onMove(const Point3D& newPos) { oldPos_ = pos; }
@@ -75,10 +75,5 @@ bool BulletObject::checkInBounds(GameWorld& w) {
         return false;
     }
     return true;
-}
-
-bool BulletObject::isBulletOffScreen() const {
-    return isOffScreen() ||
-           (vel.z > 0 && pos.z > farObjectBackPlane + getCollisionRadius());
 }
 }  // namespace hiemalia

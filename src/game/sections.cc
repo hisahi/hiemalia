@@ -27,7 +27,8 @@ const std::unordered_map<std::string, section_t> sectionMap = {
     {"boss05", 44},   {"boss06", 45},   {"boss07", 46},   {"fac00", 47},
     {"fac01", 48},    {"fac02", 49},    {"fac03", 50},    {"fac04", 51},
     {"zoomentr", 52}, {"zoom00", 53},   {"zoom01", 54},   {"zoom02", 55},
-    {"zoom03", 56},   {"zoom04", 57},   {"zoomexit", 58},
+    {"zoom03", 56},   {"zoom04", 57},   {"zoomexit", 58}, {"sb4", 59},
+    {"sb4ent", 60},   {"sb4ext", 61},
 };
 
 int getSectionCount() {

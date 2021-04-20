@@ -18,6 +18,7 @@
 #include "game/box.hh"
 #include "game/checkpnt.hh"
 #include "game/enemy/all.hh"
+#include "game/gameend.hh"
 #include "game/mbox.hh"
 #include "game/object.hh"
 #include "game/obstacle.hh"
@@ -37,6 +38,16 @@ template <typename T>
 std::shared_ptr<GameObject> makePropObject(const Point3D& p,
                                            const std::string& prop) {
     return std::make_shared<T>(p, prop);
+}
+
+template <typename T>
+std::shared_ptr<GameObject> makeTwoPosObject(const Point3D& p,
+                                             const std::string& prop) {
+    coord_t sx = 0, sy = 0, sz = 0;
+    if (s_sscanf(prop.c_str(), FMT_coord_t " " FMT_coord_t " " FMT_coord_t, &sx,
+                 &sy, &sz) < 3)
+        LOG_WARN("invalid angled object prop");
+    return std::make_shared<T>(p, Point3D(sx, sy, sz));
 }
 
 template <typename T>
@@ -138,6 +149,7 @@ static const std::unordered_map<std::string, object_maker_t> nameMap = {
     {"sboxs", makeCoordPropObject<SlidingBoxSine, 9>},
     {"checkpoint", makeStandardObject<CheckpointScript>},
     {"stageend", makeStandardObject<StageEndScript>},
+    {"gameend", makeStandardObject<GameEndScript>},
     {"setspeed", makePropObject<SetSpeedScript>},
     {"shard", makeStandardObject<EnemyShard>},
     {"gunboat", makeStandardObject<EnemyGunboat>},
@@ -164,6 +176,20 @@ static const std::unordered_map<std::string, object_maker_t> nameMap = {
     {"rammer", makeStandardObject<EnemyRammer>},
     {"boss2", makeStandardObject<EnemyBoss2>},
     {"boss3", makeStandardObject<EnemyBoss3>},
+    {"bouncer", makeTwoPosObject<EnemyBouncer>},
+    {"destroyer", makeArgPropObject<EnemyDestroyer, int>},
+    {"orbiter", makeArgPropObject<EnemyOrbiter, int>},
+    {"wturret", makeAngleObject<EnemyWheeledTurret>},
+    {"sturret", makeAngleObject<EnemySpreadTurret>},
+    {"launcher", makeAngleObject<EnemyLauncher>},
+    {"pod", makeAngleObject<EnemyPod>},
+    {"blocker", makeStandardObject<EnemyBlocker>},
+    {"pewpew", makeAngleObject<EnemyPewpew>},
+    {"boss4", makeStandardObject<Boss4Script>},
+    //{"boss4", makeStandardObject<EnemyBoss4>},
+    {"boss5", makeStandardObject<EnemyBoss5>},
+    {"boss6", makeStandardObject<EnemyBoss6>},
+    {"boss7", makeStandardObject<EnemyBoss7>},
 };
 
 std::shared_ptr<GameObject> loadObjectSpawn(Point3D p, const std::string& name,

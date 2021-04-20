@@ -63,6 +63,7 @@ class GameMain : public LogicModule,
     bool continue_{true};
     bool shouldBePaused_{false};
     bool stageComplete_{false};
+    bool gameComplete_{false};
     bool paused_{false};
     bool gameOver_{false};
     float timer;
@@ -81,6 +82,8 @@ class GameMain : public LogicModule,
     void doStageStartTick(GameState& state, float interval);
     void doStageComplete();
     void doStageCompleteTick(GameState& state, float interval);
+    void doGameComplete();
+    void doGameCompleteTick(GameState& state, float interval);
     void doExitGame();
     void doGameOver();
     void drawObject(GameState& state, float interval, const ObjectPtr& obj);

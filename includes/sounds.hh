@@ -44,6 +44,10 @@ enum class SoundEffect {
     EnemyFire3,
     EnemyFire4,
     EnemyFire5,
+    EnemyFire6,
+    BlockerPlace,
+    DirFlip,
+    Liftoff,
     //
     EndOfSounds
 };

@@ -14,7 +14,7 @@
 namespace hiemalia {
 class EnemyTurret : public EnemyObject {
   public:
-    EnemyTurret(const Point3D& pos, Orient3D rot);
+    EnemyTurret(const Point3D& pos, const Orient3D& rot);
     bool doEnemyTick(GameWorld& w, float delta);
     void render(SplinterBuffer& sbuf, Renderer3D& r3d);
     void onSpawn(GameWorld& w);

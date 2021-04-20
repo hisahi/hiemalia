@@ -24,7 +24,8 @@ EnemyWave::EnemyWave(const Point3D& pos, coord_t sx, coord_t sy, coord_t sz,
       pos_(pos) {
     useGameModel(GameModel::EnemyWave);
     rot = Orient3D::atPlayer;
-    fireTime_ = random(std::uniform_real_distribution<float>(0, 1));
+    fireTime_ =
+        getRandomPool().random(std::uniform_real_distribution<float>(0, 1));
 }
 
 bool EnemyWave::doEnemyTick(GameWorld& w, float delta) {

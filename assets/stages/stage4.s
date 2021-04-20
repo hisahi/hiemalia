@@ -19,4 +19,8 @@ s fac01 fac00 fac02 fac00 fac03 fac00 fac04 fac00
 l 8
 
 x 0 0 0 0 setspeed slow
-od 5
+od 5.5
+
+#o 2 0 0 0 boss6
+#o 2 0 0 0 boss7
+x 0 0 0 0 gameend

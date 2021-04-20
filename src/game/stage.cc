@@ -35,6 +35,12 @@ GameStage::GameStage(std::vector<section_t>&& sections, int loopLength,
 }
 
 void GameStage::nextSection() {
+    if (overridden_) {
+        int i = overrideIndex_;
+        if (i + 1 < overrideSec_.size()) ++overrideIndex_;
+        visible.push_back(overrideSec_[i]);
+        return;
+    }
     if (inBoss_) {
         visible.push_back(bossLoop_[inBossIndex_]);
         inBossIndex_ = (inBossIndex_ + 1) % bossLoop_.size();
@@ -266,5 +272,11 @@ void GameStage::enterBossLoop(std::initializer_list<section_t> loop) {
 }
 
 void GameStage::exitBossLoop() { inBoss_ = false; }
+
+void GameStage::doOverride(std::initializer_list<section_t> sec) {
+    overridden_ = true;
+    overrideIndex_ = 0;
+    overrideSec_ = sec;
+}
 
 }  // namespace hiemalia

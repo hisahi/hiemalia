@@ -47,6 +47,7 @@ class GameObject {
     virtual void render(SplinterBuffer& sbuf, Renderer3D& r3d);
     virtual bool hits(const GameObject& obj) const;
     bool isOffScreen() const;
+    bool isOffScreen2() const;
     bool isInRegion(GameWorld& w, coord_t extentLeft, coord_t extentRight,
                     coord_t extentTop, coord_t extentBottom) const;
     Matrix3D getObjectModelMatrix() const;
@@ -99,6 +100,7 @@ struct ObjectDamageable {
     virtual void onDamage(GameWorld& w, float damage,
                           const Point3D& pointOfContact) = 0;
     virtual void onDeath(GameWorld& w) = 0;
+    void setHealth(float h);
 
   private:
     float health_;

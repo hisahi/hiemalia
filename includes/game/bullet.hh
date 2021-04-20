@@ -31,7 +31,6 @@ class BulletObject : public GameObject {
     void backtrackSphere(const Point3D& p, coord_t r2);
     void backtrackModel(const ModelCollision& mc, const Matrix3D mat);
     void backtrackObject(const GameObject& o);
-    bool isBulletOffScreen() const;
     virtual ~BulletObject() {}
 
   protected:

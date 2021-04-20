@@ -21,6 +21,7 @@ class PlayerObject : public GameObject, public ObjectDamageable {
     PlayerObject(const Point3D& pos);
     void updateInput(ControlState& controls);
     bool update(GameWorld& w, float delta);
+    void updateGameEnd(GameWorld& w, float delta);
     bool playerInControl() const;
     void render(SplinterBuffer& sbuf, Renderer3D& r3d);
     void enemyContact();

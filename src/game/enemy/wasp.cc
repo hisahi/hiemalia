@@ -20,7 +20,8 @@ static const Point3D wingOffset = Point3D(0, -0.046875, 0.0625);
 EnemyWasp::EnemyWasp(const Point3D& pos) : EnemyObject(pos) {
     useGameModel(GameModel::EnemyWasp);
     rot = Orient3D::atPlayer;
-    fireTime_ = random(std::uniform_real_distribution<float>(0, 1));
+    fireTime_ =
+        getRandomPool().random(std::uniform_real_distribution<float>(0, 1));
     vel = Point3D(0, 0, -1 / 16);
     rot = Orient3D::atPlayer;
     wingModel_ = getGameModel(GameModel::EnemyWaspWing);

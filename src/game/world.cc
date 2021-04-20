@@ -25,7 +25,7 @@ constexpr int pointsPer1up = 50000;
 GameWorld::GameWorld(ConfigSectionPtr<GameConfig> config)
     : config_(config), difficulty_{config->difficulty} {
     moveSpeedFac = difficulty_.getStageSpeedMultiplier();
-    stageNum += 1;
+    //stageNum += 1;
 }
 
 MoveRegion GameWorld::getMoveRegionForZ(coord_t z) const {
@@ -71,8 +71,8 @@ void GameWorld::startNewStage() {
     if (stageNum > stageCount) {
         ++cycle;
         stageNum = 1;
-        difficulty_ =
-            GameDifficulty(difficulty_.getDifficultyLevel() * log<float>(2, 8));
+        difficulty_ = GameDifficulty(difficulty_.getDifficultyLevel() *
+                                     ipow<float>(1.5, 2));
         moveSpeedFac = difficulty_.getStageSpeedMultiplier();
     }
     killed_ = 0;
@@ -101,6 +101,7 @@ void GameWorld::resetStage(coord_t t) {
     bossLevel = 0;
     bossSlideTime = 0;
     if (moveSpeedDst == 0) moveSpeedDst = 1;
+    restartRandomPool(stageNum * 1000 + static_cast<int>(t));
 }
 
 void GameWorld::addScore(unsigned int p) {
@@ -307,7 +308,23 @@ void GameWorld::endStage() {
     sendMessage(GameMessage::stageComplete());
 }
 
+void GameWorld::endGame() {
+    if (!isPlayerAlive() || !player->playerInControl()) return;
+    sendMessage(GameMessage::gameComplete());
+    enemies.clear();
+    playerBullets.clear();
+    enemyBullets.clear();
+    moveSpeedDst = 5;
+    moveSpeedVel = 0.8;
+    sendMessage(AudioMessage::fadeOutMusic());
+    sendMessage(AudioMessage::playSound(SoundEffect::Liftoff));
+    stage->doOverride({59, 59, 59, 59, 59, 59, 59, 59, 59, 59,
+                       59, 59, 59, 59, 59, 59, 59, 59, 61, 53});
+}
+
 bool GameWorld::shouldGetNABonus() const { return killed_ <= bosses_; }
+
+int GameWorld::getBossesAlive() const { return bossLevel; }
 
 coord_t GameWorld::pushBoss(std::initializer_list<section_t> bossLoop,
                             coord_t v) {
@@ -322,8 +339,8 @@ coord_t GameWorld::pushBoss(std::initializer_list<section_t> bossLoop,
 }
 
 void GameWorld::popBoss(coord_t x) {
-    moveSpeedDst = x;
     if (--bossLevel == 0) {
+        moveSpeedDst = x;
         moveSpeedVel = 0.25;
         bossSlideTime = 5;
         stage->exitBossLoop();

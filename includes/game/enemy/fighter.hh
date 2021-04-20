@@ -23,9 +23,9 @@ class EnemyFighter : public EnemyObject {
   private:
     int pattern_;
     float fireTime_{0};
-    /*int fireCounter_{0};
-    coord_t t_{0};*/
+    float t_{0};
     void movePattern(GameWorld& w, float delta);
+    void fireAtPlayer(GameWorld& w, float delta, coord_t fireMul);
 };
 };  // namespace hiemalia
 

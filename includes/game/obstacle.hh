@@ -38,6 +38,7 @@ class DestroyableObstacle : public Obstacle, public ObjectDamageable {
     virtual ~DestroyableObstacle() {}
 
   private:
+    void absorbBullets(GameWorld& w, const BulletList& list);
     void onDamage(GameWorld& w, float dmg, const Point3D& pointOfContact);
     void onDeath(GameWorld& w);
 };

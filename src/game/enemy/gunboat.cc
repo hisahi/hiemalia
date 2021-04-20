@@ -18,7 +18,8 @@ namespace hiemalia {
 EnemyGunboat::EnemyGunboat(const Point3D& pos) : EnemyObject(pos) {
     useGameModel(GameModel::EnemyGunboat);
     rot = Orient3D::atPlayer;
-    fireTime_ = random(std::uniform_real_distribution<float>(0, 1));
+    fireTime_ =
+        getRandomPool().random(std::uniform_real_distribution<float>(0, 1));
     vel = Point3D(0, 0, -1 / 16);
 }
 

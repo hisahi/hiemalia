@@ -16,6 +16,7 @@
 namespace hiemalia {
 
 using random_engine = std::default_random_engine;
+using random_pool_engine = std::mt19937;
 
 random_engine& getRandomEngine();
 
@@ -24,6 +25,20 @@ auto random(T distr) -> typename T::result_type {
     return distr(getRandomEngine());
 }
 
+class RandomPool {
+  public:
+    RandomPool(int idx);
+    template <typename T>
+    auto random(T distr) -> typename T::result_type {
+        return distr(engine_);
+    }
+
+  private:
+    random_pool_engine engine_;
+};
+
+RandomPool& getRandomPool();
+void restartRandomPool(int i);
 Point3D randomUnitVector();
 }  // namespace hiemalia
 

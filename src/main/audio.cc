@@ -33,6 +33,10 @@ static auto soundEffectNames = hiemalia::makeArray<NamePair<SoundEffect>>({
     {"fire3.wav", SoundEffect::EnemyFire3},
     {"fire4.wav", SoundEffect::EnemyFire4},
     {"fire5.wav", SoundEffect::EnemyFire5},
+    {"fire6.wav", SoundEffect::EnemyFire6},
+    {"place.wav", SoundEffect::BlockerPlace},
+    {"flip.wav", SoundEffect::DirFlip},
+    {"awaywego.wav", SoundEffect::Liftoff},
 });
 
 void AudioConfig::load(ConfigSectionStore store) {

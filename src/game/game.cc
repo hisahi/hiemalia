@@ -63,11 +63,23 @@ static void drawLives(SplinterBuffer& sbuf, RendererText& font, coord_t x,
     font.renderTextLine(sbuf, x + font.charWidth() * 3, y, white, s);
 }
 
+static void drawStageCounter(SplinterBuffer& sbuf, RendererText& font,
+                             coord_t x, coord_t y, unsigned stage,
+                             unsigned cycle) {
+    static const std::string sn = std::to_string(stageCount);
+    std::string s = std::to_string(stage);
+    std::string c = std::to_string(cycle);
+    c.insert(c.begin(), 3 - c.size(), ' ');
+    font.drawTextLineCenter(sbuf, x, y, white, c + " * " + s + "/" + sn);
+}
+
 void GameMain::drawStatusBar() {
     statusbar_.clear();
     drawScore(statusbar_, font_, -0.5, -0.9375, world_->score);
     drawScore(statusbar_, font_, 0.5, -0.9375, world_->highScore);
     drawLives(statusbar_, font_, -0.5, 0.9375, world_->lives);
+    drawStageCounter(statusbar_, font_, 0.5, 0.9375, world_->stageNum,
+                     world_->cycle);
 }
 
 void GameMain::startNewStage() { world_->startNewStage(); }
@@ -102,6 +114,9 @@ void GameMain::gotMessage(const GameMessage& msg) {
             break;
         case GameMessageType::StageComplete:
             doStageComplete();
+            break;
+        case GameMessageType::GameComplete:
+            doGameComplete();
             break;
         case GameMessageType::ExitGame:
             doExitGame();
@@ -219,6 +234,26 @@ void GameMain::doStageComplete() {
     sendMessage(AudioMessage::fadeOutMusic());
     bonus_ = 0;
     bonusIndex_ = 0;
+}
+
+void GameMain::doGameCompleteTick(GameState& state, float interval) {
+    GameWorld& w = *world_;
+    auto& plr = w.player;
+    const Point3D& p = w.getPlayerPosition();
+    Point3D cam = Point3D(p.x + p_fpx, p.y + p_fpy, p.z + p_fpz);
+    r3d_.setCamera(cam, plr->rot, c_scale);
+    w.go(interval);
+    w.drawStage(state.sbuf, r3d_);
+    plr->updateGameEnd(w, interval);
+    w.renderPlayer(state.sbuf, r3d_, {0, 0, 0});
+    timer -= interval;
+    if (timer <= 0) doStageComplete();
+}
+
+void GameMain::doGameComplete() {
+    GameWorld& w = *world_;
+    timer = 3;
+    gameComplete_ = true;
 }
 
 static unsigned getTimeBonus(float time) {
@@ -371,6 +406,10 @@ bool GameMain::run(GameState& state, float interval) {
     } else if (stageComplete_) {
         state.sbuf.push(Splinter(SplinterType::BeginClipCenter, -Y, +Y));
         doStageCompleteTick(state, interval);
+        state.sbuf.push(Splinter(SplinterType::EndClip, 0, 0));
+    } else if (gameComplete_) {
+        state.sbuf.push(Splinter(SplinterType::BeginClipCenter, -Y, +Y));
+        doGameCompleteTick(state, interval);
         state.sbuf.push(Splinter(SplinterType::EndClip, 0, 0));
     } else {
         state.sbuf.push(Splinter(SplinterType::BeginClipCenter, -Y, +Y));

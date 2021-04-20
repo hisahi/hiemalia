@@ -112,6 +112,8 @@ struct Orient3D {
     Orient3D(coord_t yaw, coord_t pitch, coord_t roll)
         : yaw(yaw), pitch(pitch), roll(roll) {}
 
+    inline Orient3D operator-() const { return Orient3D(-yaw, -pitch, -roll); }
+
     inline Orient3D& operator+=(const Orient3D& r) {
         yaw += r.yaw;
         pitch += r.pitch;

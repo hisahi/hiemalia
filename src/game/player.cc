@@ -192,4 +192,24 @@ bool PlayerObject::update(GameWorld& w, float delta) {
     return true;
 }
 
+void PlayerObject::updateGameEnd(GameWorld& w, float delta) {
+    if (pos.x < 0)
+        pos.x = std::min<coord_t>(0, pos.x + delta * 0.25);
+    else if (pos.x > 0)
+        pos.x = std::max<coord_t>(0, pos.x - delta * 0.25);
+    if (pos.y < 0)
+        pos.y = std::min<coord_t>(0, pos.y + delta * 0.25);
+    else if (pos.y > 0)
+        pos.y = std::max<coord_t>(0, pos.y - delta * 0.25);
+
+    if (rot.roll < 0)
+        rot.roll = std::min<coord_t>(0, rot.roll + maxRotation * 4 * delta);
+    else if (rot.roll > 0)
+        rot.roll = std::max<coord_t>(0, rot.roll - maxRotation * 4 * delta);
+    if (rot.pitch < 0)
+        rot.pitch = std::min<coord_t>(0, rot.pitch + maxRotation * 4 * delta);
+    else if (rot.pitch > 0)
+        rot.pitch = std::max<coord_t>(0, rot.pitch - maxRotation * 4 * delta);
+}
+
 }  // namespace hiemalia

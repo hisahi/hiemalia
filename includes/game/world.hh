@@ -79,33 +79,35 @@ class GameWorld {
     void setNewSpeed(coord_t s, coord_t d);
     void setCheckpoint(coord_t z);
     void endStage();
+    void endGame();
     void updateMoveSpeedInput(ControlState& controls, float delta);
     const GameDifficulty& difficulty() const noexcept;
     coord_t pushBoss(std::initializer_list<section_t> bossLoop, coord_t v);
     void popBoss(coord_t x);
     void onEnemyKilled(const GameObject& obj);
     bool shouldGetNABonus() const;
+    int getBossesAlive() const;
 
     template <typename T, typename... Ts>
-    void spawn(Point3D p, Ts&&... args) {
+    void spawn(const Point3D& p, Ts&&... args) {
         auto& o = objects.emplace_back(
             std::make_shared<T>(p, std::forward<Ts>(args)...));
         o->onSpawn(*this);
     }
     template <typename T, typename... Ts>
-    void spawnEnemy(Point3D p, Ts&&... args) {
+    void spawnEnemy(const Point3D& p, Ts&&... args) {
         auto& o = enemies.emplace_back(
             std::make_shared<T>(p, std::forward<Ts>(args)...));
         o->onSpawn(*this);
     }
     template <typename T, typename... Ts>
-    void firePlayerBullet(Point3D p, Ts&&... args) {
+    void firePlayerBullet(const Point3D& p, Ts&&... args) {
         auto& b = playerBullets.emplace_back(
             std::make_shared<T>(p, std::forward<Ts>(args)...));
         b->onSpawn(*this);
     }
     template <typename T, typename... Ts>
-    void fireEnemyBullet(Point3D p, Point3D v, Ts&&... args) {
+    void fireEnemyBullet(const Point3D& p, const Point3D& v, Ts&&... args) {
         auto& b = enemyBullets.emplace_back(
             std::make_shared<T>(p, v, std::forward<Ts>(args)...));
         b->onSpawn(*this);

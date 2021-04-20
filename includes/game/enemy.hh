@@ -31,7 +31,7 @@ class EnemyObject : public GameObject, public ObjectDamageable {
     inline bool canHitWalls() const { return canHitWalls_; }
     void kill(GameWorld& w);
     bool hitBullet(GameWorld& w, float damage, const Point3D& pointOfContact);
-    void hitWall(GameWorld& w);
+    virtual void hitWall(GameWorld& w);
     virtual ~EnemyObject() {}
 
   protected:

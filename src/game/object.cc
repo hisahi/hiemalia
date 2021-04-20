@@ -106,8 +106,11 @@ void GameObject::useGameModel(GameModel m, bool collision /* = true */) {
     setCollisionRadius(gm.radius);
 }
 
-bool GameObject::isOffScreen() const {
-    return pos.z < 0 && pos.z > collideRadius_;
+bool GameObject::isOffScreen() const { return pos.z < -collideRadius_; }
+
+bool GameObject::isOffScreen2() const {
+    return isOffScreen() ||
+           (vel.z > 0 && pos.z >= farObjectBackPlane + collideRadius_);
 }
 
 void GameObject::doMove(float delta, const Point3D& v) {
@@ -136,6 +139,8 @@ void GameObject::renderExCol(SplinterBuffer& sbuf, Renderer3D& r3d,
 }
 
 float ObjectDamageable::getHealth() const { return health_; }
+
+void ObjectDamageable::setHealth(float h) { health_ = h; }
 
 bool ObjectDamageable::damage(GameWorld& w, float damage,
                               const Point3D& pointOfContact) {

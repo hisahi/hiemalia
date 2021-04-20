@@ -14,7 +14,7 @@
 #include "hiemalia.hh"
 
 namespace hiemalia {
-EnemyTurret::EnemyTurret(const Point3D& p, Orient3D r)
+EnemyTurret::EnemyTurret(const Point3D& p, const Orient3D& r)
     : EnemyObject(p, 4.0f),
       baseModel_(getGameModel(GameModel::EnemyTurret)),
       baseRot_(r + Orient3D::atPlayer),
@@ -22,7 +22,8 @@ EnemyTurret::EnemyTurret(const Point3D& p, Orient3D r)
     useGameModel(GameModel::EnemyTurretCannon);
     rot = r + Orient3D::atPlayer;
     pos += rot.rotate(model().vertices[9]);
-    fireTime_ = random(std::uniform_real_distribution<float>(0, 1));
+    fireTime_ =
+        getRandomPool().random(std::uniform_real_distribution<float>(0, 1));
     exCol_.emplace_back(baseModel_.collision, Point3D(0, 0, 0), baseRot_,
                         scale);
 }
@@ -35,7 +36,7 @@ void EnemyTurret::aim(GameWorld& w, float delta) {
     Orient3D old = targetRot_;
     Point3D offset = w.getPlayerPosition() - pos;
     Orient3D newPredicted =
-        Orient3D::toPolar(old.rotate(Point3D(0, 0, offset.length())) +
+        Orient3D::toPolar(old.direction(offset.length()) +
                           Point3D(0, 0, delta * w.getMoveSpeed()));
     Orient3D newActual = Orient3D::toPolar(offset);
     if (angleDifference(newActual.pitch, baseRot_.pitch) <
@@ -62,7 +63,7 @@ bool EnemyTurret::doEnemyTick(GameWorld& w, float delta) {
         aim(w, delta);
         if (rot != targetRot_) {
             rot = rot.tendTo(targetRot_, delta);
-            exCol_[0].rot.yaw = baseRot_.yaw = rot.yaw;
+            // exCol_[0].rot.yaw = baseRot_.yaw = rot.yaw;
         }
         if (rot == targetRot_)
             fireTime_ += delta * 1.5f * w.difficulty().getFireRateMultiplier();

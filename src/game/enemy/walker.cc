@@ -18,9 +18,9 @@ static constexpr int patternCount = 1;
 EnemyWalker::EnemyWalker(const Point3D& pos, int pattern)
     : EnemyObject(pos, 10.0f),
       pattern_(pattern % patternCount),
+      rightAngle_(numbers::PI<coord_t>),
       leftLeg_(getGameModel(GameModel::EnemyWalkerLeg)),
-      rightLeg_(getGameModel(GameModel::EnemyWalkerLeg)),
-      rightAngle_(numbers::PI<coord_t>) {
+      rightLeg_(getGameModel(GameModel::EnemyWalkerLeg)) {
     useGameModel(GameModel::EnemyWalker);
     exCol_.emplace_back(leftLeg_.collision, Point3D(0, 0, 0), rot,
                         Point3D(-1, 1, 1));
