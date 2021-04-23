@@ -25,7 +25,7 @@ constexpr int pointsPer1up = 50000;
 GameWorld::GameWorld(ConfigSectionPtr<GameConfig> config)
     : config_(config), difficulty_{config->difficulty} {
     moveSpeedFac = difficulty_.getStageSpeedMultiplier();
-    //stageNum += 1;
+    stageNum += 1;
 }
 
 MoveRegion GameWorld::getMoveRegionForZ(coord_t z) const {
@@ -222,14 +222,7 @@ coord_t GameWorld::getMoveSpeed() const {
 }
 
 coord_t GameWorld::getMoveSpeedDelta() const {
-    if (bossLevel > 0)
-        return 0;
-    else if (moveSpeedDst > moveSpeedBase)
-        return moveSpeedVel;
-    else if (moveSpeedDst < moveSpeedBase)
-        return -moveSpeedVel;
-    else
-        return 0;
+    return moveSpeedVel * pow<coord_t>(2, moveSpeedCtl) * (moveSpeedDst - moveSpeedBase) * 0.5;
 }
 
 void GameWorld::updateMoveSpeedInput(ControlState& inputs, float delta) {
@@ -292,8 +285,12 @@ bool GameWorld::respawn() {
 
 void GameWorld::setCheckpoint(coord_t z) {
     if (!isPlayerAlive() || !player->playerInControl()) return;
-    checkpoint = std::max(checkpoint, sections * stageSectionLength + z);
-    LOG_DEBUG("new checkpoint: " FMT_coord_t, checkpoint);
+    coord_t p = sections * stageSectionLength + z;
+    if (checkpoint < p) {
+        LOG_DEBUG("new checkpoint: " FMT_coord_t, p);
+        checkpoint = p;
+        restartRandomPool(stageNum * 1000 + static_cast<int>(p));
+    }
 }
 
 void GameWorld::setNewSpeed(coord_t s, coord_t d) {

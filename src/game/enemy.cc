@@ -66,7 +66,12 @@ void EnemyObject::onDeath(GameWorld& w) {
     if (!alive_) {
         noModel();
         sponge_ = 0.04f;
+        vel *= 0;
     }
+}
+
+bool EnemyObject::shouldBeDead() const {
+    return sponge_ > 0;
 }
 
 void EnemyObject::doExplode(GameWorld& w) { doExplode(w, model()); }
@@ -97,10 +102,11 @@ void EnemyObject::killPlayerOnContact(GameWorld& w) {
 static Point3D bulletAimAt(const Point3D& me, coord_t speed, const Point3D& p0,
                            const Point3D& x) {
     if (x.isZero()) return (p0 - me).normalize() * speed;
-    Point3D p = p0 + x;
+    Point3D ax = x * (1 + ((p0 - me).length() / 32));
+    Point3D p = p0 + ax;
     Point3D d = p - me;
-    Point3D y = d - x * (x.dot(d) / x.dot(x));
-    Point3D pointOfContact = p0 + x * (y.length() / speed);
+    Point3D y = d - ax * (ax.dot(d) / ax.dot(ax));
+    Point3D pointOfContact = p0 + ax * (y.length() / speed);
     return (pointOfContact - me).normalize() * speed;
 }
 
@@ -114,7 +120,7 @@ Point3D EnemyObject::aimAtPlayer(GameWorld& w, float speed, float lead) const {
             ? nonLead
             : bulletAimAt(
                   pos, speed, w.getPlayerPosition(),
-                  w.getPlayer().vel * 0.125 +
+                  w.getPlayer().vel * sqrt(w.getPlayer().vel.length()) * 0.125 +
                       Point3D(0, 0, w.getMoveSpeed() + w.getMoveSpeedDelta()));
     return Point3D::lerp(nonLead, lead, yesLead);
 }

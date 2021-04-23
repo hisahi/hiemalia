@@ -13,7 +13,10 @@
 namespace hiemalia {
 SetSpeedScript::SetSpeedScript(const Point3D& pos, const std::string& prop)
     : ScriptObject(pos) {
-    if (prop == "slow") {
+    if (prop == "veryslow") {
+        speed_ = 0.75;
+        vel_ = 0.25;
+    } else if (prop == "slow") {
         speed_ = 1;
         vel_ = 0.5;
     } else if (prop == "medium" || prop == "normal") {
@@ -29,6 +32,7 @@ SetSpeedScript::SetSpeedScript(const Point3D& pos, const std::string& prop)
 
 void SetSpeedScript::doScript(GameWorld& w, bool instant) {
     w.setNewSpeed(speed_, vel_);
+    LOG_TRACE("setting speed to " FMT_coord_t, speed_);
 }
 
 }  // namespace hiemalia

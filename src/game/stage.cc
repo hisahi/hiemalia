@@ -36,7 +36,7 @@ GameStage::GameStage(std::vector<section_t>&& sections, int loopLength,
 
 void GameStage::nextSection() {
     if (overridden_) {
-        int i = overrideIndex_;
+        size_t i = overrideIndex_;
         if (i + 1 < overrideSec_.size()) ++overrideIndex_;
         visible.push_back(overrideSec_[i]);
         return;
@@ -254,6 +254,7 @@ GameStage GameStage::load(int stagenum) {
     }
 
     LOG_TRACE("sections=%d", sections.size());
+    LOG_TRACE("offset=" FMT_coord_t, offset);
     std::sort(spawns.begin(), spawns.end(),
               [&](const ObjectSpawn& a, const ObjectSpawn& b) {
                   return a.pos_i < b.pos_i ||

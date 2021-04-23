@@ -15,7 +15,7 @@
 #include "random.hh"
 
 namespace hiemalia {
-EnemyGunboat2::EnemyGunboat2(const Point3D& pos) : EnemyObject(pos, 8.0f) {
+EnemyGunboat2::EnemyGunboat2(const Point3D& pos) : EnemyObject(pos, 4.0f) {
     useGameModel(GameModel::EnemyGunboat2);
     rot = Orient3D::atPlayer;
     fireTime_ =
@@ -33,7 +33,7 @@ bool EnemyGunboat2::doEnemyTick(GameWorld& w, float delta) {
             sendMessage(AudioMessage::playSound(SoundEffect::EnemyFire2,
                                                 pos - w.getPlayerPosition()));
             fireBulletAtPlayer<EnemyBulletSimple>(w, model().vertices[0], 0.75f,
-                                                  0.125f, 0.25f);
+                                                  0.125f, 1.0f);
             fireTime_ -= 1;
         }
     }
@@ -45,7 +45,7 @@ bool EnemyGunboat2::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     sendMessage(AudioMessage::playSound(SoundEffect::ExplodeSmall,
                                         pos - w.getPlayerPosition()));
     if (killedByPlayer) {
-        addScore(w, 200);
+        addScore(w, 300);
         w.onEnemyKilled(*this);
     }
     return true;

@@ -267,8 +267,7 @@ MenuHelp::MenuHelp(MenuHandler& handler) : Menu(handler) {
     stageSection_ = &getSectionById(0).model;
     enemy01_ = getGameModel(GameModel::EnemyGunboat).model;
     enemy02_ = getGameModel(GameModel::EnemyFighter).model;
-    enemy03_ = getGameModel(GameModel::EnemyChevron)
-                   .model;  // TODO use some other model
+    enemy03_ = getGameModel(GameModel::EnemyDestroyer).model;
 }
 
 MenuHelp::~MenuHelp() noexcept {}

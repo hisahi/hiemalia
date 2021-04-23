@@ -14,10 +14,11 @@
 
 namespace hiemalia {
 EnemySpider::EnemySpider(const Point3D& pos)
-    : EnemyObject(pos, 5.0f), leg_(getGameModel(GameModel::EnemySpiderLeg)) {
+    : EnemyObject(pos, 3.0f), leg_(getGameModel(GameModel::EnemySpiderLeg)) {
     useGameModel(GameModel::EnemySpider);
-    height_ = leg_.model->vertices[2].y;
-    ;
+    height_ = leg_.model->vertices[3].y;
+    rot = Orient3D::atPlayer;
+    canHitWalls(true);
 }
 
 bool EnemySpider::doEnemyTick(GameWorld& w, float delta) {
@@ -46,7 +47,7 @@ bool EnemySpider::doEnemyTick(GameWorld& w, float delta) {
         bool walk_ = true;
         Point3D ppos = w.getPlayerPosition();
         Point3D target = Point3D(ppos.x - pos.x, 0, ppos.z - pos.z);
-        target.z += w.getMoveSpeed() * target.length() * 0.5;
+        target.z += ipow<coord_t>(w.getMoveSpeed(), 4) * 0.5 * target.length();
         coord_t targetYaw = Orient3D::toPolar(target).yaw;
         coord_t angleDiff = angleDifference(targetYaw, rot.yaw);
         if (angleDiff != 0) {
@@ -57,7 +58,8 @@ bool EnemySpider::doEnemyTick(GameWorld& w, float delta) {
         pounce_ = target.lengthSquared() < 16 &&
                   angleDifferenceAbs(targetYaw, rot.yaw) < 0.5 &&
                   walkMul_ >= 0.99 &&
-                  pos.z - w.getPlayerPosition().z > getCollisionRadius() * 0.5;
+                  pos.z - w.getPlayerPosition().z > getCollisionRadius() * 0.5 &&
+                  ppos.y < pos.y;
         walk_ = walk_ && !pounce_;
 
         if (walk_) {
@@ -73,18 +75,22 @@ bool EnemySpider::doEnemyTick(GameWorld& w, float delta) {
 
         if (pounce_) {
             vel = target.normalize() * 1.75;
-            vel.y = std::max(coord_t(-1.5), (ppos.y - pos.y) * 2);
+            vel.y = clamp<coord_t>(-1.5, -sqrt(pos.y - ppos.y) * 2, -0.5);
         }
     }
 
     if (w.isPlayerAlive()) {
         killPlayerOnContact(w);
     }
+    if (!isInRegion(w, 0.25, 0.25, 0.0625, 0)) {
+        hitWall(w);
+    }
     return !isOffScreen();
 }
 
 void EnemySpider::render(SplinterBuffer& sbuf, Renderer3D& r3d) {
     EnemyObject::render(sbuf, r3d);
+    if (shouldBeDead()) return;
     static const Point3D right = Point3D(1, 1, 1);
     static coord_t m = radians<coord_t>(8);
     Orient3D r1 =

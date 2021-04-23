@@ -251,7 +251,7 @@ void GameMain::doGameCompleteTick(GameState& state, float interval) {
 }
 
 void GameMain::doGameComplete() {
-    GameWorld& w = *world_;
+    //GameWorld& w = *world_;
     timer = 3;
     gameComplete_ = true;
 }

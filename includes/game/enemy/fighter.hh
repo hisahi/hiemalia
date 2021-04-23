@@ -24,6 +24,7 @@ class EnemyFighter : public EnemyObject {
     int pattern_;
     float fireTime_{0};
     float t_{0};
+    coord_t v_{0};
     void movePattern(GameWorld& w, float delta);
     void fireAtPlayer(GameWorld& w, float delta, coord_t fireMul);
 };

@@ -13,10 +13,11 @@
 #include "hiemalia.hh"
 
 namespace hiemalia {
-static constexpr int patternCount = 1;
+
+static constexpr int patternCount = 3;
 
 EnemyWalker::EnemyWalker(const Point3D& pos, int pattern)
-    : EnemyObject(pos, 10.0f),
+    : EnemyObject(pos, 7.0f),
       pattern_(pattern % patternCount),
       rightAngle_(numbers::PI<coord_t>),
       leftLeg_(getGameModel(GameModel::EnemyWalkerLeg)),
@@ -29,15 +30,19 @@ EnemyWalker::EnemyWalker(const Point3D& pos, int pattern)
     height_ = leftLeg_.model->vertices[4].y;
 }
 
-const std::vector<ExtraCollision>& EnemyWalker::exCollisions() const {
-    return exCol_;
-}
-
 void EnemyWalker::doWalk(GameWorld& w, float delta) {
     bool walk;
     switch (pattern_) {
         case 0:
             walk = true;
+            rot = Orient3D::atPlayer;
+            break;
+        case 1:
+            walk = pos.x < 0.75;
+            rot = Orient3D(radians<coord_t>(150), 0, 0);
+            break;
+        case 2:
+            walk = pos.z > 1.5;
             rot = Orient3D::atPlayer;
             break;
         default:
@@ -50,11 +55,15 @@ void EnemyWalker::doWalk(GameWorld& w, float delta) {
         rightAngle_ = wrapAngle(rightAngle_) + delta * 3.0;
         leftPitch_ = sin(leftAngle_);
         rightPitch_ = sin(rightAngle_);
-        pos += rot.direction(1.0 / 64 * pitchMul_) *
+        pos += rot.direction(delta * pitchMul_ / 2) *
                std::max(cos(leftAngle_), cos(rightAngle_));
     } else if (pitchMul_ > 0) {
         pitchMul_ = std::max<coord_t>(0, pitchMul_ - delta * 2.0);
     }
+}
+
+const std::vector<ExtraCollision>& EnemyWalker::exCollisions() const {
+    return exCol_;
 }
 
 bool EnemyWalker::doEnemyTick(GameWorld& w, float delta) {

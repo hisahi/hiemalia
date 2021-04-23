@@ -17,7 +17,7 @@
 #include "game/world.hh"
 
 namespace hiemalia {
-constexpr int maxPattern = 1;
+constexpr int maxPattern = 3;
 
 MovingBox::MovingBox(const Point3D& pos, int pattern, coord_t x, coord_t y,
                      coord_t z, coord_t dx, coord_t dy, coord_t dz, coord_t t,
@@ -35,7 +35,11 @@ MovingBox::MovingBox(const Point3D& pos, int pattern, coord_t x, coord_t y,
     switch (pattern_) {
         case 0:
             dx_ *= numbers::PI<coord_t> / 2;
+            break;
+        case 1:
             dy_ *= numbers::PI<coord_t> / 2;
+            break;
+        case 2:
             dz_ *= numbers::PI<coord_t> / 2;
             break;
         default:
@@ -46,10 +50,13 @@ MovingBox::MovingBox(const Point3D& pos, int pattern, coord_t x, coord_t y,
 void MovingBox::updateBox(GameWorld& w, float delta) {
     switch (pattern_) {
         case 0:
-            pos.x += dx_ * sin(x_ * numbers::TAU<coord_t>);
+            pos.x += dx_ * sin(x_ * numbers::TAU<coord_t>) * delta;
             break;
         case 1:
-            pos.y += dy_ * sin(x_ * numbers::TAU<coord_t>);
+            pos.y += dy_ * sin(x_ * numbers::TAU<coord_t>) * delta;
+            break;
+        case 2:
+            pos.z += dz_ * sin(x_ * numbers::TAU<coord_t>) * delta;
             break;
         default:
             never("invalid pattern");

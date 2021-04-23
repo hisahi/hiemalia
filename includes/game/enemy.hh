@@ -47,6 +47,7 @@ class EnemyObject : public GameObject, public ObjectDamageable {
     void addScore(GameWorld& w, unsigned int score);
     void killPlayerOnContact(GameWorld& w);
     inline void canHitWalls(bool flag) { canHitWalls_ = flag; }
+    bool shouldBeDead() const;
 
     template <typename T, typename... Ts>
     void fireBullet(GameWorld& w, const Point3D& turret, const Point3D& dir,

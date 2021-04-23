@@ -14,7 +14,7 @@
 
 namespace hiemalia {
 
-EnemyBoss3::EnemyBoss3(const Point3D& pos) : EnemyObject(pos, 45.0f) {
+EnemyBoss3::EnemyBoss3(const Point3D& pos) : EnemyObject(pos, 40.0f) {
     useGameModel(GameModel::EnemyBoss3);
     fireTime_ =
         getRandomPool().random(std::uniform_real_distribution<float>(0, 1));

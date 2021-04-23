@@ -71,7 +71,7 @@ static HighScoreTable getDefaultHighscoreTable() {
             e.push_back(HighScoreEntry{
                 {randomChars[random(rc)], randomChars[random(rc)],
                  randomChars[random(rc)]},
-                (i + 1) * 2500UL,
+                (i + 1) * 5000UL,
                 1 + (i / 2) / stageCount,
                 ((i / 2) % stageCount) + 1});
         }
