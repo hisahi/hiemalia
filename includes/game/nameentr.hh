@@ -76,7 +76,7 @@ class NameEntry : public LogicModule, MessageHandler<MenuMessage> {
     int index_{0};
     int rank_{0};
     float t_{0};
-    bool continue_{true};
+    bool running_{true};
     RendererText rendtext_;
     Renderer2D rend2d_;
     SplinterBuffer maintext_;

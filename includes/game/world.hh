@@ -27,6 +27,7 @@ class EnemyObject;
 
 constexpr int objectsMax = 512;
 constexpr int stageCount = 4;
+constexpr int defaultLives = 3;
 inline const coord_t farObjectBackPlane =
     static_cast<coord_t>(1 * stageSpawnDistance);
 
@@ -87,6 +88,8 @@ class GameWorld {
     void onEnemyKilled(const GameObject& obj);
     bool shouldGetNABonus() const;
     int getBossesAlive() const;
+    int continuesRemaining() const;
+    void spendContinue();
 
     template <typename T, typename... Ts>
     void spawn(const Point3D& p, Ts&&... args) {
@@ -138,7 +141,9 @@ class GameWorld {
     int stageNum{0};
     int cycle{1};
     bool nextStage{true};
-    int lives{3};
+    int lives{defaultLives};
+    int continues_{0};
+    int continuesUsed_{0};
     int bosses_{0};
     int killed_{0};
     Point3D lastPos{0, 0, 0};

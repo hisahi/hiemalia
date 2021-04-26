@@ -17,7 +17,7 @@
 
 namespace hiemalia {
 
-enum Item : symbol_t { Item_Difficulty, Item_Back };
+enum Item : symbol_t { Item_Difficulty, Item_Continues, Item_Back };
 
 void MenuGameOptions::begin(GameState& state) {
     state.config.sectionLoad(holder_->gconfig);
@@ -25,6 +25,8 @@ void MenuGameOptions::begin(GameState& state) {
     option(MenuOption::select(Item_Difficulty, "DIFFICULTY",
                               {"EASY", "NORMAL", "HARD"},
                               static_cast<int>(config.difficulty)));
+    option(MenuOption::range(Item_Continues, "CONTINUES", 0, 10,
+                             config.maxContinues));
     option(MenuOption::spacer(symbol_none));
     option(MenuOption::button(Item_Back, "BACK"));
 }
@@ -35,6 +37,9 @@ void MenuGameOptions::select(int index, symbol_t id) {
         case Item_Difficulty:
             config.difficulty = static_cast<GameDifficultyLevel>(
                 options_[index].asSelect().index);
+            break;
+        case Item_Continues:
+            config.maxContinues = options_[index].asSpinner().value;
             break;
         case Item_Back:
             closeMenu();

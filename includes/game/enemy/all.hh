@@ -35,3 +35,4 @@
 #include "wasp.hh"
 #include "wave.hh"
 #include "wturret.hh"
+#include "zoomer.hh"

@@ -25,7 +25,8 @@ constexpr int pointsPer1up = 50000;
 GameWorld::GameWorld(ConfigSectionPtr<GameConfig> config)
     : config_(config), difficulty_{config->difficulty} {
     moveSpeedFac = difficulty_.getStageSpeedMultiplier();
-    stageNum += 1;
+    continues_ = config->maxContinues;
+    // stageNum += 2;
 }
 
 MoveRegion GameWorld::getMoveRegionForZ(coord_t z) const {
@@ -66,17 +67,26 @@ Point3D GameWorld::rotateInSection(Point3D v, coord_t z) const {
         .project(v);
 }
 
+static float nextDifficulty(float d) {
+    if (d < 2) {
+        return d + 0.5f;
+    }
+    dynamic_assert(d < 2.5f, "invalid difficulty level");
+    return d + (2.5f - d) * 0.5f;
+}
+
 void GameWorld::startNewStage() {
     ++stageNum;
     if (stageNum > stageCount) {
         ++cycle;
         stageNum = 1;
-        difficulty_ = GameDifficulty(difficulty_.getDifficultyLevel() *
-                                     ipow<float>(1.5, 2));
+        difficulty_ =
+            GameDifficulty(nextDifficulty(difficulty_.getDifficultyLevel()));
         moveSpeedFac = difficulty_.getStageSpeedMultiplier();
     }
     killed_ = 0;
     checkpoint = 0;
+    // checkpoint += 80;
     resetStage(checkpoint);
 }
 
@@ -104,9 +114,22 @@ void GameWorld::resetStage(coord_t t) {
     restartRandomPool(stageNum * 1000 + static_cast<int>(t));
 }
 
+int GameWorld::continuesRemaining() const { return continues_; }
+
+void GameWorld::spendContinue() {
+    dynamic_assert(continues_ > 0, "must have a continue to spend");
+    lives = defaultLives;
+    checkpoint = 0;
+    ++continuesUsed_;
+    --continues_;
+    --stageNum;
+    nextStage = true;
+}
+
 void GameWorld::addScore(unsigned int p) {
     if ((score + p) / pointsPer1up > score / pointsPer1up) {
         lives = std::min(99, lives + 1);
+        sendMessage(AudioMessage::playSound(SoundEffect::ExtraLife));
     }
     score += p;
     if (highScore < score) {
@@ -222,7 +245,8 @@ coord_t GameWorld::getMoveSpeed() const {
 }
 
 coord_t GameWorld::getMoveSpeedDelta() const {
-    return moveSpeedVel * pow<coord_t>(2, moveSpeedCtl) * (moveSpeedDst - moveSpeedBase) * 0.5;
+    return moveSpeedVel * pow<coord_t>(2, moveSpeedCtl) *
+           (moveSpeedDst - moveSpeedBase) * 0.5;
 }
 
 void GameWorld::updateMoveSpeedInput(ControlState& inputs, float delta) {

@@ -26,6 +26,7 @@ class GameConfig : public ConfigSection {
     void save(ConfigSectionStore store) const override;
 
     GameDifficultyLevel difficulty{GameDifficultyLevel::Normal};
+    int maxContinues{3};
 };
 
 }  // namespace hiemalia

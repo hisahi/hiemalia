@@ -18,6 +18,7 @@ class EnemyFighter : public EnemyObject {
     bool doEnemyTick(GameWorld& w, float delta);
 
   protected:
+    void onEnemyDamage(GameWorld& w, float dmg, const Point3D& pointOfContact);
     bool onEnemyDeath(GameWorld& w, bool killedByPlayer);
 
   private:
@@ -27,6 +28,8 @@ class EnemyFighter : public EnemyObject {
     coord_t v_{0};
     void movePattern(GameWorld& w, float delta);
     void fireAtPlayer(GameWorld& w, float delta, coord_t fireMul);
+
+    void patternMoveXThenZ(GameWorld& w, float dt, coord_t v, float xt);
 };
 };  // namespace hiemalia
 

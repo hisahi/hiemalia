@@ -128,9 +128,7 @@ bool EnemyFuzzball::doEnemyTick(GameWorld& w, float delta) {
     }
     rot += Orient3D(33, 37, 43) * delta;
     killPlayerOnContact(w);
-    if (!isInRegion(w, 0.25, 0.25, 0.25, 0.25)) {
-        hitWall(w);
-    }
+    explodeIfOutOfBounds(w, 0.25, 0.25, 0.25, 0.25);
     return !isOffScreen();
 }
 

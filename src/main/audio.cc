@@ -14,30 +14,30 @@
 #include "file.hh"
 
 namespace hiemalia {
-static auto soundEffectNames = hiemalia::makeArray<NamePair<SoundEffect>>({
-    {"mselect.wav", SoundEffect::MenuSelect},
-    {"mmove.wav", SoundEffect::MenuChange},
-    {"pause.wav", SoundEffect::Pause},
-    {"explode.wav", SoundEffect::PlayerExplode},
-    {"hit.wav", SoundEffect::PlayerHit},
-    {"fire.wav", SoundEffect::PlayerFire},
-    {"hiscore.wav", SoundEffect::HighScoreEntered},
-    {"expsmall.wav", SoundEffect::ExplodeSmall},
-    {"expmed.wav", SoundEffect::ExplodeMedium},
-    {"explarge.wav", SoundEffect::ExplodeLarge},
-    {"fizz.wav", SoundEffect::BulletFizz},
-    {"bhit.wav", SoundEffect::BulletDamage},
-    {"bnohit.wav", SoundEffect::BulletNoDamage},
-    {"fire1.wav", SoundEffect::EnemyFire1},
-    {"fire2.wav", SoundEffect::EnemyFire2},
-    {"fire3.wav", SoundEffect::EnemyFire3},
-    {"fire4.wav", SoundEffect::EnemyFire4},
-    {"fire5.wav", SoundEffect::EnemyFire5},
-    {"fire6.wav", SoundEffect::EnemyFire6},
-    {"place.wav", SoundEffect::BlockerPlace},
-    {"flip.wav", SoundEffect::DirFlip},
-    {"awaywego.wav", SoundEffect::Liftoff},
-});
+static auto soundEffectNames = hiemalia::makeArray<NamePair<SoundEffect>>(
+    {{"mselect.wav", SoundEffect::MenuSelect},
+     {"mmove.wav", SoundEffect::MenuChange},
+     {"pause.wav", SoundEffect::Pause},
+     {"explode.wav", SoundEffect::PlayerExplode},
+     {"hit.wav", SoundEffect::PlayerHit},
+     {"fire.wav", SoundEffect::PlayerFire},
+     {"hiscore.wav", SoundEffect::HighScoreEntered},
+     {"expsmall.wav", SoundEffect::ExplodeSmall},
+     {"expmed.wav", SoundEffect::ExplodeMedium},
+     {"explarge.wav", SoundEffect::ExplodeLarge},
+     {"fizz.wav", SoundEffect::BulletFizz},
+     {"bhit.wav", SoundEffect::BulletDamage},
+     {"bnohit.wav", SoundEffect::BulletNoDamage},
+     {"fire1.wav", SoundEffect::EnemyFire1},
+     {"fire2.wav", SoundEffect::EnemyFire2},
+     {"fire3.wav", SoundEffect::EnemyFire3},
+     {"fire4.wav", SoundEffect::EnemyFire4},
+     {"fire5.wav", SoundEffect::EnemyFire5},
+     {"fire6.wav", SoundEffect::EnemyFire6},
+     {"place.wav", SoundEffect::BlockerPlace},
+     {"flip.wav", SoundEffect::DirFlip},
+     {"awaywego.wav", SoundEffect::Liftoff},
+     {"1up.wav", SoundEffect::ExtraLife}});
 
 void AudioConfig::load(ConfigSectionStore store) {
     music = store.get<bool>("Music", music);

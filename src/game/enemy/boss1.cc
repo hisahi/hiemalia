@@ -44,9 +44,12 @@ bool EnemyBoss1::doEnemyTick(GameWorld& w, float delta) {
             while (fireTime_ >= 1 && wall_ > 0) {
                 sendMessage(AudioMessage::playSound(
                     SoundEffect::EnemyFire5, pos - w.getPlayerPosition()));
-                if (wall_ == 11)
+                if (wall_ == 11) {
+                    sendMessage(AudioMessage::playSound(
+                        SoundEffect::EnemyFire4, pos - w.getPlayerPosition()));
                     fireBulletAtPlayer<EnemyBulletSimple>(
                         w, model().vertices[0], 0.75f, 0.03125f, 0.03125f);
+                }
                 fireBullet<EnemyBulletSimpleScalable>(w, model().vertices[0],
                                                       Point3D(0, 0, -10), 2.5f,
                                                       0.0f, 0.5f);

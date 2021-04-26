@@ -78,7 +78,7 @@ void MenuHelp::loadPage() {
             options_.at(i++).text = "                              ";
             options_.at(i++).text = "  STRENGTHS   AGILITY         ";
             options_.at(i++).text = "              LOW PRICE       ";
-            options_.at(i++).text = "              EFFICIENCY      ";
+            options_.at(i++).text = "              FUEL ECONOMY    ";
             options_.at(i++).text = "                              ";
             options_.at(i++).text = "  WEAKNESSES  SHIELDS         ";
             options_.at(i++).text = "              LOOKS           ";
@@ -110,7 +110,7 @@ void MenuHelp::loadPage() {
             options_.at(i++).text = "                              ";
             options_.at(i++).text = "                              ";
             options_.at(i++).text = "                              ";
-            options_.at(i++).text = "LIFE COUNTER        LOOP/STAGE";
+            options_.at(i++).text = "LIVES           LOOP * STAGE/4";
             break;
         case HelpPage::Stage:
             options_.at(i++).text = "                              ";

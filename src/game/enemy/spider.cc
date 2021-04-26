@@ -55,11 +55,11 @@ bool EnemySpider::doEnemyTick(GameWorld& w, float delta) {
                 clamp(-maxTurnSpeed * delta, angleDiff, maxTurnSpeed * delta);
             rot.yaw = wrapAngle(rot.yaw + angleDiff);
         }
-        pounce_ = target.lengthSquared() < 16 &&
-                  angleDifferenceAbs(targetYaw, rot.yaw) < 0.5 &&
-                  walkMul_ >= 0.99 &&
-                  pos.z - w.getPlayerPosition().z > getCollisionRadius() * 0.5 &&
-                  ppos.y < pos.y;
+        pounce_ =
+            target.lengthSquared() < 16 &&
+            angleDifferenceAbs(targetYaw, rot.yaw) < 0.5 && walkMul_ >= 0.99 &&
+            pos.z - w.getPlayerPosition().z > getCollisionRadius() * 0.5 &&
+            ppos.y < pos.y;
         walk_ = walk_ && !pounce_;
 
         if (walk_) {
@@ -82,9 +82,7 @@ bool EnemySpider::doEnemyTick(GameWorld& w, float delta) {
     if (w.isPlayerAlive()) {
         killPlayerOnContact(w);
     }
-    if (!isInRegion(w, 0.25, 0.25, 0.0625, 0)) {
-        hitWall(w);
-    }
+    explodeIfOutOfBounds(w, 0.25, 0.25, 0.0625, 0);
     return !isOffScreen();
 }
 

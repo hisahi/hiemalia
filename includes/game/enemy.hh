@@ -31,7 +31,7 @@ class EnemyObject : public GameObject, public ObjectDamageable {
     inline bool canHitWalls() const { return canHitWalls_; }
     void kill(GameWorld& w);
     bool hitBullet(GameWorld& w, float damage, const Point3D& pointOfContact);
-    virtual void hitWall(GameWorld& w);
+    virtual void hitWall(GameWorld& w, coord_t dx, coord_t dy, coord_t dz);
     virtual ~EnemyObject() {}
 
   protected:
@@ -46,6 +46,8 @@ class EnemyObject : public GameObject, public ObjectDamageable {
     void doExplodeBoss(GameWorld& w, const Model& m);
     void addScore(GameWorld& w, unsigned int score);
     void killPlayerOnContact(GameWorld& w);
+    void explodeIfOutOfBounds(GameWorld& w, coord_t x0, coord_t x1, coord_t y0,
+                              coord_t y1);
     inline void canHitWalls(bool flag) { canHitWalls_ = flag; }
     bool shouldBeDead() const;
 

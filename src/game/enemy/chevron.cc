@@ -54,9 +54,7 @@ bool EnemyChevron::doEnemyTick(GameWorld& w, float delta) {
     killPlayerOnContact(w);
     coord_t xr = lerp(0.2 * 0.375, cos(rot.roll), 1 * 0.375);
     coord_t yr = lerp(0.2 * 0.375, sin(rot.roll), 1 * 0.375);
-    if (!isInRegion(w, xr, xr, yr, yr)) {
-        hitWall(w);
-    }
+    explodeIfOutOfBounds(w, xr, xr, yr, yr);
     return !isOffScreen();
 }
 

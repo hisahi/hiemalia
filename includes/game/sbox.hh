@@ -39,7 +39,8 @@ class SlidingBox : public GameObject {
     virtual coord_t getLerp(coord_t t);
     void updateBox();
     void absorbBullets(GameWorld& w, const BulletList& list);
-    void absorbEnemies(GameWorld& w, const EnemyList& list);
+    void absorbEnemies(GameWorld& w, const EnemyList& list, const Point3D& avg,
+                       const Point3D& siz);
 };
 
 class SlidingBoxSine : public SlidingBox {

@@ -20,7 +20,7 @@ static std::uniform_real_distribution<coord_t> rd_firework_vy(-1.8, -0.6);
 static std::uniform_real_distribution<float> rd_firework_clr(0.0f, 1.0f);
 static std::uniform_real_distribution<float> rd_firework_explodeSize(0.7f,
                                                                      1.4f);
-static std::uniform_int_distribution<int> rd_firework_shards{25, 120};
+static std::uniform_int_distribution<int> rd_firework_shards{40, 160};
 static std::uniform_real_distribution<float> rd_firework_angle(
     -numbers::PI<float>, numbers::PI<float>);
 static std::uniform_real_distribution<float> rd_firework_speed(0.1f, 0.5f);
@@ -59,6 +59,7 @@ void Firework::explode() {
              Point2D(random(rd_firework_rvx), random(rd_firework_rvy))});
     }
     vel.y = 0.0f;
+    vel.x *= 0.25f;
 }
 
 bool Firework::updateRocket(SplinterBuffer& sbuf, Renderer2D& rend,
@@ -117,7 +118,7 @@ void NameEntry::gotMessage(const MenuMessage& msg) {
                 case MenuMessageType::MenuExit:
                     sendMessage(
                         AudioMessage::playSound(SoundEffect::MenuSelect));
-                    continue_ = false;
+                    running_ = false;
                     break;
             }
             [[fallthrough]];
@@ -153,7 +154,7 @@ void NameEntry::redrawChar(size_t i) {
 static const std::array<int, 10> rankDividers = {1, 2, 2, 3, 3, 3, 4, 4, 5, 5};
 
 bool NameEntry::run(GameState& state, float interval) {
-    if (!continue_) {
+    if (!running_) {
         std::array<char, highScoreNameLength> n;
         for (int i = 0; i < highScoreNameLength; ++i)
             n[i] = validScoreNameChars[name_[i]];

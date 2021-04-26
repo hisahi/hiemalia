@@ -74,6 +74,9 @@ struct Point3D {
     inline Point3D cross(const Point3D& b) const noexcept {
         return Point3D(y * b.z - z * b.y, x * b.z - z * b.x, x * b.y - y * b.x);
     }
+    inline Point3D hadamard(const Point3D& b) const noexcept {
+        return Point3D(x * b.x, y * b.y, z * b.z);
+    }
 
     inline static Point3D average(const Point3D& a, const Point3D& b) noexcept {
         return Point3D(0.5 * (a.x + b.x), 0.5 * (a.y + b.y), 0.5 * (a.z + b.z));

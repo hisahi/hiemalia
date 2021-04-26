@@ -20,6 +20,7 @@ EnemyOrbiter::EnemyOrbiter(const Point3D& pos, int pattern)
     : EnemyObject(pos, 6.0f), pattern_(pattern % patternCount) {
     useGameModel(GameModel::EnemyOrbiter);
     rot = Orient3D::atPlayer;
+    spread_ = getRandomPool().random(std::uniform_int_distribution(0, 3));
 }
 
 bool EnemyOrbiter::doEnemyTick(GameWorld& w, float delta) {
@@ -38,19 +39,6 @@ bool EnemyOrbiter::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     return true;
 }
 
-void EnemyOrbiter::fireAtPlayer(GameWorld& w, float dt, coord_t fireMul) {
-    fireTime_ += static_cast<float>(fireMul * dt *
-                                    w.difficulty().getFireRateMultiplier());
-    if (w.isPlayerAlive() &&
-        pos.z - w.getPlayerPosition().z > getCollisionRadius()) {
-        while (fireTime_ >= 1) {
-            fireBulletAtPlayer<EnemyBulletSimple>(w, model().vertices[0],
-                                                  0.625f, 0.125f, 1.0f);
-            fireTime_ -= 1;
-        }
-    }
-}
-
 void EnemyOrbiter::movePattern(GameWorld& w, float dt) {
     switch (pattern_) {
         case 0:
@@ -58,6 +46,28 @@ void EnemyOrbiter::movePattern(GameWorld& w, float dt) {
             break;
     }
     t_ += dt;
+}
+
+void EnemyOrbiter::fireAtPlayer(GameWorld& w, float dt, coord_t fireMul) {
+    fireTime_ += static_cast<float>(fireMul * dt *
+                                    w.difficulty().getFireRateMultiplier());
+    if (w.isPlayerAlive() &&
+        pos.z - w.getPlayerPosition().z > getCollisionRadius()) {
+        while (fireTime_ >= 1) {
+            sendMessage(AudioMessage::playSound(SoundEffect::EnemyFire2,
+                                                pos - w.getPlayerPosition()));
+            bool doSpread = !spread_;
+            spread_ = (spread_ + 1) % 4;
+            fireBulletAtPlayer<EnemyBulletSimple>(w, model().vertices[0], 0.75f,
+                                                  0.0625f, 1.0f);
+            if (doSpread) {
+                for (int i = 0; i < 4; ++i)
+                    fireBulletAtPlayer<EnemyBulletSimple>(
+                        w, model().vertices[0], 0.75f, 0.375f, 1.0f);
+            }
+            fireTime_ -= 1;
+        }
+    }
 }
 
 }  // namespace hiemalia

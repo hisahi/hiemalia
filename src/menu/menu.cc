@@ -49,6 +49,12 @@ void MenuOption::redraw(coord_t x1, coord_t x2, coord_t y, RendererText& font,
             font.drawTextLineRight(sbuf, x2, y, color, v);
             break;
         }
+        case MenuOptionType::Spinner: {
+            std::string v = std::to_string(asSpinner().value);
+            font.drawTextLineLeft(sbuf, x1, y, color, text);
+            font.drawTextLineRight(sbuf, x2, y, color, v);
+            break;
+        }
     }
     dirty = false;
 }
@@ -147,6 +153,12 @@ void Menu::doLeft() {
         option.dirty = true;
         select(index_, option.id);
         sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
+    } else if (option.type == MenuOptionType::Spinner) {
+        MenuOptionSpinner& spin = option.asSpinner();
+        if (spin.value > spin.min) --spin.value;
+        option.dirty = true;
+        select(index_, option.id);
+        sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
     } else {
         pageLeft();
     }
@@ -161,6 +173,12 @@ void Menu::doRight() {
     if (option.type == MenuOptionType::Select) {
         MenuOptionSelect& sel = option.asSelect();
         if (++sel.index >= static_cast<int>(sel.options.size())) sel.index = 0;
+        option.dirty = true;
+        select(index_, option.id);
+        sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
+    } else if (option.type == MenuOptionType::Spinner) {
+        MenuOptionSpinner& spin = option.asSpinner();
+        if (spin.value < spin.max) ++spin.value;
         option.dirty = true;
         select(index_, option.id);
         sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
@@ -186,7 +204,8 @@ void Menu::setActiveItem(symbol_t item) {
 
 void Menu::doSelect() {
     MenuOption& option = options_[index_];
-    if (option.type == MenuOptionType::Select) {
+    if (option.type == MenuOptionType::Select ||
+        option.type == MenuOptionType::Spinner) {
         doRight();
         return;
     }

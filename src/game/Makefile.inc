@@ -13,5 +13,5 @@ OBJS := $(OBJS) game/object.o game/world.o game/player.o game/sections.o \
     game/enemy/bouncer.o game/enemy/destroyer.o game/enemy/blocker.o \
     game/enemy/launcher.o game/enemy/sturret.o game/enemy/pod.o \
     game/enemy/pewpew.o game/enemy/orbiter.o game/enemy/wturret.o \
-    game/enemy/boss6.o game/enemy/boss7.o \
+    game/enemy/zoomer.o game/enemy/boss6.o game/enemy/boss7.o \
     game/objects.o game/diffic.o game/stage.o game/nameentr.o game/game.o

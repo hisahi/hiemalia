@@ -67,17 +67,9 @@ bool MovingBox::update(GameWorld& w, float delta) {
     updateBox(w, delta);
     x_ = frac(x_ + v_ * delta);
     if (w.isPlayerAlive() && w.getPlayer().hits(*this)) {
-        const Point3D& ppos = w.getPlayer().pos;
-        coord_t dx = (ppos.x - pos.x) / scale.x;
-        coord_t dy = (ppos.y - pos.y) / scale.y;
-        coord_t dz = (ppos.z - pos.z) / scale.z;
-        if (std::abs(dz) >= std::abs(dx) && std::abs(dz) >= std::abs(dy))
-            dx = dy = 0;
-        else if (std::abs(dx) >= std::abs(dy) && std::abs(dx) >= std::abs(dz))
-            dy = dz = 0;
-        else if (std::abs(dy) >= std::abs(dx) && std::abs(dy) >= std::abs(dz))
-            dx = dz = 0;
-        w.getPlayer().wallContact(dx, dy, dz);
+        Point3D dir =
+            collidesCuboidPointDirection(w.getPlayerPosition(), pos, scale);
+        w.getPlayer().wallContact(dir.x, dir.y, dir.z);
     }
     absorbEnemies(w, w.getEnemies());
     absorbBullets(w, w.getPlayerBullets());
@@ -97,7 +89,8 @@ void MovingBox::absorbBullets(GameWorld& w, const BulletList& list) {
 void MovingBox::absorbEnemies(GameWorld& w, const EnemyList& list) {
     for (auto& e : list) {
         if (e->canHitWalls() && e->hits(*this)) {
-            e->hitWall(w);
+            Point3D dir = collidesCuboidPointDirection(e->pos, pos, scale);
+            e->hitWall(w, dir.x, dir.y, dir.z);
         }
     }
 }

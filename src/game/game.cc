@@ -26,6 +26,8 @@ GameMain::GameMain(ConfigSectionPtr<GameConfig> config_)
       timer(0),
       objectLateZ(farObjectBackPlane) {
     font_.setFont(getAssets().menuFont);
+    ring_ = getGameModel(GameModel::Ring);
+    halt_ = 0.25;
 }
 
 GameMain::~GameMain() noexcept {}
@@ -67,7 +69,7 @@ static void drawStageCounter(SplinterBuffer& sbuf, RendererText& font,
                              coord_t x, coord_t y, unsigned stage,
                              unsigned cycle) {
     static const std::string sn = std::to_string(stageCount);
-    std::string s = std::to_string(stage);
+    std::string s = stage ? std::to_string(stage) : " ";
     std::string c = std::to_string(cycle);
     c.insert(c.begin(), 3 - c.size(), ' ');
     font.drawTextLineCenter(sbuf, x, y, white, c + " * " + s + "/" + sn);
@@ -108,9 +110,12 @@ void GameMain::gotMessage(const GameMessage& msg) {
         case GameMessageType::PauseGame:
             pauseGame();
             break;
-        case GameMessageType::ContinueGame:
+        case GameMessageType::ResumeGame:
             sendMessage(AudioMessage::resume());
             shouldBePaused_ = false;
+            break;
+        case GameMessageType::ContinueGame:
+
             break;
         case GameMessageType::StageComplete:
             doStageComplete();
@@ -131,13 +136,18 @@ void GameMain::gotMessage(const GameMessage& msg) {
 }
 
 void GameMain::doExitGame() {
-    continue_ = false;
+    running_ = false;
     sendMessage(AudioMessage::stopMusic());
     sendMessage(AudioMessage::stopSounds());
 }
 
 void GameMain::gotMessage(const MenuMessage& msg) {
-    if (!paused_ && msg.type == MenuMessageType::MenuExit) {
+    if (continue_) {
+        if (msg.type == MenuMessageType::MenuSelect)
+            continueResponse_ = 1;
+        else if (msg.type == MenuMessageType::MenuExit)
+            continueResponse_ = -1;
+    } else if (!paused_ && msg.type == MenuMessageType::MenuExit) {
         pauseGame();
     }
 }
@@ -251,7 +261,7 @@ void GameMain::doGameCompleteTick(GameState& state, float interval) {
 }
 
 void GameMain::doGameComplete() {
-    //GameWorld& w = *world_;
+    // GameWorld& w = *world_;
     timer = 3;
     gameComplete_ = true;
 }
@@ -348,9 +358,56 @@ void GameMain::doGameOver() {
     // game over
     gameOver_ = true;
     timer = 5;
-    font_.drawTextLineCenter(textscreen_, 0, 0, white, "GAME OVER", 2);
     sendMessage(AudioMessage::playMusic(MusicTrack::GameOver));
     stageComplete_ = false;
+    font_.drawTextLineCenter(textscreen_, 0, 0, white, "GAME OVER", 2);
+}
+
+void GameMain::doContinuePrompt(int credits) {
+    continue_ = true;
+    timer = 11;
+    continueResponse_ = 0;
+    sendMessage(AudioMessage::playMusic(MusicTrack::Continue));
+    stageComplete_ = false;
+    blink_.clear();
+    font_.drawTextLineCenter(textscreen_, 0, -0.5, Color{255, 255, 0, 255},
+                             "CONTINUE?", 2);
+    font_.drawTextLineCenter(blink_, 0, 0.125, white, "PRESS FIRE BUTTON",
+                             0.75);
+    font_.drawTextLineCenter(blink_, 0, 0.1875, white, "TO CONTINUE PLAY",
+                             0.75);
+    font_.drawTextLineCenter(textscreen_, 0, 0.5, Color{0, 255, 0, 192},
+                             "CREDIT  " + std::to_string(credits), 1);
+    Orient3D o = Orient3D(0, -0.3, 0.3);
+    r3d_.setCamera(Point3D(0, 0, 0) - o.direction(0.5), o,
+                   Point3D(1, 1, 1) * 2);
+}
+
+void GameMain::doContinuePromptTick(GameState& state, float interval) {
+    timer -= interval;
+    coord_t r = ringRot_ * numbers::TAU<coord_t>;
+    r3d_.renderModel(state.sbuf, Point3D(0, 0.0625, 0), Orient3D(r, 0, 0),
+                     Point3D(1, 1, 1), *ring_.model);
+    ringRot_ = frac(ringRot_ + interval / 32);
+    state.sbuf.append(textscreen_);
+    state.sbuf.append(statusbar_);
+    font_.drawTextLineCenter(state.sbuf, 0, -0.125, Color{0, 255, 255, 224},
+                             std::to_string(static_cast<int>(timer)), 1.5);
+    if (frac(timer * 1.5) < 0.75) state.sbuf.append(blink_);
+    if (state.controls.fire || continueResponse_ > 0) {
+        sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
+        textscreen_.clear();
+        blink_.clear();
+        world_->spendContinue();
+        continue_ = false;
+        halt_ = 0.25f;
+    } else if (continueResponse_ < 0 || timer < 0) {
+        textscreen_.clear();
+        blink_.clear();
+        sendMessage(AudioMessage::stopMusic());
+        continue_ = false;
+        doGameOver();
+    }
 }
 
 void GameMain::doInit(GameState& state) {
@@ -375,7 +432,7 @@ bool GameMain::run(GameState& state, float interval) {
         doExitGame();
         gameOver_ = false;
     }
-    if (!continue_) {
+    if (!running_) {
         int rank = state.highScores.getHighscoreRank(w.score);
         if (rank >= 0) {
             sendMessage(
@@ -384,6 +441,15 @@ bool GameMain::run(GameState& state, float interval) {
             sendMessage(HostMessage::mainMenu());
         }
         return false;
+    }
+    if (continue_) {
+        doContinuePromptTick(state, interval);
+        return true;
+    }
+    if (halt_ > 0) {
+        state.sbuf.append(statusbar_);
+        halt_ -= interval;
+        return true;
     }
 
     if (w.nextStage) {
@@ -469,6 +535,8 @@ bool GameMain::run(GameState& state, float interval) {
             w.renderPlayer(state.sbuf, r3d_, envRot);
         } else if (w.respawn()) {
             playStageMusic(w.stageNum);
+        } else if (w.continuesRemaining() > 0) {
+            doContinuePrompt(w.continuesRemaining());
         } else {
             doGameOver();
         }

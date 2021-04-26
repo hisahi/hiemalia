@@ -710,4 +710,18 @@ Point3D collidesSweepSphereModelWhere(const Point3D& l1, const Point3D& l2,
     return l1;
 }
 
+Point3D collidesCuboidPointDirection(const Point3D& them, const Point3D& me,
+                                     const Point3D& mySize) {
+    coord_t dx = (them.x - me.x) / mySize.x;
+    coord_t dy = (them.y - me.y) / mySize.y;
+    coord_t dz = (them.z - me.z) / mySize.z;
+    if (std::abs(dz) >= std::abs(dx) && std::abs(dz) >= std::abs(dy))
+        dx = dy = 0;
+    else if (std::abs(dx) >= std::abs(dy) && std::abs(dx) >= std::abs(dz))
+        dy = dz = 0;
+    else if (std::abs(dy) >= std::abs(dx) && std::abs(dy) >= std::abs(dz))
+        dx = dz = 0;
+    return Point3D(dx, dy, dz);
+}
+
 }  // namespace hiemalia

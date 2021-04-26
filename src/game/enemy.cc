@@ -51,7 +51,7 @@ bool EnemyObject::hitBullet(GameWorld& w, float dmg, const Point3D& c) {
     return alive_;
 }
 
-void EnemyObject::hitWall(GameWorld& w) {
+void EnemyObject::hitWall(GameWorld& w, coord_t dx, coord_t dy, coord_t dz) {
     killedByPlayer_ = false;
     damage(w, getHealth() + 1.0f, pos);
 }
@@ -70,9 +70,7 @@ void EnemyObject::onDeath(GameWorld& w) {
     }
 }
 
-bool EnemyObject::shouldBeDead() const {
-    return sponge_ > 0;
-}
+bool EnemyObject::shouldBeDead() const { return sponge_ > 0; }
 
 void EnemyObject::doExplode(GameWorld& w) { doExplode(w, model()); }
 
@@ -96,6 +94,33 @@ void EnemyObject::killPlayerOnContact(GameWorld& w) {
         if (hits(p)) {
             p.enemyContact();
         }
+    }
+}
+
+void EnemyObject::explodeIfOutOfBounds(GameWorld& w, coord_t x0, coord_t x1,
+                                       coord_t y0, coord_t y1) {
+    if (!isInRegion(w, x0, x1, y0, y1)) {
+        MoveRegion r = w.getMoveRegionForZ(pos.z);
+        coord_t cx = (r.x0 + r.x1) / 2;
+        coord_t cy = (r.y0 + r.y1) / 2;
+        coord_t dx, dy;
+        if (pos.x > cx) {
+            dx = pos.x - r.x1;
+        } else {
+            dx = r.x0 - pos.x;
+        }
+        if (pos.y > cy) {
+            dy = pos.y - r.y1;
+        } else {
+            dy = r.y0 = pos.y;
+        }
+        if (abs(dx) > abs(dy))
+            dx = sgn(dx), dy = 0;
+        else if (abs(dx) < abs(dy))
+            dx = 0, dy = sgn(dy);
+        else
+            dx = 0, dy = 0;
+        hitWall(w, dx, dy, 0);
     }
 }
 

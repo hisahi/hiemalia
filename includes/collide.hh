@@ -142,6 +142,8 @@ Point3D collidesSweepSphereModelWhere(const Point3D& line1,
                                       const Point3D& line2, coord_t radius,
                                       const ModelCollision& mc,
                                       const Matrix3D& mat);
+Point3D collidesCuboidPointDirection(const Point3D& them, const Point3D& me,
+                                     const Point3D& mySize);
 
 };  // namespace hiemalia
 

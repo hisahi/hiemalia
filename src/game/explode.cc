@@ -91,12 +91,11 @@ Explosion::Explosion(const Point3D& p, const GameObject& o, const Model& model,
     tempModel_.vertices.push_back(Point3D(0, 0, 0));
     tempModel_.shapes.push_back(ModelFragment(Color{255, 128, 0, 255}, 0, {1}));
     rot = o.rot;
-    scale = o.scale;
     for (const ModelFragment& f : model.shapes) {
         const Point3D* prev = &(model.vertices[f.start]);
         for (size_t pi : f.points) {
-            const Point3D& p0 = *prev;
-            const Point3D& p1 = model.vertices[pi];
+            Point3D p0 = prev->hadamard(o.scale);
+            Point3D p1 = model.vertices[pi].hadamard(o.scale);
             Point3D c = Point3D::average(p0, p1);
             shards_p0_.push_back(p0 - c);
             shards_p1_.push_back(p1 - c);

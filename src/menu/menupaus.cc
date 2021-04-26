@@ -36,7 +36,7 @@ void MenuPause::select(int index, symbol_t id) {
 
 void MenuPause::end(GameState& state) {
     if (unpause_) {
-        sendMessage(GameMessage::continueGame());
+        sendMessage(GameMessage::resumeGame());
     } else {
         sendMessage(GameMessage::exitGame());
     }

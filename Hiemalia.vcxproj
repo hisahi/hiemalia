@@ -163,6 +163,7 @@
     <ClCompile Include="src\game\enemy\wasp.cc" />
     <ClCompile Include="src\game\enemy\wave.cc" />
     <ClCompile Include="src\game\enemy\wturret.cc" />
+    <ClCompile Include="src\game\enemy\zoomer.cc" />
     <ClCompile Include="src\game\explode.cc" />
     <ClCompile Include="src\game\game.cc" />
     <ClCompile Include="src\game\box.cc" />
@@ -262,6 +263,7 @@
     <ClInclude Include="includes\game\enemy\walker.hh" />
     <ClInclude Include="includes\game\enemy\wasp.hh" />
     <ClInclude Include="includes\game\enemy\wturret.hh" />
+    <ClInclude Include="includes\game\enemy\zoomer.hh" />
     <ClInclude Include="includes\game\gameend.hh" />
     <ClInclude Include="includes\game\mbox.hh" />
     <ClInclude Include="includes\game\nameentr.hh" />

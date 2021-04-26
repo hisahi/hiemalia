@@ -40,7 +40,30 @@ bool EnemyBouncer::doEnemyTick(GameWorld& w, float delta) {
         hit = true, vel.y = -vel.y;
     if (hit) rotvel_ = -rotvel_;
     rot += rotvel_ * delta;
+    if (hit) ++hitFrames_;
+    if (hitFrames_ >= 4) {
+        EnemyObject::hitWall(w, 0, 0, 0);
+        return true;
+    }
+    if (++hitClearFrames_ == 4) {
+        hitClearFrames_ = 0;
+        --hitFrames_;
+    }
     return !isOffScreen2();
+}
+
+void EnemyBouncer::hitWall(GameWorld& w, coord_t dx, coord_t dy, coord_t dz) {
+    ++hitFrames_;
+    if (dx != 0)
+        vel.x = -vel.x;
+    else if (dy != 0)
+        vel.y = -vel.y;
+    else if (dz != 0)
+        vel.z = -vel.z;
+    else {
+        vel = -vel;
+    }
+    rotvel_ = -rotvel_;
 }
 
 bool EnemyBouncer::onEnemyDeath(GameWorld& w, bool killedByPlayer) {

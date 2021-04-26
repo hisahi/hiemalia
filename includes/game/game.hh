@@ -54,13 +54,15 @@ class GameMain : public LogicModule,
     RendererText font_;
     SplinterBuffer statusbar_;
     SplinterBuffer textscreen_;
+    SplinterBuffer blink_;
     coord_t cameraShake_{0};
     coord_t cameraShakeSpeed_{0};
     coord_t cameraShakeTime_{0};
     Point3D shake0_{0, 0, 0};
     Point3D shake1_{0, 0, 0};
     bool init_{false};
-    bool continue_{true};
+    bool running_{true};
+    bool continue_{false};
     bool shouldBePaused_{false};
     bool stageComplete_{false};
     bool gameComplete_{false};
@@ -72,6 +74,10 @@ class GameMain : public LogicModule,
     float stageTime{0};
     unsigned bonus_{0};
     int bonusIndex_{0};
+    int continueResponse_{0};
+    LoadedGameModel ring_;
+    coord_t ringRot_{0};
+    float halt_{0};
 
     void doInit(GameState& state);
     void startNewStage();
@@ -82,6 +88,8 @@ class GameMain : public LogicModule,
     void doStageStartTick(GameState& state, float interval);
     void doStageComplete();
     void doStageCompleteTick(GameState& state, float interval);
+    void doContinuePrompt(int credits);
+    void doContinuePromptTick(GameState& state, float interval);
     void doGameComplete();
     void doGameCompleteTick(GameState& state, float interval);
     void doExitGame();

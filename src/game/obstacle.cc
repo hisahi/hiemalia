@@ -34,7 +34,7 @@ void Obstacle::absorbBullets(GameWorld& w, const BulletList& list) {
 void Obstacle::absorbEnemies(GameWorld& w, const EnemyList& list) {
     for (auto& e : list) {
         if (e->canHitWalls() && e->hits(*this)) {
-            e->hitWall(w);
+            e->hitWall(w, 0, 0, 0);
         }
     }
 }

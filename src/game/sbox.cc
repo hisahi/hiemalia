@@ -72,10 +72,12 @@ void SlidingBox::absorbBullets(GameWorld& w, const BulletList& list) {
     }
 }
 
-void SlidingBox::absorbEnemies(GameWorld& w, const EnemyList& list) {
+void SlidingBox::absorbEnemies(GameWorld& w, const EnemyList& list,
+                               const Point3D& avg, const Point3D& siz) {
     for (auto& e : list) {
         if (e->hits(*this)) {
-            e->hitWall(w);
+            Point3D dir = collidesCuboidPointDirection(e->pos, avg, siz);
+            e->hitWall(w, dir.x, dir.y, dir.z);
         }
     }
 }
@@ -113,20 +115,14 @@ bool SlidingBox::update(GameWorld& w, float delta) {
     (isY_ ? pos_.y : pos_.x) = lerp(lerpA_, getLerp(x_), lerpB_);
     updateBox();
     x_ = frac(x_ + v_ * delta);
+    Point3D avg = Point3D::average(pos + *pmin_, pos + *pmax_);
+    Point3D siz = Point3D::average(-*pmin_, *pmax_);
     if (w.isPlayerAlive() && w.getPlayer().hits(*this)) {
-        const Point3D& ppos = w.getPlayer().pos;
-        coord_t dx = (ppos.x - pos.x) / scale.x;
-        coord_t dy = (ppos.y - pos.y) / scale.y;
-        coord_t dz = (ppos.z - pos.z) / scale.z;
-        if (std::abs(dz) >= std::abs(dx) && std::abs(dz) >= std::abs(dy))
-            dx = dy = 0;
-        else if (std::abs(dx) >= std::abs(dy) && std::abs(dx) >= std::abs(dz))
-            dy = dz = 0;
-        else if (std::abs(dy) >= std::abs(dx) && std::abs(dy) >= std::abs(dz))
-            dx = dz = 0;
-        w.getPlayer().wallContact(dx, dy, dz);
+        Point3D dir =
+            collidesCuboidPointDirection(w.getPlayerPosition(), avg, siz);
+        w.getPlayer().wallContact(dir.x, dir.y, dir.z);
     }
-    absorbEnemies(w, w.getEnemies());
+    absorbEnemies(w, w.getEnemies(), avg, siz);
     absorbBullets(w, w.getPlayerBullets());
     absorbBullets(w, w.getEnemyBullets());
     return !isOffScreen();

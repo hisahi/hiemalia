@@ -14,7 +14,7 @@
 #include "math.hh"
 
 namespace hiemalia {
-static constexpr int patternCount = 10;
+static constexpr int patternCount = 13;
 
 EnemyFighter::EnemyFighter(const Point3D& pos, int pattern)
     : EnemyObject(pos, 6.0f), pattern_(pattern % patternCount) {
@@ -27,6 +27,16 @@ EnemyFighter::EnemyFighter(const Point3D& pos, int pattern)
 
 static bool crossover(float t, float dt, float t1) {
     return t <= t1 && t + dt >= t1;
+}
+
+void EnemyFighter::patternMoveXThenZ(GameWorld& w, float dt, coord_t v,
+                                     float xt) {
+    if (crossover(t_, dt, xt))
+        vel = Point3D(0, 0, -1 / 16);
+    else if (t_ < 0.5)
+        vel = Point3D(1, 0, 0), fireAtPlayer(w, dt, 0.5);
+    else
+        fireAtPlayer(w, dt, 1.0);
 }
 
 void EnemyFighter::movePattern(GameWorld& w, float dt) {
@@ -53,55 +63,44 @@ void EnemyFighter::movePattern(GameWorld& w, float dt) {
             v_ = frac(v_ + 0.5 * dt);
             break;
         case 3:
-            if (crossover(t_, dt, 0.5))
-                vel = Point3D(0, 0, -1 / 16);
-            else if (t_ < 0.5)
-                vel = Point3D(1, 0, 0), fireAtPlayer(w, dt, 0.5);
-            else
-                fireAtPlayer(w, dt, 1.0);
+            patternMoveXThenZ(w, dt, -1, 0.5);
             break;
         case 4:
-            if (crossover(t_, dt, 0.375))
-                vel = Point3D(0, 0, -1 / 16);
-            else if (t_ < 0.375)
-                vel = Point3D(1, 0, 0), fireAtPlayer(w, dt, 0.5);
-            else
-                fireAtPlayer(w, dt, 1.0);
+            patternMoveXThenZ(w, dt, -1, 0.375);
             break;
         case 5:
-            if (crossover(t_, dt, 0.25))
-                vel = Point3D(0, 0, -1 / 16);
-            else if (t_ < 0.25)
-                vel = Point3D(1, 0, 0), fireAtPlayer(w, dt, 0.5);
-            else
-                fireAtPlayer(w, dt, 1.0);
+            patternMoveXThenZ(w, dt, -1, 0.25);
             break;
         case 6:
-            if (crossover(t_, dt, 0.5))
-                vel = Point3D(0, 0, -1 / 16);
-            else if (t_ < 0.5)
-                vel = Point3D(-1, 0, 0), fireAtPlayer(w, dt, 0.5);
-            else
-                fireAtPlayer(w, dt, 1.0);
+            patternMoveXThenZ(w, dt, 1, 0.5);
             break;
         case 7:
-            if (crossover(t_, dt, 0.375))
-                vel = Point3D(0, 0, -1 / 16);
-            else if (t_ < 0.375)
-                vel = Point3D(-1, 0, 0), fireAtPlayer(w, dt, 0.5);
-            else
-                fireAtPlayer(w, dt, 1.0);
+            patternMoveXThenZ(w, dt, 1, 0.375);
             break;
         case 8:
-            if (crossover(t_, dt, 0.25))
-                vel = Point3D(0, 0, -1 / 16);
-            else if (t_ < 0.25)
-                vel = Point3D(-1, 0, 0), fireAtPlayer(w, dt, 0.5);
-            else
-                fireAtPlayer(w, dt, 1.0);
+            patternMoveXThenZ(w, dt, 1, 0.25);
             break;
         case 9:
             fireAtPlayer(w, dt, 1.75);
+            break;
+        case 10:
+            vel.y = sin(v_ * numbers::TAU<coord_t>) * 0.5;
+            fireAtPlayer(w, dt, 1.25);
+            v_ = frac(v_ + 0.375 * dt);
+            break;
+        case 11:
+            vel.x = sin(v_ * numbers::TAU<coord_t> * 4) * 1;
+            vel.y = sin(v_ * numbers::TAU<coord_t>) * 0.5;
+            fireAtPlayer(w, dt, 1.25);
+            v_ = frac(v_ + 0.25 * dt);
+            break;
+        case 12:
+            if (v_ > 0) {
+                fireAtPlayer(w, dt, 1.5);
+                vel.z = 0.5;
+            } else if ((pos - w.getPlayerPosition()).lengthSquared() < 10) {
+                ++v_;
+            }
             break;
     }
     t_ += dt;
@@ -110,7 +109,17 @@ void EnemyFighter::movePattern(GameWorld& w, float dt) {
 bool EnemyFighter::doEnemyTick(GameWorld& w, float delta) {
     movePattern(w, delta);
     killPlayerOnContact(w);
-    return !isOffScreen();
+    return !isOffScreen2();
+}
+
+void EnemyFighter::onEnemyDamage(GameWorld& w, float dmg,
+                                 const Point3D& pointOfContact) {
+    EnemyObject::onEnemyDamage(w, dmg, pointOfContact);
+    switch (pattern_) {
+        case 12:
+            ++v_;
+            break;
+    }
 }
 
 bool EnemyFighter::onEnemyDeath(GameWorld& w, bool killedByPlayer) {

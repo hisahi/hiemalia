@@ -21,9 +21,22 @@ class Box : public GameObject {
     Box(const Point3D& pos, coord_t x, coord_t y, coord_t z);
     bool update(GameWorld& w, float delta);
 
-  private:
+  protected:
     void absorbBullets(GameWorld& w, const BulletList& list);
     void absorbEnemies(GameWorld& w, const EnemyList& list);
+};
+
+class DestroyableBox : public Box, ObjectDamageable {
+  public:
+    DestroyableBox(const Point3D& pos, coord_t x, coord_t y, coord_t z,
+                   float health);
+    bool update(GameWorld& w, float delta);
+
+  private:
+    bool alive_{true};
+    void absorbBullets(GameWorld& w, const BulletList& list);
+    void onDamage(GameWorld& w, float dmg, const Point3D& pointOfContact);
+    void onDeath(GameWorld& w);
 };
 };  // namespace hiemalia
 

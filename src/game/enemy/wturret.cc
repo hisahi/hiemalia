@@ -29,7 +29,7 @@ EnemyWheeledTurret::EnemyWheeledTurret(const Point3D& p, const Orient3D& r)
         getRandomPool().random(std::uniform_real_distribution<float>(0, 1));
     exCol_.emplace_back(baseModel_.collision, Point3D(0, 0, 0), baseRot_,
                         scale);
-    height_ = baseModel_.model->vertices[18].y;
+    height_ = baseModel_.model->vertices[20].y;
     canHitWalls(true);
 }
 

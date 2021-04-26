@@ -77,9 +77,7 @@ bool EnemyRammer::doEnemyTick(GameWorld& w, float delta) {
     pos.z += w.getMoveSpeed() * delta * 0.75;
 
     killPlayerOnContact(w);
-    if (!isInRegion(w, width, width, height, height)) {
-        hitWall(w);
-    }
+    explodeIfOutOfBounds(w, width, width, height, height);
     return !isOffScreen();
 }
 

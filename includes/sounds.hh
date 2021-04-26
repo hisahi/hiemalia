@@ -22,6 +22,7 @@ enum class MusicTrack {
     Stage2,
     Stage3,
     Stage4,
+    Continue,
     GameOver,
     HighScore
 };
@@ -48,6 +49,7 @@ enum class SoundEffect {
     BlockerPlace,
     DirFlip,
     Liftoff,
+    ExtraLife,
     //
     EndOfSounds
 };

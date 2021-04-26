@@ -60,11 +60,17 @@ struct MenuMessage {
     MenuMessage(MenuMessageType t, symbol_t id) : type(t), menuId(id) {}
 };
 
-enum class MenuOptionType { Spacer, Button, Text, Select, Input };
+enum class MenuOptionType { Spacer, Button, Text, Select, Spinner, Input };
 
 struct MenuOptionSelect {
     int index{0};
     std::vector<std::string> options;
+};
+
+struct MenuOptionSpinner {
+    int value{0};
+    int min{0};
+    int max{0};
 };
 
 struct MenuOptionInput {
@@ -108,6 +114,15 @@ class MenuOption {
                           MenuOptionSelect{initialValue, options});
     }
 
+    inline static MenuOption range(symbol_t id, std::string text, int min,
+                                   int max, int initialValue = 0,
+                                   bool enabled = true) {
+        if (min > max) std::swap(min, max);
+        initialValue = clamp(min, initialValue, max);
+        return MenuOption(id, MenuOptionType::Spinner, enabled && max > min,
+                          text, MenuOptionSpinner{initialValue, min, max});
+    }
+
     inline static MenuOption input(symbol_t id, std::string text,
                                    std::string initialValue = "",
                                    bool enabled = true) {
@@ -118,6 +133,9 @@ class MenuOption {
     inline MenuOptionInput& asInput() { return std::get<MenuOptionInput>(x); }
     inline MenuOptionSelect& asSelect() {
         return std::get<MenuOptionSelect>(x);
+    }
+    inline MenuOptionSpinner& asSpinner() {
+        return std::get<MenuOptionSpinner>(x);
     }
 
     inline static bool defaultEnabled(MenuOptionType type) {
@@ -150,7 +168,17 @@ class MenuOption {
           x(inp) {
         dynamic_assert(type == MenuOptionType::Input, "invalid init");
     }
-    std::variant<MenuOptionSelect, MenuOptionInput> x;
+    MenuOption(symbol_t id, MenuOptionType type, bool enabled, std::string text,
+               MenuOptionSpinner spin)
+        : id(id),
+          type(type),
+          enabled(enabled),
+          text(text),
+          dirty(true),
+          x(spin) {
+        dynamic_assert(type == MenuOptionType::Spinner, "invalid init");
+    }
+    std::variant<MenuOptionSelect, MenuOptionInput, MenuOptionSpinner> x;
 };
 
 class Menu;
