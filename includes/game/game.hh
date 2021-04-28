@@ -61,6 +61,8 @@ class GameMain : public LogicModule,
     Point3D shake0_{0, 0, 0};
     Point3D shake1_{0, 0, 0};
     bool init_{false};
+    bool arcade_{false};
+    bool freePlay_{false};
     bool running_{true};
     bool continue_{false};
     bool shouldBePaused_{false};

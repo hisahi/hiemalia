@@ -90,6 +90,7 @@ class GameWorld {
     int getBossesAlive() const;
     int continuesRemaining() const;
     void spendContinue();
+    void addCredits(int n);
 
     template <typename T, typename... Ts>
     void spawn(const Point3D& p, Ts&&... args) {

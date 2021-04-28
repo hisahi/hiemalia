@@ -9,6 +9,8 @@
 #ifndef M_BASE_SDL2_HH
 #define M_BASE_SDL2_HH
 
+#define SDL_MAIN_HANDLED
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_audio.h>
 #include <SDL2/SDL_mixer.h>

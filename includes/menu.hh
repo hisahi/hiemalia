@@ -91,7 +91,7 @@ class MenuOption {
         return MenuOption(id, MenuOptionType::Button, enabled, text);
     }
 
-    inline static MenuOption spacer(symbol_t id) {
+    inline static MenuOption spacer(symbol_t id = symbol_none) {
         return MenuOption(id, MenuOptionType::Spacer, false, "");
     }
 
@@ -211,7 +211,14 @@ class MenuHandler : public LogicModule, MessageHandler<MenuMessage> {
         menus_.push(std::make_shared<T>(*this, std::forward<Ts>(args)...));
     }
 
-    std::shared_ptr<Menu> closeMenu() {
+    inline std::shared_ptr<Menu> replaceMenu(std::shared_ptr<Menu>&& m) {
+        auto s = menus_.top();
+        menus_.pop();
+        menus_.push(std::move(m));
+        return s;
+    }
+
+    inline std::shared_ptr<Menu> closeMenu() {
         auto s = menus_.top();
         menus_.pop();
         return s;
@@ -219,9 +226,17 @@ class MenuHandler : public LogicModule, MessageHandler<MenuMessage> {
 
     void gotMessage(const MenuMessage& msg);
     bool run(GameState& state, float interval);
+    void closeAllMenus();
+    inline bool arcade() const { return arcade_; }
+    inline void arcade(bool b) { arcade_ = b; }
+    inline bool firstRun() const { return firstRun_; }
+    inline void firstRun(bool b) { firstRun_ = b; }
 
   private:
     std::stack<std::shared_ptr<Menu>> menus_;
+    bool arcade_{false};
+    bool firstRun_{false};
+
     static inline const std::string name_ = "MenuHandler";
     static inline const std::string role_ = "menu handler";
 };
@@ -255,6 +270,13 @@ class Menu {
         handler_.get().newMenu<T>(std::forward<Ts>(args)...);
     }
 
+    template <typename T, typename... Ts>
+    void replaceMenu(Ts&&... args) {
+        replaceWith_ =
+            std::make_shared<T>(handler_.get(), std::forward<Ts>(args)...);
+        closeMenu();
+    }
+
   protected:
     Menu(MenuHandler& handler);
     int index_{0};
@@ -267,9 +289,19 @@ class Menu {
     RendererText font_;
     SplinterBuffer titlebuf_;
     std::vector<MenuOption> options_;
+    std::shared_ptr<Menu> replaceWith_;
     coord_t getMenuOptionY(int index) const;
     inline virtual void pageLeft() {}
     inline virtual void pageRight(bool) {}
+    inline bool arcade() const { return handler_.get().arcade(); }
+    inline bool firstRun() const { return handler_.get().firstRun(); }
+    inline bool timeout() const {
+        return maxLifetime_ && lifetime_ >= maxLifetime_;
+    }
+    inline void duration(float t) {
+        lifetime_ = 0, maxLifetime_ = arcade() ? t : 0;
+    }
+    inline virtual void timedOut() { exiting_ = true; }
 
   private:
     void goUp();
@@ -278,6 +310,8 @@ class Menu {
     void doRight();
     void doSelect();
     void doConfirm(bool yes);
+    float lifetime_{0};
+    float maxLifetime_{0};
     symbol_t confirmId_{symbol_none};
     std::optional<std::function<void()>> onMenuYes_;
     std::optional<std::function<void()>> onMenuNo_;

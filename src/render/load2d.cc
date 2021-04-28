@@ -8,7 +8,6 @@
 
 #include "load2d.hh"
 
-#include <fstream>
 #include <iostream>
 #include <optional>
 #include <stdexcept>
@@ -113,18 +112,20 @@ static Font loadStreamFont(std::istream& in) {
 
 ShapeSheet load2D(const std::string& filename) {
     LOG_TRACE("loading shape sheet from %s", filename);
-    std::ifstream stream = openAssetFileRead(filename, false);
+    auto stream = openAssetFileRead(filename, false);
     if (stream.fail())
-        throw std::runtime_error("failed to open shape sheet file");
-    stream.exceptions(std::ifstream::badbit);
+        throw std::runtime_error("unable to open shape sheet file '" +
+                                 filename + "'");
+    fileThrowOnFatalError(stream);
     return loadStream2D(stream);
 }
 
 Font loadFont(const std::string& filename) {
     LOG_TRACE("loading font from %s", filename);
-    std::ifstream stream = openAssetFileRead(filename, false);
-    if (stream.fail()) throw std::runtime_error("failed to open font file");
-    stream.exceptions(std::ifstream::badbit);
+    auto stream = openAssetFileRead(filename, false);
+    if (stream.fail())
+        throw std::runtime_error("unable to open font file '" + filename + "'");
+    fileThrowOnFatalError(stream);
     return loadStreamFont(stream);
 }
 }  // namespace hiemalia

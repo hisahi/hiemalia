@@ -106,7 +106,7 @@ static Orient3D parseRotation3D(std::string s) {
 GameSection loadSection(const std::string& name) {
     std::string filename = name + ".sc";
     LOG_DEBUG("loading stage section data %s", filename);
-    std::ifstream in = openAssetFileRead("sections", filename, false);
+    auto in = openAssetFileRead("sections", filename, false);
     if (in.fail())
         throw std::runtime_error("cannot open section file " + filename);
     std::string modelFile = "";
@@ -218,7 +218,7 @@ void GameStage::processSectionCommand(std::vector<section_t>& sections,
 GameStage GameStage::load(int stagenum) {
     std::string name = "stage" + std::to_string(stagenum) + ".s";
     LOG_DEBUG("loading stage %s", name);
-    std::ifstream in = openAssetFileRead("stages", name, false);
+    auto in = openAssetFileRead("stages", name, false);
     if (in.fail()) throw std::runtime_error("cannot open stage file " + name);
     std::vector<section_t> sections;
     int loopLength = 1, lineNum = 0;

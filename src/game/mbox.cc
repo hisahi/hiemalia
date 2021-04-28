@@ -65,7 +65,7 @@ void MovingBox::updateBox(GameWorld& w, float delta) {
 
 bool MovingBox::update(GameWorld& w, float delta) {
     updateBox(w, delta);
-    x_ = frac(x_ + v_ * delta);
+    x_ = frac(x_ + v_ * w.difficulty().getBulletSpeedMultiplier() * delta);
     if (w.isPlayerAlive() && w.getPlayer().hits(*this)) {
         Point3D dir =
             collidesCuboidPointDirection(w.getPlayerPosition(), pos, scale);

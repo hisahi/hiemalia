@@ -50,6 +50,7 @@ enum class SoundEffect {
     DirFlip,
     Liftoff,
     ExtraLife,
+    Credit,
     //
     EndOfSounds
 };

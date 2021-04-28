@@ -20,12 +20,16 @@ EnemyTurret::EnemyTurret(const Point3D& p, const Orient3D& r)
       baseRot_(r + Orient3D::atPlayer),
       targetRot_(r + Orient3D::atPlayer) {
     useGameModel(GameModel::EnemyTurretCannon);
-    rot = r + Orient3D::atPlayer;
+    rot = r;
     pos += rot.rotate(model().vertices[9]);
     fireTime_ =
         getRandomPool().random(std::uniform_real_distribution<float>(0, 1));
     exCol_.emplace_back(baseModel_.collision, Point3D(0, 0, 0), baseRot_,
                         scale);
+    rot.yaw += numbers::PI<coord_t>;
+    rot.pitch = 0;
+    if (angleDifference(rot.pitch, baseRot_.pitch) > 0)
+        rot.pitch = baseRot_.pitch;
 }
 
 const std::vector<ExtraCollision>& EnemyTurret::exCollisions() const {

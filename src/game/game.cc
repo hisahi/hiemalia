@@ -60,9 +60,7 @@ static void drawLives(SplinterBuffer& sbuf, RendererText& font, coord_t x,
                       coord_t y, unsigned lives) {
     std::string s = std::to_string(lives);
     s.insert(s.begin(), 2 - s.size(), ' ');
-    font.renderTextLine(sbuf, x - font.charWidth() * 4, y, white, "LIVES");
-    font.renderTextLine(sbuf, x + font.charWidth() * 2, y, white, "*");
-    font.renderTextLine(sbuf, x + font.charWidth() * 3, y, white, s);
+    font.drawTextLineCenter(sbuf, x, y, white, "LIVES*" + s);
 }
 
 static void drawStageCounter(SplinterBuffer& sbuf, RendererText& font,
@@ -75,13 +73,34 @@ static void drawStageCounter(SplinterBuffer& sbuf, RendererText& font,
     font.drawTextLineCenter(sbuf, x, y, white, c + " * " + s + "/" + sn);
 }
 
+static void drawCreditCounter(SplinterBuffer& sbuf, RendererText& font,
+                              coord_t x, coord_t y, unsigned credits,
+                              bool freePlay) {
+    std::string c = std::to_string(credits);
+    if (freePlay) {
+        font.drawTextLineCenter(sbuf, x, y - 0.03125, Color{64, 255, 64, 192},
+                                "FREE", 0.75);
+        font.drawTextLineCenter(sbuf, x, y + 0.03125, Color{64, 255, 64, 192},
+                                "PLAY", 0.75);
+    } else {
+        c.insert(c.begin(), 2 - c.size(), ' ');
+        font.drawTextLineCenter(sbuf, x, y, white, "CREDIT*" + c);
+    }
+}
+
 void GameMain::drawStatusBar() {
     statusbar_.clear();
-    drawScore(statusbar_, font_, -0.5, -0.9375, world_->score);
-    drawScore(statusbar_, font_, 0.5, -0.9375, world_->highScore);
-    drawLives(statusbar_, font_, -0.5, 0.9375, world_->lives);
-    drawStageCounter(statusbar_, font_, 0.5, 0.9375, world_->stageNum,
-                     world_->cycle);
+    if (world_->lives >= 0) {
+        drawScore(statusbar_, font_, -0.5, -0.9375, world_->score);
+        drawScore(statusbar_, font_, 0.5, -0.9375, world_->highScore);
+        drawLives(statusbar_, font_, arcade_ ? -0.625 : -0.5, 0.9375,
+                  world_->lives);
+        drawStageCounter(statusbar_, font_, arcade_ ? 0.625 : 0.5, 0.9375,
+                         world_->stageNum, world_->cycle);
+    }
+    if (arcade_)
+        drawCreditCounter(statusbar_, font_, 0, 0.9375, world_->continues_,
+                          freePlay_);
 }
 
 void GameMain::startNewStage() { world_->startNewStage(); }
@@ -102,8 +121,9 @@ void GameMain::pauseGame() {
 
 void GameMain::gotMessage(const GameMessage& msg) {
     switch (msg.type) {
-        case GameMessageType::AddScore:
-            break;
+        case GameMessageType::CreditAdded:
+            if (continue_) continueResponse_ = 1;
+            [[fallthrough]];
         case GameMessageType::UpdateStatus:
             drawStatusBar();
             break;
@@ -115,7 +135,6 @@ void GameMain::gotMessage(const GameMessage& msg) {
             shouldBePaused_ = false;
             break;
         case GameMessageType::ContinueGame:
-
             break;
         case GameMessageType::StageComplete:
             doStageComplete();
@@ -131,6 +150,9 @@ void GameMain::gotMessage(const GameMessage& msg) {
             shake1_ = Point3D{0, 0, 0};
             cameraShakeTime_ = 1;
             cameraShakeSpeed_ = pow(cameraShake_, 1.25);
+            break;
+        case GameMessageType::AddCredits:
+            world_->addCredits(msg.getCredits());
             break;
     }
 }
@@ -267,8 +289,9 @@ void GameMain::doGameComplete() {
 }
 
 static unsigned getTimeBonus(float time) {
-    if (time > 600) return 0;
-    return static_cast<unsigned>(1200 - time * 2) * 10;
+    if (time > 900) return 0;
+    return static_cast<unsigned>(pow(1800 - time * 2.0f, 1.5f) * 0.02618914f) *
+           10;
 }
 
 static float getBonusY(int index) { return 0.0625f * index; }
@@ -372,12 +395,15 @@ void GameMain::doContinuePrompt(int credits) {
     blink_.clear();
     font_.drawTextLineCenter(textscreen_, 0, -0.5, Color{255, 255, 0, 255},
                              "CONTINUE?", 2);
-    font_.drawTextLineCenter(blink_, 0, 0.125, white, "PRESS FIRE BUTTON",
+    font_.drawTextLineCenter(blink_, 0, 0.125, white,
+                             credits == 0 ? "INSERT COIN" : "PRESS FIRE BUTTON",
                              0.75);
     font_.drawTextLineCenter(blink_, 0, 0.1875, white, "TO CONTINUE PLAY",
                              0.75);
-    font_.drawTextLineCenter(textscreen_, 0, 0.5, Color{0, 255, 0, 192},
-                             "CREDIT  " + std::to_string(credits), 1);
+    font_.drawTextLineCenter(
+        textscreen_, 0, 0.5,
+        credits == 0 ? Color{255, 64, 64, 255} : Color{0, 255, 0, 192},
+        "CREDIT  " + std::to_string(credits), 1);
     Orient3D o = Orient3D(0, -0.3, 0.3);
     r3d_.setCamera(Point3D(0, 0, 0) - o.direction(0.5), o,
                    Point3D(1, 1, 1) * 2);
@@ -395,6 +421,10 @@ void GameMain::doContinuePromptTick(GameState& state, float interval) {
                              std::to_string(static_cast<int>(timer)), 1.5);
     if (frac(timer * 1.5) < 0.75) state.sbuf.append(blink_);
     if (state.controls.fire || continueResponse_ > 0) {
+        if (world_->continues_ == 0) {
+            continueResponse_ = 0;
+            return;
+        }
         sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
         textscreen_.clear();
         blink_.clear();
@@ -413,6 +443,9 @@ void GameMain::doContinuePromptTick(GameState& state, float interval) {
 void GameMain::doInit(GameState& state) {
     GameWorld& w = *world_;
     w.highScore = state.highScores.getTopScore();
+    arcade_ = state.arcade;
+    freePlay_ = config_->arcadeFreePlay;
+    if (!arcade_) w.continues_ = config_->maxContinues;
     drawStatusBar();
     init_ = true;
 }
@@ -535,7 +568,7 @@ bool GameMain::run(GameState& state, float interval) {
             w.renderPlayer(state.sbuf, r3d_, envRot);
         } else if (w.respawn()) {
             playStageMusic(w.stageNum);
-        } else if (w.continuesRemaining() > 0) {
+        } else if (w.continuesRemaining() > 0 || (arcade_ && !freePlay_)) {
             doContinuePrompt(w.continuesRemaining());
         } else {
             doGameOver();

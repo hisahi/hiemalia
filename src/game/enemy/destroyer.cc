@@ -14,12 +14,47 @@
 #include "math.hh"
 
 namespace hiemalia {
-static constexpr int patternCount = 1;
+static constexpr int patternCount = 3;
 
 EnemyDestroyer::EnemyDestroyer(const Point3D& pos, int pattern)
     : EnemyObject(pos, 6.0f), pattern_(pattern % patternCount) {
     useGameModel(GameModel::EnemyDestroyer);
     rot = Orient3D::atPlayer;
+}
+
+void EnemyDestroyer::movePattern(GameWorld& w, float dt) {
+    switch (pattern_) {
+        case 0:
+            fireAtPlayer(w, dt, 1.5);
+            break;
+        case 1:
+            if (phase_ == 0) {
+                vel = Point3D(0, 0, -w.getMoveSpeed());
+                fireAtPlayer(w, dt, 0.5);
+                if (pos.z - w.getPlayerPosition().z < 4) ++phase_;
+            } else {
+                vel = Point3D(0, 0, w.getMoveSpeed() * 0.5);
+                fireAtPlayer(w, dt, 1.5);
+            }
+            break;
+        case 2:
+            if (phase_ == 0) {
+                vel = Point3D(0, 0, 0) - pos;
+                vel.z = 0;
+                vel = vel.normalize() * 0.5;
+                vel.z = w.getMoveSpeed() * 0.5;
+                fireAtPlayer(w, dt, 0.5);
+                if (abs(pos.x) < 0.625 && abs(pos.y) < 0.625) {
+                    canHitWalls(true);
+                    ++phase_;
+                }
+            } else {
+                vel = Point3D(0, 0, w.getMoveSpeed() * 0.5);
+                fireAtPlayer(w, dt, 1.5);
+            }
+            break;
+    }
+    t_ += dt;
 }
 
 bool EnemyDestroyer::doEnemyTick(GameWorld& w, float delta) {
@@ -51,15 +86,6 @@ void EnemyDestroyer::fireAtPlayer(GameWorld& w, float dt, coord_t fireMul) {
             fireTime_ -= 1;
         }
     }
-}
-
-void EnemyDestroyer::movePattern(GameWorld& w, float dt) {
-    switch (pattern_) {
-        case 0:
-            fireAtPlayer(w, dt, 1.0);
-            break;
-    }
-    t_ += dt;
 }
 
 }  // namespace hiemalia

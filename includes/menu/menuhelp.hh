@@ -39,6 +39,9 @@ class MenuHelp : public Menu {
     MenuHelp(MenuHandler& handler);
     ~MenuHelp() noexcept;
 
+  protected:
+    void timedOut();
+
   private:
     static inline const std::string name_ = "MenuHelp";
     RendererText rendtext_;

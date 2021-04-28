@@ -35,6 +35,9 @@ class MenuMain : public Menu {
     MenuMain(MenuHandler& handler, const std::shared_ptr<ModuleHolder>& holder);
     ~MenuMain() noexcept;
 
+  protected:
+    void timedOut();
+
   private:
     static inline const std::string name_ = "MenuMain";
     std::shared_ptr<ModuleHolder> holder_;
@@ -46,6 +49,7 @@ class MenuMain : public Menu {
     CircularBuffer<coord_t, 512> rots_;
     ShapeSheet logoSheet;
     SplinterBuffer copyright;
+    int nextScreen_{0};
 
     void progress(float interval);
 };

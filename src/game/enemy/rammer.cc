@@ -56,10 +56,12 @@ bool EnemyRammer::doEnemyTick(GameWorld& w, float delta) {
                 4 * delta * w.difficulty().getEnemySpeedMultiplier();
             pos.z -= std::min(remaining_, speed);
             remaining_ -= speed;
-            if (remaining_ < 0) {
+            if (remaining_ < 0 || pos.z <= 0.0625) {
                 remaining_ = dist_;
                 state_ = 2;
+                if (pos.z < 0) pos.z = 0;
             }
+            pos.z += w.getMoveSpeed() * delta * 0.25;
             break;
         }
         case 2: {
@@ -71,6 +73,7 @@ bool EnemyRammer::doEnemyTick(GameWorld& w, float delta) {
                 remaining_ = dist_;
                 state_ = 0;
             }
+            pos.z += w.getMoveSpeed() * delta * 0.25;
             break;
         }
     }

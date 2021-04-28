@@ -114,7 +114,7 @@ coord_t SlidingBox::getLerp(coord_t t) { return t >= 0.5 ? 2 - t * 2 : t * 2; }
 bool SlidingBox::update(GameWorld& w, float delta) {
     (isY_ ? pos_.y : pos_.x) = lerp(lerpA_, getLerp(x_), lerpB_);
     updateBox();
-    x_ = frac(x_ + v_ * delta);
+    x_ = frac(x_ + v_ * w.difficulty().getBulletSpeedMultiplier() * delta);
     Point3D avg = Point3D::average(pos + *pmin_, pos + *pmax_);
     Point3D siz = Point3D::average(-*pmin_, *pmax_);
     if (w.isPlayerAlive() && w.getPlayer().hits(*this)) {

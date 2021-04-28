@@ -17,7 +17,7 @@
 #endif
 
 namespace hiemalia {
-static inline const std::string gameVersion = "v0.6";
+static inline const std::string gameVersion = "v0.7";
 static inline const std::string gameTitle = "Hiemalia " + gameVersion;
 
 using coord_t = double;
@@ -36,9 +36,11 @@ void dynamic_assert_(const std::string &file, unsigned line, bool condition,
 #define never(msg) hiemalia::never_(__FILE__, __LINE__, msg)
 #if NDEBUG
 #define dynamic_assert(cond, msg) (void)(cond)
+constexpr bool isDebugMode = false;
 #else
 #define dynamic_assert(cond, msg) \
     hiemalia::dynamic_assert_(__FILE__, __LINE__, cond, msg)
+constexpr bool isDebugMode = true;
 #endif
 
 #if !NDEBUG

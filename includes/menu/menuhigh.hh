@@ -31,8 +31,7 @@ class MenuHighScore : public Menu {
     void highlight(int index);
 
     DELETE_COPY(MenuHighScore);
-    MenuHighScore(MenuHighScore&& move) noexcept;
-    MenuHighScore& operator=(MenuHighScore&& move) noexcept;
+    DEFAULT_MOVE(MenuHighScore);
     MenuHighScore(MenuHandler& handler,
                   const std::shared_ptr<ModuleHolder>& holder);
     ~MenuHighScore() noexcept;

@@ -14,13 +14,37 @@
 #include "math.hh"
 
 namespace hiemalia {
-static constexpr int patternCount = 1;
+static constexpr int patternCount = 3;
 
 EnemyOrbiter::EnemyOrbiter(const Point3D& pos, int pattern)
     : EnemyObject(pos, 6.0f), pattern_(pattern % patternCount) {
     useGameModel(GameModel::EnemyOrbiter);
     rot = Orient3D::atPlayer;
     spread_ = getRandomPool().random(std::uniform_int_distribution(0, 3));
+    canHitWalls(true);
+    ox_ = pos.x;
+    oy_ = pos.y;
+}
+
+void EnemyOrbiter::movePattern(GameWorld& w, float dt) {
+    switch (pattern_) {
+        case 0:
+            fireAtPlayer(w, dt, 1.0);
+            break;
+        case 1:
+            pos.x = ox_ + sin(t_ * 1) * (0.5 - 0.25 * cos(t_ * 0.37));
+            pos.y = ox_ + cos(t_ * 1) * (0.5 - 0.25 * cos(t_ * 0.37));
+            pos.z += w.getMoveSpeed() * 0.5 * dt;
+            fireAtPlayer(w, dt, 1.5);
+            break;
+        case 2:
+            pos.x = ox_ + sin(t_ * -1) * (0.5 - 0.25 * cos(t_ * 0.37));
+            pos.y = ox_ + cos(t_ * -1) * (0.5 - 0.25 * cos(t_ * 0.37));
+            pos.z += w.getMoveSpeed() * 0.5 * dt;
+            fireAtPlayer(w, dt, 1.5);
+            break;
+    }
+    t_ += dt;
 }
 
 bool EnemyOrbiter::doEnemyTick(GameWorld& w, float delta) {
@@ -37,15 +61,6 @@ bool EnemyOrbiter::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
         w.onEnemyKilled(*this);
     }
     return true;
-}
-
-void EnemyOrbiter::movePattern(GameWorld& w, float dt) {
-    switch (pattern_) {
-        case 0:
-            fireAtPlayer(w, dt, 1.0);
-            break;
-    }
-    t_ += dt;
 }
 
 void EnemyOrbiter::fireAtPlayer(GameWorld& w, float dt, coord_t fireMul) {

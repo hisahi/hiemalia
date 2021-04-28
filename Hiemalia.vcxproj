@@ -45,6 +45,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -73,6 +74,19 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir)includes;$(ProjectDir)libs\SDL2\include;$(ProjectDir)libs\SDL2_mixer\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)libs\SDL2\lib\x86;$(ProjectDir)libs\SDL2_mixer\lib\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\</IntDir>
+    <IncludePath>$(ProjectDir)includes;$(ProjectDir)libs\SDL2\include;$(ProjectDir)libs\SDL2_mixer\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)libs\SDL2\lib\x86;$(ProjectDir)libs\SDL2_mixer\lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir)includes;$(ProjectDir)libs\SDL2\include;$(ProjectDir)libs\SDL2_mixer\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)libs\SDL2\lib\x86;$(ProjectDir)libs\SDL2_mixer\lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
@@ -108,16 +122,49 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <UseFullPaths>false</UseFullPaths>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
     </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <WarningLevel>Level3</WarningLevel>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <PreprocessorDefinitions>WIN32;NDEBUG;HBACKEND_sdl2;VBACKEND_sdl2;IBACKEND_sdl2;ABACKEND_sdl2;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;HBACKEND_sdl2;VBACKEND_sdl2;IBACKEND_sdl2;ABACKEND_sdl2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\base\abase.cc" />
@@ -196,7 +243,9 @@
     <ClCompile Include="src\main\mholder.cc" />
     <ClCompile Include="src\main\random.cc" />
     <ClCompile Include="src\main\scores.cc" />
+    <ClCompile Include="src\main\sys.cc" />
     <ClCompile Include="src\main\video.cc" />
+    <ClCompile Include="src\menu\arcadeoverlay.cc" />
     <ClCompile Include="src\menu\menu.cc" />
     <ClCompile Include="src\menu\menuaud.cc" />
     <ClCompile Include="src\menu\menugame.cc" />
@@ -295,6 +344,7 @@
     <ClInclude Include="includes\gconfig.hh" />
     <ClInclude Include="includes\hbase.hh" />
     <ClInclude Include="includes\helpers.hh" />
+    <ClInclude Include="includes\hholder.hh" />
     <ClInclude Include="includes\hiemalia.hh" />
     <ClInclude Include="includes\ibase.hh" />
     <ClInclude Include="includes\inherit.hh" />
@@ -306,6 +356,7 @@
     <ClInclude Include="includes\logic.hh" />
     <ClInclude Include="includes\logicmsg.hh" />
     <ClInclude Include="includes\lvector.hh" />
+    <ClInclude Include="includes\arcadeoverlay.hh" />
     <ClInclude Include="includes\menu\menugame.hh" />
     <ClInclude Include="includes\menu\menuhelp.hh" />
     <ClInclude Include="includes\menu\menuhigh.hh" />
@@ -339,6 +390,7 @@
     <ClInclude Include="includes\state.hh" />
     <ClInclude Include="includes\str.hh" />
     <ClInclude Include="includes\symbol.hh" />
+    <ClInclude Include="includes\sys.hh" />
     <ClInclude Include="includes\vbase.hh" />
     <ClInclude Include="includes\video.hh" />
     <ClInclude Include="Resources\resource.h" />

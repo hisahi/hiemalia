@@ -27,6 +27,8 @@ class GameConfig : public ConfigSection {
 
     GameDifficultyLevel difficulty{GameDifficultyLevel::Normal};
     int maxContinues{3};
+    bool arcadeFreePlay{false};
+    int arcadeMaxCredits{10};
 };
 
 }  // namespace hiemalia

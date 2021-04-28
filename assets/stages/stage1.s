@@ -52,12 +52,12 @@ o 0 0.75 0 0 box 0.25 1 0.0625
 or 2 -0.5 0 0 gunboat
 or 2 0.5 0 0 gunboat
 
-od 7
+od 5
 # flying 2
 o 0 0 0 0 checkpoint
 o 0.25 0 0 0 setspeed fast
 
-od 3
+od 5
 o 0 -0.75 0 0 box 0.25 1 0.0625
 o 0 0.75 0 0 box 0.25 1 0.0625
 
@@ -325,7 +325,7 @@ or 0 -0.75 -0.75 0.5 box 0.25 0.25 1
 or 0 0.75 -0.75 0.5 box 0.25 0.25 1
 or 0 -0.75 0.75 0.5 box 0.25 0.25 1
 or 0 0.75 0.75 0.5 box 0.25 0.25 1
-or 0.25 0 0 0 volcano 0 0 -0.3
+or 0.25 0 0 0 volcano 0 0 -0.3 0 0 -0.05
 or 0.5 -0.75 0.5 0 turret 0 0 0
 or 0.5 0.75 0.5 0 turret 0 0 0
 or 1.25 -0.25 -0.5 0 gunboat

@@ -26,6 +26,7 @@ enum class LogicMessageType {
     NewHighScore,
     OpenHighScores,
     StartGame,
+    StartGameArcade,
     PauseMenu
 };
 
@@ -45,8 +46,8 @@ struct LogicMessage {
     }
 
     inline static LogicMessage mainMenu(
-        const std::shared_ptr<ModuleHolder>& holder) {
-        return LogicMessage(LogicMessageType::MainMenu, holder);
+        const std::shared_ptr<ModuleHolder>& holder, bool arcade) {
+        return LogicMessage(LogicMessageType::MainMenu, holder, arcade);
     }
 
     inline static LogicMessage highScore(
@@ -55,13 +56,19 @@ struct LogicMessage {
     }
 
     inline static LogicMessage openHighScores(
-        const std::shared_ptr<ModuleHolder>& holder, int i) {
-        return LogicMessage(LogicMessageType::OpenHighScores, holder, i);
+        const std::shared_ptr<ModuleHolder>& holder, int i, bool arcade) {
+        return LogicMessage(LogicMessageType::OpenHighScores, holder, i,
+                            arcade);
     }
 
     inline static LogicMessage startGame(
         const std::shared_ptr<ModuleHolder>& holder) {
         return LogicMessage(LogicMessageType::StartGame, holder);
+    }
+
+    inline static LogicMessage startGameArcade(
+        const std::shared_ptr<ModuleHolder>& holder) {
+        return LogicMessage(LogicMessageType::StartGameArcade, holder);
     }
 
     inline static LogicMessage pauseMenu() {
@@ -73,10 +80,17 @@ struct LogicMessage {
                        "wrong message type");
         return std::get<HighScoreSubmit>(x);
     }
+
     inline int highScoreIndex() const {
         dynamic_assert(type == LogicMessageType::OpenHighScores,
                        "wrong message type");
         return std::get<int>(x);
+    }
+    inline bool isArcade() const {
+        dynamic_assert(type == LogicMessageType::MainMenu ||
+                           type == LogicMessageType::OpenHighScores,
+                       "wrong message type");
+        return arcade;
     }
 
   private:
@@ -86,9 +100,13 @@ struct LogicMessage {
     LogicMessage(LogicMessageType t, std::shared_ptr<ModuleHolder> v,
                  const HighScoreSubmit& e)
         : type(t), value(v), x(e) {}
-    LogicMessage(LogicMessageType t, std::shared_ptr<ModuleHolder> v, int i)
-        : type(t), value(v), x(i) {}
+    LogicMessage(LogicMessageType t, std::shared_ptr<ModuleHolder> v, bool b)
+        : type(t), value(v), arcade(b) {}
+    LogicMessage(LogicMessageType t, std::shared_ptr<ModuleHolder> v, int i,
+                 bool b)
+        : type(t), value(v), x(i), arcade(b) {}
     std::variant<HighScoreSubmit, int> x;
+    bool arcade{false};
 };
 
 };  // namespace hiemalia

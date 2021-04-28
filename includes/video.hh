@@ -55,6 +55,7 @@ class VideoEngine : public Module, MessageHandler<VideoMessage> {
 
     bool isFullScreen();
     bool canSetFullScreen();
+    void setFullScreenOrElse();
 
     void gotMessage(const VideoMessage& msg);
     inline const ConfigSectionPtr<VideoConfig>& getConfig() { return config_; }

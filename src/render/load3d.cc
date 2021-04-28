@@ -8,7 +8,6 @@
 
 #include "load3d.hh"
 
-#include <fstream>
 #include <iostream>
 #include <optional>
 #include <stdexcept>
@@ -135,26 +134,32 @@ static Model loadStream3D(std::istream& in, ModelCollisionRadius* col) {
 
 Model load3D(const std::string& filename) {
     LOG_TRACE("loading 3D model from assets/%s", filename);
-    std::ifstream stream = openAssetFileRead(filename, false);
-    if (stream.fail()) throw std::runtime_error("failed to open model file");
-    stream.exceptions(std::ifstream::badbit);
+    auto stream = openAssetFileRead(filename, false);
+    if (stream.fail())
+        throw std::runtime_error("unable to open model file '" + filename +
+                                 "'");
+    fileThrowOnFatalError(stream);
     return loadStream3D(stream, nullptr);
 }
 
 Model load3D(const std::string& folder, const std::string& filename) {
     std::string f = buildAssetFilePath(folder, filename);
     LOG_TRACE("loading 3D model from %s", f);
-    std::ifstream stream = openFileRead(f, false);
-    if (stream.fail()) throw std::runtime_error("failed to open model file");
-    stream.exceptions(std::ifstream::badbit);
+    auto stream = openFileRead(f, false);
+    if (stream.fail())
+        throw std::runtime_error("unable to open model file '" + filename +
+                                 "'");
+    fileThrowOnFatalError(stream);
     return loadStream3D(stream, nullptr);
 }
 
 ModelWithCollision load3DWithCollision(const std::string& filename) {
     LOG_TRACE("loading 3D model from assets/%s", filename);
-    std::ifstream stream = openAssetFileRead(filename, false);
-    if (stream.fail()) throw std::runtime_error("failed to open model file");
-    stream.exceptions(std::ifstream::badbit);
+    auto stream = openAssetFileRead(filename, false);
+    if (stream.fail())
+        throw std::runtime_error("unable to open model file '" + filename +
+                                 "'");
+    fileThrowOnFatalError(stream);
     ModelCollisionRadius col;
     Model model = loadStream3D(stream, &col);
     return {model, ModelCollision(std::move(col.shapes)), col.hitRadius};
@@ -164,9 +169,11 @@ ModelWithCollision load3DWithCollision(const std::string& folder,
                                        const std::string& filename) {
     std::string f = buildAssetFilePath(folder, filename);
     LOG_TRACE("loading 3D model from %s", f);
-    std::ifstream stream = openFileRead(f, false);
-    if (stream.fail()) throw std::runtime_error("failed to open model file");
-    stream.exceptions(std::ifstream::badbit);
+    auto stream = openFileRead(f, false);
+    if (stream.fail())
+        throw std::runtime_error("unable to open model file '" + filename +
+                                 "'");
+    fileThrowOnFatalError(stream);
     ModelCollisionRadius col;
     Model model = loadStream3D(stream, &col);
     return {model, ModelCollision(std::move(col.shapes)), col.hitRadius};

@@ -47,7 +47,8 @@ class StdLogHandler : public LogHandler {
 
 class FileLogHandler : public LogHandler {
   public:
-    FileLogHandler(std::unique_ptr<std::ostream> stream, LogLevel minimumLevel)
+    FileLogHandler(std::unique_ptr<std::ostream>&& stream,
+                   LogLevel minimumLevel)
         : stream_(std::move(stream)), minimumLevel_(minimumLevel) {}
     void handle(LogLevel level, const std::tm& tm, const char* file,
                 size_t line, const std::string& msg) override;

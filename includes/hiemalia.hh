@@ -14,6 +14,7 @@
 #include <variant>
 #include <vector>
 
+#include "arcadeoverlay.hh"
 #include "audio.hh"
 #include "defs.hh"
 #include "hbase.hh"
@@ -36,7 +37,13 @@ void sendMessageMake(Ts&&... args) {
     MessageHandler<T>::deliver(T(std::forward<Ts>(args)...));
 }
 
-enum class HostMessageType { MainMenu, Quit, GotHighScore };
+enum class HostMessageType {
+    MainMenu,
+    GameStarted,
+    Quit,
+    GotHighScore,
+    EnteredHighScore
+};
 
 struct HostMessage {
     HostMessageType type;
@@ -44,8 +51,14 @@ struct HostMessage {
     static HostMessage mainMenu() {
         return HostMessage(HostMessageType::MainMenu);
     }
+    static HostMessage gameStarted() {
+        return HostMessage(HostMessageType::GameStarted);
+    }
     static HostMessage gotHighScore(PartialHighScoreEntry&& e) {
         return HostMessage(HostMessageType::GotHighScore, std::move(e));
+    }
+    static HostMessage enteredHighScore() {
+        return HostMessage(HostMessageType::EnteredHighScore);
     }
     static HostMessage quit() { return HostMessage(HostMessageType::Quit); }
 
@@ -75,6 +88,7 @@ class Hiemalia : MessageHandler<HostMessage> {
     void gotMessage(const HostMessage& msg);
     void args(std::vector<std::string> args);
     void run();
+    int addCredits(int credits);
 
   private:
     std::string command_;
@@ -82,7 +96,13 @@ class Hiemalia : MessageHandler<HostMessage> {
     GameState state_;
     std::shared_ptr<HostModule> host_;
     std::shared_ptr<ModuleHolder> modules_;
+    std::shared_ptr<ArcadeOverlay> overlay_;
+    int credits_{0};
+
+    void resetArcade();
 };
+
+extern "C" int hiemalia_tryAddCredits(int);
 
 };  // namespace hiemalia
 

@@ -23,7 +23,7 @@ EnemyBlocker::EnemyBlocker(const Point3D& pos) : EnemyObject(pos, 12.0f) {
     rot = Orient3D::atPlayer;
     fireTime_ =
         getRandomPool().random(std::uniform_real_distribution<float>(0.75f, 1));
-    vel = Point3D(0, 0, -1 / 16);
+    canHitWalls(true);
 }
 
 bool EnemyBlocker::doEnemyTick(GameWorld& w, float delta) {
@@ -41,7 +41,7 @@ bool EnemyBlocker::doEnemyTick(GameWorld& w, float delta) {
             fireTime_ -= 1;
         }
     }
-    pos.z += delta * w.getMoveSpeed() * 3 / 4;
+    pos.z += delta * w.getMoveSpeed() / 2;
     return !isOffScreen();
 }
 

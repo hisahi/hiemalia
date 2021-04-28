@@ -25,6 +25,7 @@ struct GameState {
     Config config;
     SplinterBuffer sbuf;
     HighScoreTable highScores;
+    bool arcade{false};
 };
 
 };  // namespace hiemalia

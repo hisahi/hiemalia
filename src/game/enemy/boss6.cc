@@ -44,7 +44,7 @@ bool EnemyBoss6::doEnemyTick(GameWorld& w, float delta) {
     killPlayerOnContact(w);
     coord_t tz = w.getPlayerPosition().z + 2.75;
     if (pos.z < tz)
-        pos.z = std::min(tz, pos.z + delta * (pos.z <= 1.5 ? 2 : 1));
+        pos.z = std::min(tz, pos.z + delta * (pos.z <= 2 ? 3 - pos.z : 1));
     else if (pos.z > tz)
         pos.z = std::max(tz, pos.z - delta * 0.75);
     if (!w.isPlayerAlive()) return true;

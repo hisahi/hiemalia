@@ -37,6 +37,16 @@ class LogicEngine : public Module, MessageHandler<LogicMessage> {
     void run(GameState& state, float interval);
 
     template <typename T, typename... Ts>
+    T* getOrNull() {
+        auto it =
+            std::find_if(modules_.begin(), modules_.end(),
+                         [&](const std::shared_ptr<LogicModule>& module) {
+                             return dynamic_cast<T*>(module.get()) != nullptr;
+                         });
+        return it != modules_.end() ? dynamic_cast<T*>((*it).get()) : nullptr;
+    }
+
+    template <typename T, typename... Ts>
     T& getOrCreate(Ts&&... args) {
         auto it =
             std::find_if(modules_.begin(), modules_.end(),
@@ -51,6 +61,7 @@ class LogicEngine : public Module, MessageHandler<LogicMessage> {
 
   private:
     LimitedVector<std::shared_ptr<LogicModule>, 16> modules_;
+    bool firstRun_{true};
     static inline const std::string name_ = "LogicEngine";
     static inline const std::string role_ = "logic engine";
 };

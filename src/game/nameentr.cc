@@ -26,7 +26,7 @@ static std::uniform_real_distribution<float> rd_firework_angle(
 static std::uniform_real_distribution<float> rd_firework_speed(0.1f, 0.5f);
 static std::uniform_real_distribution<coord_t> rd_firework_rvx(-8.0, 8.0);
 static std::uniform_real_distribution<coord_t> rd_firework_rvy(-8.0, 8.0);
-static std::uniform_int_distribution<int> rd_firework_spawn{0, 240};
+static std::uniform_real_distribution<float> rd_firework_spawn{0, 1};
 static Color rocketColor{255, 128, 128, 160};
 static constexpr float rocketLength = 1.0f / 128;
 static constexpr float shardLength = 1.0f / 512;
@@ -151,7 +151,8 @@ void NameEntry::redrawChar(size_t i) {
         6.0f);
 }
 
-static const std::array<int, 10> rankDividers = {1, 2, 2, 3, 3, 3, 4, 4, 5, 5};
+static const std::array<float, 10> rankMul = {
+    0.75f, 0.5f, 0.4f, 0.35f, 0.325f, 0.3f, 0.275f, 0.25f, 0.225f, 0.2f};
 
 bool NameEntry::run(GameState& state, float interval) {
     if (!running_) {
@@ -163,9 +164,21 @@ bool NameEntry::run(GameState& state, float interval) {
         dynamic_assert(i >= 0 && i < HighScoreTable::size, "wut?");
         sendMessage(AudioMessage::stopMusic());
         sendMessage(AudioMessage::playSound(SoundEffect::HighScoreEntered));
-        sendMessage(LogicMessage::openHighScores(holder_, i));
+        sendMessage(HostMessage::enteredHighScore());
+        sendMessage(LogicMessage::openHighScores(holder_, i, state.arcade));
         saveHighscores(*table_);
         return false;
+    }
+
+    if (state.arcade) {
+        countdown_ -= interval;
+        if (countdown_ < 0) {
+            running_ = false;
+        } else {
+            rendtext_.drawTextLineRight(
+                state.sbuf, 0.75, -0.125, Color{255, 255, 255, 255},
+                std::to_string(static_cast<int>(countdown_)), 1.5);
+        }
     }
 
     fireworks_.erase(std::remove_if(fireworks_.begin(), fireworks_.end(),
@@ -174,8 +187,7 @@ bool NameEntry::run(GameState& state, float interval) {
                                                            interval);
                                     }),
                      fireworks_.end());
-    if (random(rd_firework_spawn) <
-        (HighScoreTable::size / rankDividers[rank_]))
+    if (random(rd_firework_spawn) < 0.05f * rankMul[rank_])
         fireworks_.emplace_back(std::make_unique<Firework>());
 
     t_ = wrapAngle(t_ + interval * 4);

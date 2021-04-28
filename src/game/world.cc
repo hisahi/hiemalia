@@ -25,8 +25,7 @@ constexpr int pointsPer1up = 50000;
 GameWorld::GameWorld(ConfigSectionPtr<GameConfig> config)
     : config_(config), difficulty_{config->difficulty} {
     moveSpeedFac = difficulty_.getStageSpeedMultiplier();
-    continues_ = config->maxContinues;
-    // stageNum += 2;
+    // stageNum += 3;  // DEBUG
 }
 
 MoveRegion GameWorld::getMoveRegionForZ(coord_t z) const {
@@ -71,8 +70,11 @@ static float nextDifficulty(float d) {
     if (d < 2) {
         return d + 0.5f;
     }
-    dynamic_assert(d < 2.5f, "invalid difficulty level");
-    return d + (2.5f - d) * 0.5f;
+    if (d < 2.5) {
+        return d + 0.25f;
+    }
+    dynamic_assert(d <= 3.0f, "invalid difficulty level");
+    return d + (3.0f - d) * 0.5f;
 }
 
 void GameWorld::startNewStage() {
@@ -86,7 +88,7 @@ void GameWorld::startNewStage() {
     }
     killed_ = 0;
     checkpoint = 0;
-    // checkpoint += 80;
+    // checkpoint += 118;  // DEBUG
     resetStage(checkpoint);
 }
 
@@ -124,11 +126,20 @@ void GameWorld::spendContinue() {
     --continues_;
     --stageNum;
     nextStage = true;
+    sendMessage(GameMessage::updateStatus());
+}
+
+void GameWorld::addCredits(int n) {
+    dynamic_assert(n > 0, "nothing to add");
+    continues_ += n;
+    sendMessage(GameMessage::creditAdded());
 }
 
 void GameWorld::addScore(unsigned int p) {
     if ((score + p) / pointsPer1up > score / pointsPer1up) {
-        lives = std::min(99, lives + 1);
+        lives =
+            std::min(99, lives + static_cast<int>((score + p) / pointsPer1up -
+                                                  score / pointsPer1up));
         sendMessage(AudioMessage::playSound(SoundEffect::ExtraLife));
     }
     score += p;
@@ -337,7 +348,7 @@ void GameWorld::endGame() {
     enemyBullets.clear();
     moveSpeedDst = 5;
     moveSpeedVel = 0.8;
-    sendMessage(AudioMessage::fadeOutMusic());
+    sendMessage(AudioMessage::stopMusic());
     sendMessage(AudioMessage::playSound(SoundEffect::Liftoff));
     stage->doOverride({59, 59, 59, 59, 59, 59, 59, 59, 59, 59,
                        59, 59, 59, 59, 59, 59, 59, 59, 61, 53});

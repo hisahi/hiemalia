@@ -12,9 +12,11 @@
 #include "audio.hh"
 #include "defs.hh"
 #include "hiemalia.hh"
+#include "inherit.hh"
 #include "load2d.hh"
 #include "logger.hh"
 #include "logic.hh"
+#include "menu/menumain.hh"
 #include "menu/menuyn.hh"
 #include "sounds.hh"
 
@@ -203,6 +205,10 @@ void Menu::setActiveItem(symbol_t item) {
 }
 
 void Menu::doSelect() {
+    if (arcade()) {
+        exiting_ = exitable_;
+        return;
+    }
     MenuOption& option = options_[index_];
     if (option.type == MenuOptionType::Select ||
         option.type == MenuOptionType::Spinner) {
@@ -241,7 +247,7 @@ void Menu::gotMenuMessage(const MenuMessage& msg) {
             doRight();
             break;
         case MenuMessageType::MenuSelect:
-            if (index_ >= 0)
+            if (index_ >= 0 || arcade())
                 doSelect();
             else
                 pageRight(true);
@@ -283,8 +289,11 @@ coord_t Menu::getMenuOptionY(int index) const {
 }
 
 void Menu::runMenu(GameState& state, float interval) {
+    if (timeout()) timedOut();
     if (exiting_) {
-        auto s = handler_.get().closeMenu();
+        auto s = replaceWith_
+                     ? handler_.get().replaceMenu(std::move(replaceWith_))
+                     : handler_.get().closeMenu();
         if (init_) end(state);
         init_ = false;
         return;
@@ -293,7 +302,7 @@ void Menu::runMenu(GameState& state, float interval) {
         std::string t = title();
         init_ = true;
         begin(state);
-        dynamic_assert(options_.size() > 0, "menu cannot be empty");
+        if (options_.empty()) options_.push_back(MenuOption::spacer());
         if (defaultItem == symbol_none) {
             index_ = 0;
         } else {
@@ -305,6 +314,7 @@ void Menu::runMenu(GameState& state, float interval) {
         font_.renderTextLine(titlebuf_, -font_.getTextWidth(t) / 2, -0.875,
                              menuTitleColor, t);
     }
+    if (maxLifetime_) lifetime_ += interval;
 
     renderSpecial(state.sbuf, interval);
     coord_t x1 = -0.75;
@@ -329,6 +339,10 @@ void MenuHandler::gotMessage(const MenuMessage& msg) {
 bool MenuHandler::run(GameState& state, float interval) {
     if (!menus_.empty()) menus_.top()->runMenu(state, interval);
     return !menus_.empty();
+}
+
+void MenuHandler::closeAllMenus() {
+    while (!menus_.empty()) menus_.pop();
 }
 
 }  // namespace hiemalia

@@ -33,6 +33,8 @@ class HostModuleSDL2 : public HostModule {
     bool proceed();
     void quit();
     void finish();
+    // enable code for quit through Alt+F4
+    void arcade();
 
     void sync();
 
@@ -58,6 +60,7 @@ class HostModuleSDL2 : public HostModule {
     unsigned int ticks_{0};
     unsigned int frac_{0};
     bool quit_{false};
+    bool arcade_{false};
 };
 };  // namespace hiemalia
 

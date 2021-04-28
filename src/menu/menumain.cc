@@ -29,16 +29,24 @@ enum Item : symbol_t {
 };
 
 void MenuMain::begin(GameState& state) {
-    option(MenuOption::spacer(symbol_none));
-    option(MenuOption::spacer(symbol_none));
-    option(MenuOption::spacer(symbol_none));
-    option(MenuOption::spacer(symbol_none));
-    option(MenuOption::button(Item_Game, "GAME"));
-    option(MenuOption::button(Item_Options, "OPTIONS"));
-    option(MenuOption::button(Item_Scores, "HIGH SCORES"));
-    option(MenuOption::button(Item_Help, "HELP"));
-    option(MenuOption::button(Item_Exit, "EXIT"));
-    sendMessage(AudioMessage::playMusic(MusicTrack::Ambience));
+    if (!arcade()) {
+        option(MenuOption::spacer(symbol_none));
+        option(MenuOption::spacer(symbol_none));
+        option(MenuOption::spacer(symbol_none));
+        option(MenuOption::spacer(symbol_none));
+        option(MenuOption::button(Item_Game, "GAME"));
+        option(MenuOption::button(Item_Options, "OPTIONS"));
+        option(MenuOption::button(Item_Scores, "HIGH SCORES"));
+        option(MenuOption::button(Item_Help, "HELP"));
+        option(MenuOption::button(Item_Exit, "EXIT"));
+        sendMessage(AudioMessage::playMusic(MusicTrack::Ambience));
+    } else {
+        if (!firstRun()) {
+            nextScreen_ = 4;
+            openMenu<MenuHighScore>(holder_);
+        }
+        duration(10);
+    }
 }
 
 void MenuMain::select(int index, symbol_t id) {
@@ -82,7 +90,7 @@ void MenuMain::renderSpecial(SplinterBuffer& sbuf, float interval) {
         p.z += z_off;
     }
     rend2_.renderShapeColor(
-        sbuf, 0, -0.5,
+        sbuf, 0, arcade() ? 0 : -0.5,
         Color{255, 255, 255, static_cast<std::uint8_t>(192 + 60 * sin(angle_))},
         logoSheet[0]);
     sbuf.append(copyright);
@@ -102,6 +110,31 @@ MenuMain::MenuMain(MenuHandler& handler,
     rendtext_.setFont(getAssets().menuFont);
     rendtext_.drawTextLineCenter(copyright, 0, 0.875, Color{255, 255, 255, 128},
                                  "(C) HISAHI 2021", 0.75);
+}
+
+void MenuMain::timedOut() {
+    if (nextScreen_ == 0) {
+        openMenu<MenuHighScore>(holder_);
+        nextScreen_ = 1;
+    } else if (nextScreen_ == 1) {
+        openMenu<MenuHelp>();
+        nextScreen_ = 2;
+    } else if (nextScreen_ == 2) {
+        openMenu<MenuHighScore>(holder_);
+        nextScreen_ = 3;
+    } else if (nextScreen_ == 3) {
+        duration(10);
+        nextScreen_ = 4;
+    } else if (nextScreen_ == 4) {
+        // TODO: attract mode??
+        nextScreen_ = 5;
+    } else if (nextScreen_ == 5) {
+        openMenu<MenuHighScore>(holder_);
+        nextScreen_ = 6;
+    } else if (nextScreen_ == 6) {
+        duration(10);
+        nextScreen_ = 0;
+    }
 }
 
 MenuMain::~MenuMain() noexcept {}

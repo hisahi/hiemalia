@@ -37,7 +37,8 @@ static auto soundEffectNames = hiemalia::makeArray<NamePair<SoundEffect>>(
      {"place.wav", SoundEffect::BlockerPlace},
      {"flip.wav", SoundEffect::DirFlip},
      {"awaywego.wav", SoundEffect::Liftoff},
-     {"1up.wav", SoundEffect::ExtraLife}});
+     {"1up.wav", SoundEffect::ExtraLife},
+     {"credit.wav", SoundEffect::Credit}});
 
 void AudioConfig::load(ConfigSectionStore store) {
     music = store.get<bool>("Music", music);
@@ -91,6 +92,12 @@ static int getSoundChannel(SoundEffect sfx) {
             return 2;
         case SoundEffect::BulletNoDamage:
             return 3;
+        case SoundEffect::ExplodeSmall:
+        case SoundEffect::ExplodeMedium:
+        case SoundEffect::ExplodeLarge:
+            return 4;
+        case SoundEffect::Credit:
+            return 5;
         default:
             return channelAny;
     }

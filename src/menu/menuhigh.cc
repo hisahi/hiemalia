@@ -12,6 +12,7 @@
 #include "defs.hh"
 #include "logger.hh"
 #include "math.hh"
+#include "menu/menuhelp.hh"
 #include "menu/menuyn.hh"
 #include "scores.hh"
 
@@ -34,11 +35,14 @@ void MenuHighScore::begin(GameState& state) {
         option(MenuOption::label(index_to_symbol(i + 1), ""));
     }
     option(MenuOption::spacer(symbol_none));
-    option(MenuOption::button(Item_Reset, "RESET"));
-    option(MenuOption::button(Item_Back, "BACK"));
-    defaultItem = Item_Back;
+    if (!arcade()) {
+        option(MenuOption::button(Item_Reset, "RESET"));
+        option(MenuOption::button(Item_Back, "BACK"));
+        defaultItem = Item_Back;
+    }
     table_ = &state.highScores;
     redrawScores();
+    duration(10);
 }
 
 void MenuHighScore::highlight(int index) { highlightIndex_ = index; }
@@ -63,6 +67,10 @@ void MenuHighScore::resetScores() {
 }
 
 void MenuHighScore::select(int index, symbol_t id) {
+    if (arcade()) {
+        closeMenu();
+        return;
+    }
     if (id == Item_Back) {
         closeMenu();
         return;
@@ -86,28 +94,6 @@ void MenuHighScore::renderSpecial(SplinterBuffer& sbuf, float interval) {
             highlight_);
         t_ = wrapAngle(t_ + interval);
     }
-}
-
-MenuHighScore::MenuHighScore(MenuHighScore&& move) noexcept
-    : Menu(std::move(move)),
-      holder_(std::move(move.holder_)),
-      table_(move.table_),
-      rend2d_(std::move(move.rend2d_)),
-      rend3d_(std::move(move.rend3d_)),
-      donut_(std::move(move.donut_)),
-      t_(move.t_),
-      bgr_(move.bgr_) {}
-
-MenuHighScore& MenuHighScore::operator=(MenuHighScore&& move) noexcept {
-    Menu::operator=(std::move(move));
-    holder_ = std::move(move.holder_);
-    table_ = move.table_;
-    rend2d_ = std::move(move.rend2d_);
-    rend3d_ = std::move(move.rend3d_);
-    donut_ = std::move(move.donut_);
-    t_ = move.t_;
-    bgr_ = move.bgr_;
-    return *this;
 }
 
 MenuHighScore::MenuHighScore(MenuHandler& handler,

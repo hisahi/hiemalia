@@ -31,7 +31,8 @@ void EnemyBoss4::onSpawn(GameWorld& w) {
 bool EnemyBoss4::doEnemyTick(GameWorld& w, float delta) {
     m_ = wrapAngle(m_ + delta * 0.25 * numbers::PI<coord_t>);
     if (pos.z - getCollisionRadius() > stageSpawnDistance) return true;
-    fireTime_ += delta * 0.75f * w.difficulty().getFireRateMultiplier();
+    fireTime_ += delta * (w.getBossesAlive() == 1 ? 1.25f : 0.75f) *
+                 w.difficulty().getFireRateMultiplier();
     Point3D target =
         Point3D(0.75 * sin(m_), 0.5 * cos(m_), 2.25 + w.getPlayerPosition().z);
     if (mv_ < 1)

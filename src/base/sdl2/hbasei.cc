@@ -20,6 +20,7 @@
 namespace hiemalia {
 
 hiemalia::HostModuleSDL2::HostModuleSDL2() {
+    SDL_SetMainReady();
     if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_EVENTS))
         throw SDLException("Could not initialize SDL2");
     sdl_owner_ = true;
@@ -57,6 +58,16 @@ bool HostModuleSDL2::proceed() {
                 quit_ = true;
                 break;
             case SDL_KEYDOWN:
+                if (arcade_ && event.key.keysym.sym == SDLK_F4 &&
+                    (SDL_GetModState() & KMOD_ALT)) {
+                    LOG_DEBUG("arcade quit SDL Alt+F4!");
+                    quit_ = true;
+                }
+                if (arcade_ && event.key.keysym.sym == SDLK_F1) {
+                    LOG_DEBUG("coin");
+                    hiemalia_tryAddCredits(1);
+                }
+                [[fallthrough]];
             case SDL_KEYUP:
             case SDL_CONTROLLERBUTTONDOWN:
             case SDL_CONTROLLERBUTTONUP:
@@ -112,4 +123,14 @@ void HostModuleSDL2::quit() {
 }
 
 void HostModuleSDL2::finish() { quit_ = true; }
+
+void HostModuleSDL2::arcade() {
+    LOG_DEBUG("Entering arcade mode");
+    arcade_ = true;
+}
+
+void hostDisplayError(const std::string& title, const std::string& text) {
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.c_str(), text.c_str(),
+                             nullptr);
+}
 }  // namespace hiemalia

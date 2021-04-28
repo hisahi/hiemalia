@@ -23,6 +23,8 @@ class HostModule : public Module {
     virtual bool proceed() = 0;
     virtual void quit() = 0;
     virtual void finish() = 0;
+    // enable code for quit through Alt+F4
+    virtual void arcade() = 0;
 
     DELETE_COPY(HostModule);
     INHERIT_MOVE(HostModule, Module);
@@ -36,6 +38,7 @@ class HostModule : public Module {
 };
 
 std::shared_ptr<HostModule> getHostModule();
+void hostDisplayError(const std::string& title, const std::string& text);
 
 };  // namespace hiemalia
 

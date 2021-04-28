@@ -26,7 +26,13 @@ void MenuHelp::begin(GameState& state) {
     loadPage();
 }
 
-void MenuHelp::select(int index, symbol_t id) { pageRight(true); }
+void MenuHelp::select(int index, symbol_t id) {
+    if (arcade()) {
+        closeMenu();
+        return;
+    }
+    pageRight(true);
+}
 
 void MenuHelp::end(GameState& state) {}
 
@@ -169,6 +175,7 @@ void MenuHelp::loadPage() {
     }
     dynamic_assert(i == rowCount, "fill in all rows");
     while (--i >= 0) options_[i].dirty = true;
+    duration(10);
 }
 
 void MenuHelp::renderSpecial(SplinterBuffer& sbuf, float interval) {
@@ -213,6 +220,9 @@ void MenuHelp::renderSpecial(SplinterBuffer& sbuf, float interval) {
 }
 
 void MenuHelp::pageLeft() {
+    if (arcade()) {
+        return;
+    }
     sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
     page_ = static_cast<HelpPage>(
         remainder(static_cast<int>(page_) - 1, numHelpPages));
@@ -220,8 +230,21 @@ void MenuHelp::pageLeft() {
 }
 
 void MenuHelp::pageRight(bool bySelect) {
+    if (arcade()) {
+        return;
+    }
     sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
     if (bySelect && static_cast<int>(page_) + 1 == numHelpPages) {
+        closeMenu();
+        return;
+    }
+    page_ = static_cast<HelpPage>(
+        remainder(static_cast<int>(page_) + 1, numHelpPages));
+    loadPage();
+}
+
+void MenuHelp::timedOut() {
+    if (static_cast<int>(page_) + 1 == numHelpPages) {
         closeMenu();
         return;
     }

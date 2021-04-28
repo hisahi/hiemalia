@@ -16,7 +16,7 @@
 #include "model.hh"
 
 namespace hiemalia {
-inline constexpr size_t maxShards = 128;
+inline constexpr size_t maxShards = 200;
 
 /*struct ExplosionShard {
     Point3D p0;

@@ -33,8 +33,8 @@ void EnemyFighter::patternMoveXThenZ(GameWorld& w, float dt, coord_t v,
                                      float xt) {
     if (crossover(t_, dt, xt))
         vel = Point3D(0, 0, -1 / 16);
-    else if (t_ < 0.5)
-        vel = Point3D(1, 0, 0), fireAtPlayer(w, dt, 0.5);
+    else if (t_ < xt)
+        vel = Point3D(v, 0, 0), fireAtPlayer(w, dt, 0.5);
     else
         fireAtPlayer(w, dt, 1.0);
 }

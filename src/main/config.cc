@@ -30,20 +30,27 @@ void ConfigStore::writeStream(std::ostream& stream) const {
 void Config::load(std::string filename) {
     store_.clear();
     LOG_TRACE("loading config from %s", filename);
-    std::ifstream f = openFileRead(filename, false);
+    auto f = openFileRead(filename, false);
     if (f.fail()) {
         LOG_ERROR("failed to read config file %s. will use defaults.",
                   filename);
         return;
     }
-    f.exceptions(std::ifstream::badbit);
+    fileThrowOnFatalError(f);
     store_.readStream(f);
     for (auto& conf : confs_) conf->load(ConfigSectionStore(*conf, store_));
 }
 
 void Config::save(std::string filename) {
     for (auto& conf : confs_) conf->save(ConfigSectionStore(*conf, store_));
-    std::ofstream f = openFileWrite(filename, false);
+    auto f = openFileWrite(filename, false);
+    if (f.fail()) {
+        LOG_ERROR(
+            "cannot open config file for writing. will dump into cout "
+            "instead.");
+        store_.writeStream(std::cout);
+        return;
+    }
     store_.writeStream(f);
 }
 }  // namespace hiemalia

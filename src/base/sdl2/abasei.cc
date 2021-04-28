@@ -45,7 +45,7 @@ AudioModuleSDLMixer2::AudioModuleSDLMixer2(std::shared_ptr<HostModule> host)
         throw SDLException("could not initialize SDL2 audio subsystem");
     mixer_ = std::make_unique<SDLMixer>();
     Mix_AllocateChannels(16);
-    Mix_ReserveChannels(4);
+    Mix_ReserveChannels(6);
 }
 
 AudioModuleSDLMixer2::AudioModuleSDLMixer2(AudioModuleSDLMixer2 &&move) noexcept

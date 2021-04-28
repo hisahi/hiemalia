@@ -25,12 +25,14 @@ class GameDifficulty {
     float getBulletLeadMultiplier() const;
     float getBulletSpewMultiplier() const;
     float getEnemySpeedMultiplier() const;
+    float getWallSpeedMultiplier() const;
 
   private:
     float level_;
     float speed_;
     float lead_;
     float spew_;
+    float wall_;
 };
 
 };  // namespace hiemalia

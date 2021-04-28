@@ -52,12 +52,41 @@ EnemyBulletHoming::EnemyBulletHoming(const Point3D& pos, const Point3D& v)
     useGameModel(GameModel::BulletEnemy3);
 }
 
+static Point3D bulletAimAt(const Point3D& me, coord_t speed, const Point3D& p0,
+                           const Point3D& x) {
+    if (x.isZero()) return (p0 - me).normalize() * speed;
+    Point3D ax = x * (1 + ((p0 - me).length() / 32));
+    Point3D p = p0 + ax;
+    Point3D d = p - me;
+    Point3D y = d - ax * (ax.dot(d) / ax.dot(ax));
+    Point3D pointOfContact = p0 + ax * (y.length() / speed);
+    return (pointOfContact - me).normalize() * speed;
+}
+
+static Point3D aimAtPlayer(GameWorld& w, const Point3D& me, float speed,
+                           float lead) {
+    speed *= w.difficulty().getBulletSpeedMultiplier();
+    lead *= w.difficulty().getBulletLeadMultiplier();
+    Point3D nonLead = bulletAimAt(me, speed, w.getPlayerPosition(),
+                                  Point3D(0, 0, w.getMoveSpeed()));
+    Point3D yesLead =
+        lead == 0
+            ? nonLead
+            : bulletAimAt(
+                  me, speed, w.getPlayerPosition(),
+                  w.getPlayer().vel * sqrt(w.getPlayer().vel.length()) * 0.125 +
+                      Point3D(0, 0, w.getMoveSpeed() + w.getMoveSpeedDelta()));
+    return Point3D::lerp(nonLead, lead, yesLead);
+}
+
 bool EnemyBulletHoming::doBulletTick(GameWorld& w, float delta) {
     if (w.isPlayerAlive()) {
         Point3D ppos = w.getPlayerPosition();
         if (pos.z > ppos.z) {
             Orient3D cur = Orient3D::toPolar(vel);
-            Orient3D unr = Orient3D::toPolar(ppos - pos);
+            Orient3D unr = Orient3D::toPolar(
+                aimAtPlayer(w, pos, static_cast<float>(vel.length()), 1.0f) -
+                pos);
             Orient3D target = cur.tendTo(unr, delta * 2);
             vel = target.direction(vel.length());
         }

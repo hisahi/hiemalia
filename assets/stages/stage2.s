@@ -174,9 +174,9 @@ o 2 0.5 0 0 spider
 o 1.5 -0.25 0 0 spider
 o 2.5 0.5 0 0 spider
 
-o 2 0.5 -0.75 0 turret 3.1415926535 3.1415926535 0
+o 2 0.5 -0.75 0 turret 0 3.1415926535 0
 o 0 -0.5 0.75 0 turret 0 0 0
-o 1 -0.5 -0.75 0 turret 3.1415926535 3.1415926535 0
+o 1 -0.5 -0.75 0 turret 0 3.1415926535 0
 o 2 0.5 0.75 0 turret 0 0 0
 
 o 1.5 0.75 0 0 wasp
@@ -262,13 +262,13 @@ o 1 -0.125 -0.25 0 wasp
 o 3 -0.625 0 0 fighter 2
 
 o 1 0 0 0 walker 0
-o 1.5 1 0 0 fighter 7
-o 1 -1 0 0 fighter 3
+o 1.5 -1 0 0 fighter 7
+o 1 1 0 0 fighter 3
 
 o 0.75 -0.5 0 0 walker 2
 o 0.75 0 0 0 walker 2
 o 0.25 0.5 0 0 walker 2
-o 2 1 0 0 fighter 6
+o 2 -1 0 0 fighter 6
 
 o 4 0.5 0 0 walker 2
 
@@ -315,12 +315,12 @@ o 5 0.75 -0.125 0 fighter 9
 x 0.25 0 0 0 checkpoint
 x 5.5 0 0 0 setspeed slow
 
-o 1.5 -1 -0.125 0 fighter 3
-o 1.5 1 0.125 0 fighter 8
-o 1.5 -1 0.25 0 fighter 4
-o 1.5 1 -0.25 0 fighter 7
-o 1.5 -1 0 0 fighter 5
-o 5.5 1 0.375 0 fighter 6
+o 1.5 -1 -0.125 0 fighter 6
+o 1.5 1 0.125 0 fighter 5
+o 1.5 -1 0.25 0 fighter 7
+o 1.5 1 -0.25 0 fighter 4
+o 1.5 -1 0 0 fighter 8
+o 5.5 1 0.375 0 fighter 3
 
 o 1 0 0 0 boss3
 xr 0.05 0 0 0 setspeed fast

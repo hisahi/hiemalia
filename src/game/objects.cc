@@ -46,7 +46,7 @@ std::shared_ptr<GameObject> makeTwoPosObject(const Point3D& p,
     coord_t sx = 0, sy = 0, sz = 0;
     if (s_sscanf(prop.c_str(), FMT_coord_t " " FMT_coord_t " " FMT_coord_t, &sx,
                  &sy, &sz) < 3)
-        LOG_WARN("invalid angled object prop");
+        LOG_WARN("invalid two-pos object prop");
     return std::make_shared<T>(p, Point3D(sx, sy, sz));
 }
 
@@ -182,7 +182,8 @@ static const std::unordered_map<std::string, object_maker_t> nameMap = {
     {"pod", makeAngleObject<EnemyPod>},
     {"blocker", makeStandardObject<EnemyBlocker>},
     {"pewpew", makeAngleObject<EnemyPewpew>},
-    {"dbox", makeArgPropObject<DestroyableBox, coord_t, coord_t, coord_t, int>},
+    {"dbox",
+     makeArgPropObject<DestroyableBox, coord_t, coord_t, coord_t, float>},
     {"boss0", makeStandardObject<EnemyBoss0>},
     {"boss1", makeStandardObject<EnemyBoss1>},
     {"boss2", makeStandardObject<EnemyBoss2>},

@@ -13,6 +13,8 @@ void GameConfig::load(ConfigSectionStore store) {
     difficulty = static_cast<GameDifficultyLevel>(
         store.get<int>("Difficulty", static_cast<int>(difficulty)));
     maxContinues = store.get<int>("MaxContinues", maxContinues);
+    arcadeFreePlay = store.get<bool>("ArcadeFreePlay", arcadeFreePlay);
+    arcadeMaxCredits = store.get<int>("ArcadeMaxCredits", arcadeMaxCredits);
     switch (difficulty) {
         case GameDifficultyLevel::Easy:
         case GameDifficultyLevel::Normal:
@@ -26,5 +28,7 @@ void GameConfig::load(ConfigSectionStore store) {
 void GameConfig::save(ConfigSectionStore store) const {
     store.set<int>("Difficulty", static_cast<int>(difficulty));
     store.set<int>("MaxContinues", maxContinues);
+    store.set<bool>("ArcadeFreePlay", arcadeFreePlay);
+    store.set<int>("ArcadeMaxCredits", arcadeMaxCredits);
 }
 }  // namespace hiemalia

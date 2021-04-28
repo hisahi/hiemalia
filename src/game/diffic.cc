@@ -28,7 +28,8 @@ GameDifficulty::GameDifficulty(float level)
     : level_(level),
       speed_(pow(level, 0.75f)),
       lead_(std::min(1.0f, sqrt(level_ * 0.75f))),
-      spew_(1.0f / level) {}
+      spew_(1.0f / level),
+      wall_(std::min(1.0f, speed_)) {}
 
 GameDifficulty::GameDifficulty(GameDifficultyLevel level)
     : GameDifficulty(getDifficultyLevelFloat(level)) {}
@@ -46,5 +47,7 @@ float GameDifficulty::getBulletLeadMultiplier() const { return lead_; }
 float GameDifficulty::getBulletSpewMultiplier() const { return spew_; }
 
 float GameDifficulty::getEnemySpeedMultiplier() const { return level_; }
+
+float GameDifficulty::getWallSpeedMultiplier() const { return wall_; }
 
 }  // namespace hiemalia

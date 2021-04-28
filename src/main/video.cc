@@ -47,6 +47,14 @@ bool VideoEngine::isFullScreen() { return video_->isFullScreen(); }
 
 bool VideoEngine::canSetFullScreen() { return video_->canSetFullscreen(); }
 
+void VideoEngine::setFullScreenOrElse() {
+    if (video_->isFullScreen()) return;
+    if (!video_->canSetFullscreen())
+        throw std::runtime_error(
+            "current build of game does not support full screen modes");
+    video_->setFullScreen(true);
+}
+
 Color Color::fromHSVA(float h, float s, float v, float a) {
     float h6 = h * 6.0f;
     unsigned u = floatToWholeFrac<unsigned, float>(h6);

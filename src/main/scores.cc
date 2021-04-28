@@ -183,7 +183,7 @@ HighScoreTable loadHighscores() {
         LOG_WARN("cannot open high scores, using defaults");
         return getDefaultHighscoreTable();
     }
-    in.exceptions(std::ifstream::failbit);
+    fileThrowOnError(in);
 
     HighScoreTable table;
     try {
@@ -231,7 +231,7 @@ void saveHighscores(HighScoreTable& table) {
         dumpScores(table);
     } else {
         try {
-            out.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+            fileThrowOnError(out);
             omemorystream maindata;
             uint16_t n = static_cast<uint16_t>(table.entries.size());
             writeUInt16(maindata, n);

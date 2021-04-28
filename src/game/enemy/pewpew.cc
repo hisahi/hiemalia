@@ -36,10 +36,10 @@ void EnemyPewpew::aim(GameWorld& w, float delta) {
 }
 
 bool EnemyPewpew::doEnemyTick(GameWorld& w, float delta) {
-    if (rot != targetRot_) {
+    if (!burst_ && rot != targetRot_) {
         rot = rot.tendTo(targetRot_, delta);
     }
-    if (rot == targetRot_)
+    if (burst_ || rot == targetRot_)
         fireTime_ += delta * (burst_ ? 20.0f : 1.0f) *
                      w.difficulty().getFireRateMultiplier();
     if (!burst_) aim(w, delta);
