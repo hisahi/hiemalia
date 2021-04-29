@@ -20,14 +20,18 @@ namespace hiemalia {
 static const Color white{255, 255, 255, 255};
 static const bool firstPerson = true;
 
-GameMain::GameMain(ConfigSectionPtr<GameConfig> config_)
+GameMain::GameMain(ConfigSectionPtr<GameConfig> config_,
+                   std::shared_ptr<DemoFile> demo)
     : world_(std::make_unique<GameWorld>(config_)),
       config_(config_),
+      demo_(demo),
       timer(0),
       objectLateZ(farObjectBackPlane) {
     font_.setFont(getAssets().menuFont);
     ring_ = getGameModel(GameModel::Ring);
     halt_ = 0.25;
+    if (demo_)
+        world_->difficulty_ = GameDifficulty{GameDifficultyLevel::Normal};
 }
 
 GameMain::~GameMain() noexcept {}
@@ -90,6 +94,12 @@ static void drawCreditCounter(SplinterBuffer& sbuf, RendererText& font,
 
 void GameMain::drawStatusBar() {
     statusbar_.clear();
+    if (demo_) {
+        Color c{128, 255, 64, 192};
+        font_.drawTextLineCenter(statusbar_, 0, -0.9375, c, "DEMO");
+        font_.drawTextLineCenter(statusbar_, 0, 0.9375, c, "DEMO");
+        return;
+    }
     if (world_->lives >= 0) {
         drawScore(statusbar_, font_, -0.5, -0.9375, world_->score);
         drawScore(statusbar_, font_, 0.5, -0.9375, world_->highScore);
@@ -103,14 +113,20 @@ void GameMain::drawStatusBar() {
                           freePlay_);
 }
 
-void GameMain::startNewStage() { world_->startNewStage(); }
+void GameMain::startNewStage() {
+    world_->startNewStage();
+    if (demo_)
+        world_->resetStage(demo_->offset());
+}
 
 void GameMain::pauseGame() {
     if (!paused_) {
-        if (gameOver_) {
+        if (demo_ || gameOver_) {
             doExitGame();
             return;
         }
+        if (arcade_)
+            return;
         shouldBePaused_ = true;
         paused_ = true;
         sendMessage(LogicMessage::pauseMenu());
@@ -152,6 +168,11 @@ void GameMain::gotMessage(const GameMessage& msg) {
             cameraShakeSpeed_ = pow(cameraShake_, 1.25);
             break;
         case GameMessageType::AddCredits:
+            if (demo_) {
+                sendMessage(HostMessage::mainMenuFromDemo());
+                instaExit_ = true;
+                return;
+            }
             world_->addCredits(msg.getCredits());
             break;
     }
@@ -169,6 +190,8 @@ void GameMain::gotMessage(const MenuMessage& msg) {
             continueResponse_ = 1;
         else if (msg.type == MenuMessageType::MenuExit)
             continueResponse_ = -1;
+    } else if (demo_ && msg.type == MenuMessageType::MenuSelect) {
+        doExitGame();
     } else if (!paused_ && msg.type == MenuMessageType::MenuExit) {
         pauseGame();
     }
@@ -188,11 +211,14 @@ bool GameMain::updateObject(GameState& state, float interval,
 
 void GameMain::doStageStart() {
     GameWorld& w = *world_;
-    stageStartTimer = 5;
-    sendMessage(AudioMessage::playMusic(MusicTrack::StageStart));
-    textscreen_.clear();
-    font_.drawTextLineCenter(textscreen_, 0, -0.25, white,
-                             "STAGE " + std::to_string(w.stageNum), 2);
+    if (!demo_) {
+        stageStartTimer = 5;
+        sendMessage(AudioMessage::playMusic(MusicTrack::StageStart));
+        textscreen_.clear();
+        font_.drawTextLineCenter(textscreen_, 0, -0.25, white,
+                                 "STAGE " + std::to_string(w.stageNum), 2);
+    } else
+        textscreen_.clear();
 }
 
 static bool timerCrosses(float timer, float interval, float threshold) {
@@ -252,6 +278,10 @@ void GameMain::doStageStartTick(GameState& state, float interval) {
 
 void GameMain::doStageComplete() {
     GameWorld& w = *world_;
+    if (demo_) {
+        doExitGame();
+        return;
+    }
     timer = 0;
     stageStartTimer = 0;
     stageComplete_ = true;
@@ -284,6 +314,10 @@ void GameMain::doGameCompleteTick(GameState& state, float interval) {
 
 void GameMain::doGameComplete() {
     // GameWorld& w = *world_;
+    if (demo_) {
+        doExitGame();
+        return;
+    }
     timer = 3;
     gameComplete_ = true;
 }
@@ -311,11 +345,21 @@ void GameMain::doStageCompleteTick(GameState& state, float interval) {
         p.rot.pitch = std::min<coord_t>(0, p.rot.pitch + interval);
     else if (p.rot.pitch > 0)
         p.rot.pitch = std::max<coord_t>(0, p.rot.pitch - interval);
-    Orient3D rot = p.rot + Orient3D(0, -timer / (timerEnd * 4), 0);
-    r3d_.setCamera(
-        Point3D(p.pos.x + p_fpx, p.pos.y + p_fpy - (timer * timer) / timerEnd,
-                p.pos.z + p_fpz - timer / 2),
-        rot, c_scale);
+    coord_t roll = timer / timerEnd * 2;
+    Orient3D rot =
+        p.rot + (gameComplete_ ? Orient3D(0, 0, roll)
+                               : Orient3D(0, -timer / (timerEnd * 4), 0));
+    if (gameComplete_) {
+        r3d_.setCamera(
+            Point3D(p.pos.x + p_fpx, p.pos.y + p_fpy, p.pos.z + p_fpz - timer),
+            rot, c_scale);
+        roll *= 4;
+        p.pos.x += roll * roll * roll * interval * 1.5;
+    } else
+        r3d_.setCamera(Point3D(p.pos.x + p_fpx,
+                               p.pos.y + p_fpy - (timer * timer) / timerEnd,
+                               p.pos.z + p_fpz - timer / 2),
+                       rot, c_scale);
     if (timerCrossesP(timer, interval, 1)) {
         unsigned timeBonus = getTimeBonus(stageTime);
         font_.drawTextLineLeft(textscreen_, -0.75, getBonusY(bonusIndex_),
@@ -373,6 +417,7 @@ void GameMain::doStageCompleteTick(GameState& state, float interval) {
     if (timer >= timerEnd) {
         textscreen_.clear();
         stageComplete_ = false;
+        gameComplete_ = false;
         w.nextStage = true;
     }
 }
@@ -448,6 +493,8 @@ void GameMain::doInit(GameState& state) {
     if (!arcade_) w.continues_ = config_->maxContinues;
     drawStatusBar();
     init_ = true;
+    if (demo_)
+        world_->stageNum = demo_->stage() - 1;
 }
 
 bool GameMain::run(GameState& state, float interval) {
@@ -456,6 +503,10 @@ bool GameMain::run(GameState& state, float interval) {
     static const Orient3D c_trot = Orient3D(
         radians<coord_t>(-15), radians<coord_t>(30), radians<coord_t>(0));
     if (!init_) doInit(state);
+    if (instaExit_) {
+        dynamic_assert(demo_ != nullptr, "?");
+        return false;
+    }
     GameWorld& w = *world_;
     if (gameOver_) {
         state.sbuf.append(textscreen_);
@@ -466,6 +517,10 @@ bool GameMain::run(GameState& state, float interval) {
         gameOver_ = false;
     }
     if (!running_) {
+        if (demo_) {
+            sendMessage(HostMessage::mainMenuFromDemo());
+            return false;
+        }
         int rank = state.highScores.getHighscoreRank(w.score);
         if (rank >= 0) {
             sendMessage(
@@ -493,7 +548,7 @@ bool GameMain::run(GameState& state, float interval) {
     }
 
     paused_ = shouldBePaused_;
-    if (!paused_ && state.controls.pause) pauseGame();
+    if (!paused_ && !arcade_ && state.controls.pause) pauseGame();
     if (paused_) {
         // I am paused
         state.sbuf.append(statusbar_);
@@ -513,9 +568,19 @@ bool GameMain::run(GameState& state, float interval) {
     } else {
         state.sbuf.push(Splinter(SplinterType::BeginClipCenter, -Y, +Y));
         Orient3D envRot{0, 0, 0};
-        w.updateMoveSpeedInput(state.controls, interval);
+        if (demo_) {
+            if (!demo_->runDemo(interval) || state.controls.fire ||
+                state.controls.pause) {
+                doExitGame();
+                sendMessage(HostMessage::mainMenuFromDemo());
+                return false;
+            }
+        }
+        const ControlState& controls =
+            demo_ ? demo_->getInputs() : state.controls;
+        w.updateMoveSpeedInput(controls, interval);
         if (w.isPlayerAlive()) {
-            w.player->updateInput(state.controls);
+            w.player->updateInput(controls);
             w.go(interval);
         }
         bool playerAlive = w.runPlayer(interval);
@@ -566,6 +631,8 @@ bool GameMain::run(GameState& state, float interval) {
         processObjects(state, interval, w.playerBullets);
         if (playerAlive) {
             w.renderPlayer(state.sbuf, r3d_, envRot);
+        } else if (demo_) {
+            doExitGame();
         } else if (w.respawn()) {
             playStageMusic(w.stageNum);
         } else if (w.continuesRemaining() > 0 || (arcade_ && !freePlay_)) {

@@ -303,6 +303,9 @@
     <ClCompile Include="src\menu\arcadeoverlay.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\demo.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\abase.hh">
@@ -690,6 +693,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\hholder.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\game\demo.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

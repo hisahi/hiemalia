@@ -181,6 +181,13 @@ class MenuOption {
     std::variant<MenuOptionSelect, MenuOptionInput, MenuOptionSpinner> x;
 };
 
+enum class MainMenuEnterFlag { MainMenu, HighScore, FromDemo };
+
+struct MenuInformation {
+    bool arcade{false};
+    MainMenuEnterFlag mainMenuMode{MainMenuEnterFlag::MainMenu};
+};
+
 class Menu;
 
 class MenuHandler : public LogicModule, MessageHandler<MenuMessage> {
@@ -197,7 +204,7 @@ class MenuHandler : public LogicModule, MessageHandler<MenuMessage> {
         menus_ = std::move(move.menus_);
         return *this;
     }
-    MenuHandler();
+    MenuHandler(const MenuInformation& = {});
     ~MenuHandler() noexcept {}
 
     template <typename T = Menu>
@@ -218,24 +225,16 @@ class MenuHandler : public LogicModule, MessageHandler<MenuMessage> {
         return s;
     }
 
-    inline std::shared_ptr<Menu> closeMenu() {
-        auto s = menus_.top();
-        menus_.pop();
-        return s;
-    }
+    std::shared_ptr<Menu> closeMenu();
 
     void gotMessage(const MenuMessage& msg);
     bool run(GameState& state, float interval);
+    inline const MenuInformation& info() const noexcept { return info_; }
     void closeAllMenus();
-    inline bool arcade() const { return arcade_; }
-    inline void arcade(bool b) { arcade_ = b; }
-    inline bool firstRun() const { return firstRun_; }
-    inline void firstRun(bool b) { firstRun_ = b; }
 
   private:
     std::stack<std::shared_ptr<Menu>> menus_;
-    bool arcade_{false};
-    bool firstRun_{false};
+    MenuInformation info_;
 
     static inline const std::string name_ = "MenuHandler";
     static inline const std::string role_ = "menu handler";
@@ -277,6 +276,10 @@ class Menu {
         closeMenu();
     }
 
+    inline void checkTimeout() {
+        if (timeout()) timedOut();
+    }
+
   protected:
     Menu(MenuHandler& handler);
     int index_{0};
@@ -293,13 +296,14 @@ class Menu {
     coord_t getMenuOptionY(int index) const;
     inline virtual void pageLeft() {}
     inline virtual void pageRight(bool) {}
-    inline bool arcade() const { return handler_.get().arcade(); }
-    inline bool firstRun() const { return handler_.get().firstRun(); }
+    inline const MenuInformation& info() const noexcept {
+        return handler_.get().info();
+    }
     inline bool timeout() const {
         return maxLifetime_ && lifetime_ >= maxLifetime_;
     }
     inline void duration(float t) {
-        lifetime_ = 0, maxLifetime_ = arcade() ? t : 0;
+        lifetime_ = 0, maxLifetime_ = info().arcade ? t : 0;
     }
     inline virtual void timedOut() { exiting_ = true; }
 

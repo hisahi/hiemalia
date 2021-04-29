@@ -25,17 +25,16 @@ constexpr int pointsPer1up = 50000;
 GameWorld::GameWorld(ConfigSectionPtr<GameConfig> config)
     : config_(config), difficulty_{config->difficulty} {
     moveSpeedFac = difficulty_.getStageSpeedMultiplier();
-    // stageNum += 3;  // DEBUG
 }
 
 MoveRegion GameWorld::getMoveRegionForZ(coord_t z) const {
     coord_t fz = z * stageDivision - stageSectionOffset;
     auto u = floatToWholeFrac<int>(fz);
-    if (u < 0) return getSectionById(stage->visible.front()).region;
-    if (u + 1 >= static_cast<int>(stage->visible.size()))
-        return getSectionById(stage->visible.back()).region;
-    const MoveRegion& s0 = getSectionById(stage->visible[u]).region;
-    const MoveRegion& s1 = getSectionById(stage->visible[u + 1]).region;
+    if (u < 0) return getSectionById(stage->visible().front()).region;
+    if (u + 1 >= static_cast<int>(stage->visible().size()))
+        return getSectionById(stage->visible().back()).region;
+    const MoveRegion& s0 = getSectionById(stage->visible()[u]).region;
+    const MoveRegion& s1 = getSectionById(stage->visible()[u + 1]).region;
     return {lerp(s0.x0, fz, s1.x0), lerp(s0.x1, fz, s1.x1),
             lerp(s0.y0, fz, s1.y0), lerp(s0.y1, fz, s1.y1)};
 }
@@ -47,22 +46,22 @@ MoveRegion GameWorld::getPlayerMoveRegion() const {
 MoveRegion GameWorld::getPlayerMoveRegion0() const {
     coord_t fz = player->pos.z * stageDivision - stageSectionOffset;
     auto u = floatToWholeFrac<int>(fz);
-    if (u < 0) return getSectionById(stage->visible.front()).region;
-    if (u + 1 >= static_cast<int>(stage->visible.size()))
-        return getSectionById(stage->visible.back()).region;
-    return getSectionById(stage->visible[u]).region;
+    if (u < 0) return getSectionById(stage->visible().front()).region;
+    if (u + 1 >= static_cast<int>(stage->visible().size()))
+        return getSectionById(stage->visible().back()).region;
+    return getSectionById(stage->visible()[u]).region;
 }
 
 Orient3D GameWorld::getSectionRotation() const {
     int u =
         static_cast<int>(player->pos.z * stageDivision - stageSectionOffset);
-    return getSectionById(stage->visible[u]).rotation *
+    return getSectionById(stage->visible()[u]).rotation *
            (player->pos.z * stageDivision);
 }
 
 Point3D GameWorld::rotateInSection(Point3D v, coord_t z) const {
     int u = static_cast<int>(z * stageDivision - stageSectionOffset);
-    return Matrix3D3::rotate(getSectionById(stage->visible[u]).rotation)
+    return Matrix3D3::rotate(getSectionById(stage->visible()[u]).rotation)
         .project(v);
 }
 
@@ -88,7 +87,7 @@ void GameWorld::startNewStage() {
     }
     killed_ = 0;
     checkpoint = 0;
-    // checkpoint += 118;  // DEBUG
+    moveSpeedFac = difficulty_.getStageSpeedMultiplier();
     resetStage(checkpoint);
 }
 
@@ -165,12 +164,10 @@ void GameWorld::moveForwardSkip(coord_t dist) {
         stage->nextSection();
     }
 
-    auto& obj = stage->spawns;
     unsigned u = sections + stageSpawnDistance * stageDivision;
-    while (!obj.empty() && obj.front().shouldSpawn(u, progress_f)) {
-        obj.front().obj->instant(*this);
+    while (stage->shouldSpawnNext(u, progress_f)) {
+        stage->spawnNext().obj->instant(*this);
         bossLevel = 0, bossSlideTime = 0;
-        obj.pop_front();
     }
 }
 
@@ -190,18 +187,17 @@ void GameWorld::moveForward(coord_t dist) {
         stage->nextSection();
     }
 
-    auto& obj = stage->spawns;
     unsigned u = sections + stageSpawnDistance * stageDivision;
-    while ((bossLevel == 0 && bossSlideTime == 0) && !obj.empty() &&
-           obj.front().shouldSpawn(u, progress_f)) {
-        if (obj.front().isEnemy)
+    while ((bossLevel == 0 && bossSlideTime == 0) &&
+           stage->shouldSpawnNext(u, progress_f)) {
+        ObjectSpawn spawn{stage->spawnNext()};
+        if (spawn.isEnemy)
             enemies
                 .emplace_back(std::dynamic_pointer_cast<EnemyObject>(
-                    std::move(obj.front().obj)))
+                    std::move(spawn.obj)))
                 ->onSpawn(*this);
         else
-            objects.emplace_back(std::move(obj.front().obj))->onSpawn(*this);
-        obj.pop_front();
+            objects.emplace_back(std::move(spawn.obj))->onSpawn(*this);
     }
 }
 
@@ -260,7 +256,7 @@ coord_t GameWorld::getMoveSpeedDelta() const {
            (moveSpeedDst - moveSpeedBase) * 0.5;
 }
 
-void GameWorld::updateMoveSpeedInput(ControlState& inputs, float delta) {
+void GameWorld::updateMoveSpeedInput(const ControlState& inputs, float delta) {
     if (inputs.back) {
         moveSpeedCtl = std::max<coord_t>(-1, moveSpeedCtl - delta * 2);
     } else if (inputs.forward) {
@@ -348,6 +344,7 @@ void GameWorld::endGame() {
     enemyBullets.clear();
     moveSpeedDst = 5;
     moveSpeedVel = 0.8;
+    moveSpeedCtl = 0;
     sendMessage(AudioMessage::stopMusic());
     sendMessage(AudioMessage::playSound(SoundEffect::Liftoff));
     stage->doOverride({59, 59, 59, 59, 59, 59, 59, 59, 59, 59,

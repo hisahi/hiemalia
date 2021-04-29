@@ -148,7 +148,7 @@ bool EnemyBoss7::doEnemyTick(GameWorld& w, float delta) {
             static std::uniform_real_distribution<coord_t> dist{-1, 1};
             while (fireTime_ >= 1) {
                 sendMessage(AudioMessage::playSound(
-                    SoundEffect::EnemyFire5, pos - w.getPlayerPosition()));
+                    SoundEffect::EnemyFire7, pos - w.getPlayerPosition()));
                 fireBullet<EnemyBulletSimple>(
                     w, model().vertices[0],
                     Point3D(pool.random(dist), pool.random(dist), -0.5), 0.5f,
@@ -156,12 +156,12 @@ bool EnemyBoss7::doEnemyTick(GameWorld& w, float delta) {
                 fireTime_ -= 1;
             }
             fireTime_ += delta * 10.0f * w.difficulty().getFireRateMultiplier();
-            rot += Orient3D(1 / 7, 1 / 11, 1 / 13) * delta * 64;
+            rot += Orient3D(1.0 / 7, 1.0 / 11, 1.0 / 13) * delta * 24;
             pos.x = sin(a_ + (0.5 + 0.5 * sin(b_))) * 0.5;
-            pos.y = cos(a_ * (3 + 2 * cos(c_)) + (0.5 + 0.5 * sin(b_))) * 0.5;
-            a_ = wrapAngle(a_ + 0.77 * delta);
-            b_ = wrapAngle(b_ + 1.31 * delta);
-            c_ = wrapAngle(c_ + 1.67 * delta);
+            pos.y = cos(a_ * (3 + 2 * cos(c_)) + (0.5 + 0.375 * sin(b_))) * 0.5;
+            a_ = wrapAngle(a_ + 0.65 * delta);
+            b_ = wrapAngle(b_ + 1.23 * delta);
+            c_ = wrapAngle(c_ + 1.37 * delta);
             break;
         }
     }
@@ -190,7 +190,7 @@ bool EnemyBoss7::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
         w.explodeEnemy(*this, *bModel_.model);
         ++phase_;
         invul_ = 2.5f;
-        setHealth(120.0f);
+        setHealth(100.0f);
         a_ = 0;
         return false;
     }

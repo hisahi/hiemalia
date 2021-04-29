@@ -35,7 +35,7 @@ void MenuHighScore::begin(GameState& state) {
         option(MenuOption::label(index_to_symbol(i + 1), ""));
     }
     option(MenuOption::spacer(symbol_none));
-    if (!arcade()) {
+    if (!info().arcade) {
         option(MenuOption::button(Item_Reset, "RESET"));
         option(MenuOption::button(Item_Back, "BACK"));
         defaultItem = Item_Back;
@@ -67,7 +67,7 @@ void MenuHighScore::resetScores() {
 }
 
 void MenuHighScore::select(int index, symbol_t id) {
-    if (arcade()) {
+    if (info().arcade) {
         closeMenu();
         return;
     }

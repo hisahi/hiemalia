@@ -34,6 +34,7 @@ static auto soundEffectNames = hiemalia::makeArray<NamePair<SoundEffect>>(
      {"fire4.wav", SoundEffect::EnemyFire4},
      {"fire5.wav", SoundEffect::EnemyFire5},
      {"fire6.wav", SoundEffect::EnemyFire6},
+     {"fire7.wav", SoundEffect::EnemyFire7},
      {"place.wav", SoundEffect::BlockerPlace},
      {"flip.wav", SoundEffect::DirFlip},
      {"awaywego.wav", SoundEffect::Liftoff},
@@ -108,7 +109,7 @@ void AudioEngine::tick() {}
 void AudioEngine::gotMessage(const AudioMessage& msg) {
     switch (msg.type) {
         case AudioMessageType::PlaySound: {
-            if (!config_->sound) return;
+            if (!config_->sound || muted_) return;
             const AudioMessageSoundEffect& e = msg.getSound();
             sound_t s = getAssets().sounds.at(static_cast<size_t>(e.sound));
             if (s != -1)
@@ -120,7 +121,7 @@ void AudioEngine::gotMessage(const AudioMessage& msg) {
             audio_->stopSounds();
             break;
         case AudioMessageType::PlayMusic: {
-            if (!config_->music) return;
+            if (!config_->music || muted_) return;
             MusicTrack m = msg.getMusic();
             size_t i = static_cast<size_t>(m);
             const auto& tracks = getAssets().musicTracks;
@@ -140,10 +141,25 @@ void AudioEngine::gotMessage(const AudioMessage& msg) {
         case AudioMessageType::Resume:
             audio_->resume();
             break;
+        case AudioMessageType::Mute:
+            mute();
+            break;
+        case AudioMessageType::Unmute:
+            unmute();
+            break;
     }
 }
 
 bool AudioEngine::canPlayMusic() { return audio_->canPlayMusic(); }
 
 bool AudioEngine::canPlaySound() { return audio_->canPlaySound(); }
+
+void AudioEngine::mute() {
+    muted_ = true;
+    audio_->stopSounds();
+    audio_->stopMusic();
+}
+void AudioEngine::unmute() { muted_ = false; }
+bool AudioEngine::isMuted() const { return muted_; }
+
 }  // namespace hiemalia

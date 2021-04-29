@@ -23,10 +23,12 @@ namespace hiemalia {
 
 enum class LogicMessageType {
     MainMenu,
+    MainMenuFromDemo,
     NewHighScore,
     OpenHighScores,
     StartGame,
     StartGameArcade,
+    StartDemo,
     PauseMenu
 };
 
@@ -50,6 +52,11 @@ struct LogicMessage {
         return LogicMessage(LogicMessageType::MainMenu, holder, arcade);
     }
 
+    inline static LogicMessage mainMenuFromDemo(
+        const std::shared_ptr<ModuleHolder>& holder, bool arcade) {
+        return LogicMessage(LogicMessageType::MainMenuFromDemo, holder, arcade);
+    }
+
     inline static LogicMessage highScore(
         const std::shared_ptr<ModuleHolder>& holder, const HighScoreSubmit& e) {
         return LogicMessage(LogicMessageType::NewHighScore, holder, e);
@@ -71,6 +78,11 @@ struct LogicMessage {
         return LogicMessage(LogicMessageType::StartGameArcade, holder);
     }
 
+    inline static LogicMessage startDemo(
+        const std::shared_ptr<ModuleHolder>& holder) {
+        return LogicMessage(LogicMessageType::StartDemo, holder);
+    }
+
     inline static LogicMessage pauseMenu() {
         return LogicMessage(LogicMessageType::PauseMenu);
     }
@@ -88,6 +100,7 @@ struct LogicMessage {
     }
     inline bool isArcade() const {
         dynamic_assert(type == LogicMessageType::MainMenu ||
+                           type == LogicMessageType::MainMenuFromDemo ||
                            type == LogicMessageType::OpenHighScores,
                        "wrong message type");
         return arcade;

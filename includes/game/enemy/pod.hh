@@ -14,7 +14,7 @@
 namespace hiemalia {
 class EnemyPod : public EnemyObject {
   public:
-    EnemyPod(const Point3D& pos, const Orient3D& rot);
+    EnemyPod(const Point3D& pos);
     bool doEnemyTick(GameWorld& w, float delta);
 
   protected:

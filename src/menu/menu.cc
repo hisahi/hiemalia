@@ -205,7 +205,7 @@ void Menu::setActiveItem(symbol_t item) {
 }
 
 void Menu::doSelect() {
-    if (arcade()) {
+    if (info().arcade) {
         exiting_ = exitable_;
         return;
     }
@@ -247,7 +247,7 @@ void Menu::gotMenuMessage(const MenuMessage& msg) {
             doRight();
             break;
         case MenuMessageType::MenuSelect:
-            if (index_ >= 0 || arcade())
+            if (index_ >= 0 || info().arcade)
                 doSelect();
             else
                 pageRight(true);
@@ -330,10 +330,17 @@ void Menu::runMenu(GameState& state, float interval) {
     state.sbuf.append(titlebuf_);
 }
 
-MenuHandler::MenuHandler() {}
+MenuHandler::MenuHandler(const MenuInformation& info) : info_(info) {}
 
 void MenuHandler::gotMessage(const MenuMessage& msg) {
     if (!menus_.empty()) menus_.top()->gotMenuMessage(msg);
+}
+
+std::shared_ptr<Menu> MenuHandler::closeMenu() {
+    auto s = menus_.top();
+    menus_.pop();
+    if (!menus_.empty()) menus_.top()->checkTimeout();
+    return s;
 }
 
 bool MenuHandler::run(GameState& state, float interval) {

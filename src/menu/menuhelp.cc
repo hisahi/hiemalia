@@ -27,7 +27,7 @@ void MenuHelp::begin(GameState& state) {
 }
 
 void MenuHelp::select(int index, symbol_t id) {
-    if (arcade()) {
+    if (info().arcade) {
         closeMenu();
         return;
     }
@@ -220,7 +220,7 @@ void MenuHelp::renderSpecial(SplinterBuffer& sbuf, float interval) {
 }
 
 void MenuHelp::pageLeft() {
-    if (arcade()) {
+    if (info().arcade) {
         return;
     }
     sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
@@ -230,7 +230,7 @@ void MenuHelp::pageLeft() {
 }
 
 void MenuHelp::pageRight(bool bySelect) {
-    if (arcade()) {
+    if (info().arcade) {
         return;
     }
     sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));

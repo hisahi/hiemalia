@@ -29,7 +29,7 @@ enum Item : symbol_t {
 };
 
 void MenuMain::begin(GameState& state) {
-    if (!arcade()) {
+    if (!info().arcade) {
         option(MenuOption::spacer(symbol_none));
         option(MenuOption::spacer(symbol_none));
         option(MenuOption::spacer(symbol_none));
@@ -41,9 +41,15 @@ void MenuMain::begin(GameState& state) {
         option(MenuOption::button(Item_Exit, "EXIT"));
         sendMessage(AudioMessage::playMusic(MusicTrack::Ambience));
     } else {
-        if (!firstRun()) {
-            nextScreen_ = 4;
-            openMenu<MenuHighScore>(holder_);
+        switch (info().mainMenuMode) {
+            case MainMenuEnterFlag::MainMenu:
+                break;
+            case MainMenuEnterFlag::HighScore:
+                nextScreen_ = 3;
+                break;
+            case MainMenuEnterFlag::FromDemo:
+                nextScreen_ = 0;
+                break;
         }
         duration(10);
     }
@@ -90,7 +96,7 @@ void MenuMain::renderSpecial(SplinterBuffer& sbuf, float interval) {
         p.z += z_off;
     }
     rend2_.renderShapeColor(
-        sbuf, 0, arcade() ? 0 : -0.5,
+        sbuf, 0, info().arcade ? 0 : -0.5,
         Color{255, 255, 255, static_cast<std::uint8_t>(192 + 60 * sin(angle_))},
         logoSheet[0]);
     sbuf.append(copyright);
@@ -126,14 +132,9 @@ void MenuMain::timedOut() {
         duration(10);
         nextScreen_ = 4;
     } else if (nextScreen_ == 4) {
-        // TODO: attract mode??
-        nextScreen_ = 5;
-    } else if (nextScreen_ == 5) {
-        openMenu<MenuHighScore>(holder_);
-        nextScreen_ = 6;
-    } else if (nextScreen_ == 6) {
-        duration(10);
-        nextScreen_ = 0;
+        sendMessage(LogicMessage::startDemo(holder_));
+        closeMenu();
+        // nextScreen_ = 5;
     }
 }
 

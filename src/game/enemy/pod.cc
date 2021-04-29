@@ -15,16 +15,20 @@
 #include "random.hh"
 
 namespace hiemalia {
-EnemyPod::EnemyPod(const Point3D& pos, const Orient3D& r)
-    : EnemyObject(pos, 6.0f) {
+EnemyPod::EnemyPod(const Point3D& pos) : EnemyObject(pos, 6.0f) {
     useGameModel(GameModel::EnemyPod);
-    rot = r;
-    fireTime_ =
-        getRandomPool().random(std::uniform_real_distribution<float>(0, 1));
+    auto& pool = getRandomPool();
+    rot.yaw = pool.random(
+        std::uniform_real_distribution<coord_t>(0, numbers::TAU<coord_t>));
+    rot.pitch = pool.random(
+        std::uniform_real_distribution<coord_t>(0, numbers::TAU<coord_t>));
+    rot.roll = pool.random(
+        std::uniform_real_distribution<coord_t>(0, numbers::TAU<coord_t>));
+    fireTime_ = pool.random(std::uniform_real_distribution<float>(0, 1));
 }
 
 bool EnemyPod::doEnemyTick(GameWorld& w, float delta) {
-    fireTime_ += delta * 0.8f * w.difficulty().getFireRateMultiplier();
+    fireTime_ += delta * 0.667f * w.difficulty().getFireRateMultiplier();
     killPlayerOnContact(w);
     rot += Orient3D(0.5, 0.05, 0.01) * delta;
     if (w.isPlayerAlive() &&

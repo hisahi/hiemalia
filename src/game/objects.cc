@@ -179,7 +179,7 @@ static const std::unordered_map<std::string, object_maker_t> nameMap = {
     {"wturret", makeAngleObject<EnemyWheeledTurret>},
     {"sturret", makeAngleObject<EnemySpreadTurret>},
     {"launcher", makeAngleObject<EnemyLauncher>},
-    {"pod", makeAngleObject<EnemyPod>},
+    {"pod", makeStandardObject<EnemyPod>},
     {"blocker", makeStandardObject<EnemyBlocker>},
     {"pewpew", makeAngleObject<EnemyPewpew>},
     {"dbox",

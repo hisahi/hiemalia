@@ -15,10 +15,10 @@ CXX ?= g++
 LD := $(CXX)
 RM=rm -f
 
-# debug flags:
-CXXFLAGS=-g3 -O0 -Wall -Wextra -Werror -Wno-unused-parameter
 # release flags:
-#CXXFLAGS=-Ofast
+CXXFLAGS=-Ofast
+# debug flags:
+#CXXFLAGS=-g3 -O0 -Wall -Wextra -Werror -Wno-unused-parameter
 
 # the rest
 CXXFLAGS := -std=c++17 $(CXXFLAGS) -MMD -MP

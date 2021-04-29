@@ -46,7 +46,7 @@ class GameWorld {
 
     DELETE_COPY(GameWorld);
     DEFAULT_MOVE(GameWorld);
-    inline virtual ~GameWorld(){};
+    inline virtual ~GameWorld() noexcept {}
 
     void startNewStage();
     void resetStage(coord_t t);
@@ -81,7 +81,7 @@ class GameWorld {
     void setCheckpoint(coord_t z);
     void endStage();
     void endGame();
-    void updateMoveSpeedInput(ControlState& controls, float delta);
+    void updateMoveSpeedInput(const ControlState& controls, float delta);
     const GameDifficulty& difficulty() const noexcept;
     coord_t pushBoss(std::initializer_list<section_t> bossLoop, coord_t v);
     void popBoss(coord_t x);
@@ -153,7 +153,6 @@ class GameWorld {
     void moveForwardSkip(coord_t dist);
 
     friend class GameMain;
-    friend class PlayerObject;
 };
 };  // namespace hiemalia
 

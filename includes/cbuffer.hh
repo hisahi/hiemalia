@@ -56,8 +56,8 @@ class CircularBuffer {
 
     void set(size_t i, const T& value) { place(remainder(i, 2 * N), value); }
 
-    size_t size() const { return end_ - begin_; }
-    size_t capacity() const { return N; }
+    size_t size() const noexcept { return end_ - begin_; }
+    size_t capacity() const noexcept { return N; }
 
     typename array_type::iterator begin() { return data_.begin() + begin_; }
 
@@ -71,8 +71,8 @@ class CircularBuffer {
         return data_.begin() + end_;
     }
 
-    T& front() { return data_[begin_]; }
-    T& back() { return data_[end_ - 1]; }
+    const T& front() const { return data_[begin_]; }
+    const T& back() const { return data_[end_ - 1]; }
 
   private:
     array_type data_{};

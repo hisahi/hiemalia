@@ -61,6 +61,11 @@ void Hiemalia::gotMessage(const HostMessage &msg) {
             sendMessage(LogicMessage::mainMenu(modules_, state_.arcade));
             if (state_.arcade) resetArcade();
             break;
+        case HostMessageType::MainMenuFromDemo:
+            sendMessage(AudioMessage::unmute());
+            sendMessage(
+                LogicMessage::mainMenuFromDemo(modules_, state_.arcade));
+            break;
         case HostMessageType::GotHighScore:
             sendMessage(LogicMessage::highScore(
                 modules_,
@@ -82,6 +87,8 @@ void Hiemalia::gotMessage(const HostMessage &msg) {
             }
             overlay_->visible(false);
             break;
+        case HostMessageType::DemoStarted:
+            break;
         case HostMessageType::Quit:
             host_->quit();
             break;
@@ -96,8 +103,8 @@ int Hiemalia::addCredits(int cr) {
     credits_ = std::min(maxCredits, credits_ + cr);
     int diff = credits_ - oldCredits;
     if (diff > 0) {
-        sendMessage(AudioMessage::playSound(SoundEffect::Credit));
         sendMessage(GameMessage::addCredits(diff));
+        sendMessage(AudioMessage::playSound(SoundEffect::Credit));
         overlay_->redraw(credits_, modules_->gconfig->arcadeFreePlay);
     }
     return diff;

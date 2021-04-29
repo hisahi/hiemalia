@@ -30,7 +30,9 @@ enum class AudioMessageType {
     FadeOutMusic,
     StopMusic,
     Pause,
-    Resume
+    Resume,
+    Mute,
+    Unmute
 };
 
 struct AudioMessageSoundEffect {
@@ -73,6 +75,12 @@ struct AudioMessage {
     }
     inline static AudioMessage resume() {
         return AudioMessage(AudioMessageType::Resume);
+    }
+    inline static AudioMessage mute() {
+        return AudioMessage(AudioMessageType::Mute);
+    }
+    inline static AudioMessage unmute() {
+        return AudioMessage(AudioMessageType::Unmute);
     }
 
     inline MusicTrack getMusic() const { return std::get<MusicTrack>(x); }
@@ -125,12 +133,17 @@ class AudioEngine : public Module, MessageHandler<AudioMessage> {
     void gotMessage(const AudioMessage& msg);
     inline const ConfigSectionPtr<AudioConfig>& getConfig() { return config_; }
 
+    void mute();
+    void unmute();
+    bool isMuted() const;
+
     bool canPlayMusic();
     bool canPlaySound();
 
   private:
     std::shared_ptr<AudioModule> audio_;
     ConfigSectionPtr<AudioConfig> config_;
+    bool muted_{false};
     static inline const std::string name_ = "AudioEngine";
     static inline const std::string role_ = "audio engine";
 };

@@ -19,7 +19,7 @@ namespace hiemalia {
 class PlayerObject : public GameObject, public ObjectDamageable {
   public:
     PlayerObject(const Point3D& pos);
-    void updateInput(ControlState& controls);
+    void updateInput(const ControlState& controls);
     bool update(GameWorld& w, float delta);
     void updateGameEnd(GameWorld& w, float delta);
     bool playerInControl() const;

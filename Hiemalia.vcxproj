@@ -84,11 +84,11 @@
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(Configuration)\$(Platform)\</IntDir>
     <IncludePath>$(ProjectDir)includes;$(ProjectDir)libs\SDL2\include;$(ProjectDir)libs\SDL2_mixer\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)libs\SDL2\lib\x86;$(ProjectDir)libs\SDL2_mixer\lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)libs\SDL2\lib\x64;$(ProjectDir)libs\SDL2_mixer\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir)includes;$(ProjectDir)libs\SDL2\include;$(ProjectDir)libs\SDL2_mixer\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)libs\SDL2\lib\x86;$(ProjectDir)libs\SDL2_mixer\lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)libs\SDL2\lib\x64;$(ProjectDir)libs\SDL2_mixer\lib\x64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
@@ -177,6 +177,7 @@
     <ClCompile Include="src\base\vbase.cc" />
     <ClCompile Include="src\game\bullet.cc" />
     <ClCompile Include="src\game\checkpnt.cc" />
+    <ClCompile Include="src\game\demo.cc" />
     <ClCompile Include="src\game\diffic.cc" />
     <ClCompile Include="src\game\ebullet.cc" />
     <ClCompile Include="src\game\emissile.cc" />
@@ -288,6 +289,7 @@
     <ClInclude Include="includes\game\box.hh" />
     <ClInclude Include="includes\game\bullet.hh" />
     <ClInclude Include="includes\game\checkpnt.hh" />
+    <ClInclude Include="includes\game\demo.hh" />
     <ClInclude Include="includes\game\diffic.hh" />
     <ClInclude Include="includes\game\emissile.hh" />
     <ClInclude Include="includes\game\enemy\blocker.hh" />

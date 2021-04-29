@@ -1,0 +1,71 @@
+
+d 2.7 Up
+u 3 Up
+
+d 4.5 Down
+u 5.3 Down
+
+d 6.4 Down
+u 6.6 Down
+
+d 10.5 Left
+d 10.5 Up
+
+u 10.9 Left
+u 10.9 Up
+
+d 12 Right
+u 12.9 Right
+
+d 18 Left
+d 18 Up
+
+u 18.5 Up
+u 19 Left
+
+d 20 Fire
+d 20.5 Right
+d 20.75 Down
+u 20.875 Down
+d 20.9375 Down
+u 21.0625 Down
+d 21.125 Down
+u 21.1875 Down
+d 21.25 Down
+u 21.3125 Down
+d 21.375 Down
+u 21.5 Down
+u 21.5 Right
+u 22 Fire
+
+d 23 Up
+u 23.5 Up
+
+d 24 Fire
+d 24.5 Left
+d 24.75 Down
+u 24.875 Down
+d 24.9375 Down
+u 25.0625 Down
+d 25.125 Down
+u 25.1875 Down
+d 25.25 Down
+u 25.3125 Down
+d 25.375 Down
+u 25.5 Down
+u 25.5 Left
+u 26 Fire
+
+d 26.5 Right
+d 26.5 Up
+u 26.875 Right
+u 26.875 Up
+
+d 27.125 Right
+u 27.25 Right
+d 27.25 Fire
+d 27.25 Up
+u 27.375 Up
+d 27.75 Down
+u 28 Down
+u 28.5 Fire

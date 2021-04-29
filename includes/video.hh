@@ -18,8 +18,10 @@
 #include "vbase.hh"
 
 namespace hiemalia {
+enum class VideoMessageType { Unused };
+
 struct VideoMessage {
-    int todo_;
+    VideoMessageType type;
 };
 
 class VideoConfig : public ConfigSection {

@@ -9,6 +9,7 @@
 #include "logic.hh"
 
 #include "defs.hh"
+#include "game/demo.hh"
 #include "game/game.hh"
 #include "game/nameentr.hh"
 #include "hiemalia.hh"
@@ -20,17 +21,27 @@ namespace hiemalia {
 void LogicEngine::gotMessage(const LogicMessage& msg) {
     switch (msg.type) {
         case LogicMessageType::MainMenu: {
-            MenuHandler& menu = getOrCreate<MenuHandler>();
-            menu.arcade(msg.isArcade());
-            menu.firstRun(firstRun_);
-            firstRun_ = false;
+            MenuHandler& menu = getOrCreate<MenuHandler>(MenuInformation{
+                msg.isArcade(), firstRun_ ? MainMenuEnterFlag::MainMenu
+                                          : MainMenuEnterFlag::HighScore});
             menu.openMenu(std::make_shared<MenuMain>(menu, msg.holder()));
+            if (!firstRun_)
+                menu.openMenu<MenuHighScore>(
+                    std::make_shared<MenuHighScore>(menu, msg.holder()));
+            firstRun_ = false;
+            break;
+        }
+        case LogicMessageType::MainMenuFromDemo: {
+            MenuHandler& menu = getOrCreate<MenuHandler>(
+                MenuInformation{msg.isArcade(), MainMenuEnterFlag::FromDemo});
+            menu.openMenu(std::make_shared<MenuMain>(menu, msg.holder()));
+            menu.openMenu<MenuHighScore>(
+                std::make_shared<MenuHighScore>(menu, msg.holder()));
             break;
         }
         case LogicMessageType::OpenHighScores: {
-            MenuHandler& menu = getOrCreate<MenuHandler>();
-            menu.arcade(msg.isArcade());
-            menu.firstRun(true);
+            MenuHandler& menu = getOrCreate<MenuHandler>(
+                MenuInformation{msg.isArcade(), MainMenuEnterFlag::HighScore});
             menu.openMenu(std::make_shared<MenuMain>(menu, msg.holder()));
             menu.openMenu<MenuHighScore>(
                     std::make_shared<MenuHighScore>(menu, msg.holder()))
@@ -46,8 +57,13 @@ void LogicEngine::gotMessage(const LogicMessage& msg) {
             if (auto* m = getOrNull<MenuHandler>()) m->closeAllMenus();
             [[fallthrough]];
         case LogicMessageType::StartGame:
-            getOrCreate<GameMain>(msg.holder()->gconfig);
+            getOrCreate<GameMain>(msg.holder()->gconfig, nullptr);
             sendMessage(HostMessage::gameStarted());
+            break;
+        case LogicMessageType::StartDemo:
+            sendMessage(AudioMessage::mute());
+            getOrCreate<GameMain>(msg.holder()->gconfig, getNextDemo());
+            sendMessage(HostMessage::demoStarted());
             break;
         case LogicMessageType::PauseMenu: {
             MenuHandler& menu = getOrCreate<MenuHandler>();

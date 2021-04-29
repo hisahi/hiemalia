@@ -31,7 +31,10 @@ void EnemyDestroyer::movePattern(GameWorld& w, float dt) {
             if (phase_ == 0) {
                 vel = Point3D(0, 0, -w.getMoveSpeed());
                 fireAtPlayer(w, dt, 0.5);
-                if (pos.z - w.getPlayerPosition().z < 4) ++phase_;
+                if (pos.z - w.getPlayerPosition().z < 4) {
+                    ++phase_;
+                    canHitWalls(true);
+                }
             } else {
                 vel = Point3D(0, 0, w.getMoveSpeed() * 0.5);
                 fireAtPlayer(w, dt, 1.5);

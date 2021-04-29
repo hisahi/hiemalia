@@ -114,7 +114,8 @@ constexpr T sqerp(T start, T x, T end) {
 
 template <typename T>
 constexpr T sgn(T x) {
-    return static_cast<T>((x > T(0)) - (T(0) > x));
+    return static_cast<T>(static_cast<int>(x > T(0)) -
+                          static_cast<int>(T(0) > x));
 }
 
 template <typename T>

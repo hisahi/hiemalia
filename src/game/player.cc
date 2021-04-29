@@ -55,7 +55,9 @@ void PlayerObject::wallContact(coord_t x, coord_t y, coord_t z) {
     explodeObject_ = std::make_unique<Explosion>(pos, *this, x, y, z, 1.0f);
 }
 
-void PlayerObject::updateInput(ControlState& controls) { inputs_ = controls; }
+void PlayerObject::updateInput(const ControlState& controls) {
+    inputs_ = controls;
+}
 
 void PlayerObject::inputsVelocity(float delta) {
     if (inputs_.left) {

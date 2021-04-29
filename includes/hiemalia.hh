@@ -39,7 +39,9 @@ void sendMessageMake(Ts&&... args) {
 
 enum class HostMessageType {
     MainMenu,
+    MainMenuFromDemo,
     GameStarted,
+    DemoStarted,
     Quit,
     GotHighScore,
     EnteredHighScore
@@ -51,8 +53,14 @@ struct HostMessage {
     static HostMessage mainMenu() {
         return HostMessage(HostMessageType::MainMenu);
     }
+    static HostMessage mainMenuFromDemo() {
+        return HostMessage(HostMessageType::MainMenuFromDemo);
+    }
     static HostMessage gameStarted() {
         return HostMessage(HostMessageType::GameStarted);
+    }
+    static HostMessage demoStarted() {
+        return HostMessage(HostMessageType::DemoStarted);
     }
     static HostMessage gotHighScore(PartialHighScoreEntry&& e) {
         return HostMessage(HostMessageType::GotHighScore, std::move(e));

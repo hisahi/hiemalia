@@ -13,6 +13,7 @@
 #include <string>
 
 #include "defs.hh"
+#include "game/demo.hh"
 #include "game/gamemsg.hh"
 #include "game/world.hh"
 #include "inherit.hh"
@@ -40,7 +41,8 @@ class GameMain : public LogicModule,
 
     DELETE_COPY(GameMain);
     DEFAULT_MOVE(GameMain);
-    GameMain(ConfigSectionPtr<GameConfig> config);
+    GameMain(ConfigSectionPtr<GameConfig> config,
+             std::shared_ptr<DemoFile> demo);
     virtual ~GameMain() noexcept;
 
   private:
@@ -49,6 +51,7 @@ class GameMain : public LogicModule,
 
     std::unique_ptr<GameWorld> world_;
     ConfigSectionPtr<GameConfig> config_;
+    std::shared_ptr<DemoFile> demo_;
     Renderer2D r2d_;
     Renderer3D r3d_;
     RendererText font_;
@@ -70,6 +73,7 @@ class GameMain : public LogicModule,
     bool gameComplete_{false};
     bool paused_{false};
     bool gameOver_{false};
+    bool instaExit_{false};
     float timer;
     coord_t objectLateZ;
     float stageStartTimer{0};

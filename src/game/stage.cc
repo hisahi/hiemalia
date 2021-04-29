@@ -25,12 +25,12 @@
 namespace hiemalia {
 GameStage::GameStage(std::vector<section_t>&& sections, int loopLength,
                      std::deque<ObjectSpawn>&& spawns)
-    : sections(std::move(sections)), spawns(std::move(spawns)) {
+    : spawns_(std::move(spawns)), sections_(std::move(sections)) {
     dynamic_assert(loopLength > 0, "must have loop!");
-    auto& s = this->sections;
+    auto& s = this->sections_;
     dynamic_assert(loopLength <= static_cast<int>(s.size()), "loop too long!");
     for (int e = s.size(), i = e - loopLength; i < e; ++i)
-        sectionsLoop.push_back(s[i]);
+        sectionsLoop_.push_back(s[i]);
     for (unsigned i = 0; i < stageVisibility; ++i) nextSection();
 }
 
@@ -38,24 +38,34 @@ void GameStage::nextSection() {
     if (overridden_) {
         size_t i = overrideIndex_;
         if (i + 1 < overrideSec_.size()) ++overrideIndex_;
-        visible.push_back(overrideSec_[i]);
+        visible_.push_back(overrideSec_[i]);
         return;
     }
     if (inBoss_) {
-        visible.push_back(bossLoop_[inBossIndex_]);
+        visible_.push_back(bossLoop_[inBossIndex_]);
         inBossIndex_ = (inBossIndex_ + 1) % bossLoop_.size();
         return;
     }
-    if (nextSection_ >= sections.size()) {
-        visible.push_back(sectionsLoop[nextSectionLoop_]);
-        nextSectionLoop_ = (nextSectionLoop_ + 1) % sectionsLoop.size();
+    if (nextSection_ >= sections_.size()) {
+        visible_.push_back(sectionsLoop_[nextSectionLoop_]);
+        nextSectionLoop_ = (nextSectionLoop_ + 1) % sectionsLoop_.size();
     } else
-        visible.push_back(sections[nextSection_++]);
+        visible_.push_back(sections_[nextSection_++]);
+}
+
+bool GameStage::shouldSpawnNext(unsigned i, coord_t f) const {
+    return !spawns_.empty() && spawns_.front().shouldSpawn(i, f);
+}
+
+ObjectSpawn GameStage::spawnNext() {
+    ObjectSpawn tmp(std::move(spawns_.front()));
+    spawns_.pop_front();
+    return tmp;
 }
 
 coord_t GameStage::getObjectBackPlane(coord_t offset) const {
     int i = -stageSectionOffset;
-    for (auto section : visible) {
+    for (auto section : visible_) {
         const GameSection& sec = getSectionById(section);
         if (!sec.rotation.isZero()) return i * stageSectionLength - offset;
         ++i;
@@ -71,7 +81,7 @@ void GameStage::drawStage(SplinterBuffer& sbuf, Renderer3D& r3d,
     Orient3D r = Orient3D(0, 0, 0);
     // Matrix3D m;
     static const Point3D s = Point3D(1, 1, 1);
-    for (auto section : visible) {
+    for (auto section : visible_) {
         const GameSection& sec = getSectionById(section);
         // m = Matrix3D::rotate(r);
         r3d.renderModel(sbuf, p, r, s, sec.model);

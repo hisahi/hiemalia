@@ -50,11 +50,9 @@ struct GameSection {
 
 GameSection loadSection(const std::string& name);
 
-struct GameStage {
-    std::vector<section_t> sections;
-    std::vector<section_t> sectionsLoop;
-    std::deque<ObjectSpawn> spawns;
-    CircularBuffer<section_t, stageVisibility> visible;
+class GameStage {
+  public:
+    using visible_type = CircularBuffer<section_t, stageVisibility>;
 
     void nextSection();
     void drawStage(SplinterBuffer& sbuf, Renderer3D& r3d, coord_t offset);
@@ -63,12 +61,19 @@ struct GameStage {
     void enterBossLoop(std::initializer_list<section_t> loop);
     void exitBossLoop();
     void doOverride(std::initializer_list<section_t> sec);
+    inline const visible_type visible() const noexcept { return visible_; }
+    bool shouldSpawnNext(unsigned i, coord_t f) const;
+    ObjectSpawn spawnNext();
 
   private:
     GameStage(std::vector<section_t>&& sections, int loopLength,
               std::deque<ObjectSpawn>&& spawns);
     static void processSectionCommand(std::vector<section_t>& sections,
                                       std::string s);
+    std::deque<ObjectSpawn> spawns_;
+    visible_type visible_;
+    std::vector<section_t> sections_;
+    std::vector<section_t> sectionsLoop_;
     size_t nextSection_{0};
     size_t nextSectionLoop_{0};
     bool inBoss_{false};
