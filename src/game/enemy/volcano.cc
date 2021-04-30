@@ -34,15 +34,15 @@ bool EnemyVolcano::doEnemyTick(GameWorld& w, float delta) {
         while (fireTime_ >= 1) {
             sendMessage(AudioMessage::playSound(SoundEffect::EnemyFire1,
                                                 pos - w.getPlayerPosition()));
-            fireBullet<EnemyBulletSimple>(w, p, d, 0.5f, 0.0f);
-            fireBullet<EnemyBulletSimple>(w, p, d + Point3D(spread, spread, 0),
-                                          0.5f, 0.0f);
-            fireBullet<EnemyBulletSimple>(w, p, d + Point3D(spread, -spread, 0),
-                                          0.5f, 0.0f);
-            fireBullet<EnemyBulletSimple>(w, p, d + Point3D(-spread, spread, 0),
-                                          0.5f, 0.0f);
-            fireBullet<EnemyBulletSimple>(
-                w, p, d + Point3D(-spread, -spread, 0), 0.5f, 0.0f);
+            fireBullet<EnemyBullet>(w, p, d, 0.5f, 0.0f);
+            fireBullet<EnemyBullet>(w, p, d + Point3D(spread, spread, 0), 0.5f,
+                                    0.0f);
+            fireBullet<EnemyBullet>(w, p, d + Point3D(spread, -spread, 0), 0.5f,
+                                    0.0f);
+            fireBullet<EnemyBullet>(w, p, d + Point3D(-spread, spread, 0), 0.5f,
+                                    0.0f);
+            fireBullet<EnemyBullet>(w, p, d + Point3D(-spread, -spread, 0),
+                                    0.5f, 0.0f);
             fireTime_ -= 1;
         }
     }

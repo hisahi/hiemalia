@@ -53,22 +53,22 @@ bool EnemyBoss4::doEnemyTick(GameWorld& w, float delta) {
         while (fireTime_ >= 1) {
             sendMessage(AudioMessage::playSound(SoundEffect::EnemyFire2,
                                                 pos - w.getPlayerPosition()));
-            w.fireEnemyBullet<EnemyBulletSimple>(
+            w.fireEnemyBullet<EnemyBullet>(
                 p, getBulletVelocity(w, pl, speed, spew));
             if (!((slip_ = slip_ + 1) % w.getBossesAlive())) {
-                w.fireEnemyBullet<EnemyBulletSimple>(
+                w.fireEnemyBullet<EnemyBullet>(
                     p, getBulletVelocity(
                            w, pl - Point3D(spread * s, spread * c, 0), speed,
                            spew));
-                w.fireEnemyBullet<EnemyBulletSimple>(
+                w.fireEnemyBullet<EnemyBullet>(
                     p, getBulletVelocity(
                            w, pl - Point3D(spread * c, spread * -s, 0), speed,
                            spew));
-                w.fireEnemyBullet<EnemyBulletSimple>(
+                w.fireEnemyBullet<EnemyBullet>(
                     p, getBulletVelocity(
                            w, pl - Point3D(spread * -s, spread * -c, 0), speed,
                            spew));
-                w.fireEnemyBullet<EnemyBulletSimple>(
+                w.fireEnemyBullet<EnemyBullet>(
                     p, getBulletVelocity(
                            w, pl - Point3D(spread * -c, spread * s, 0), speed,
                            spew));

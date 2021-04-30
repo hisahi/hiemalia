@@ -47,25 +47,25 @@ bool EnemyBoss1::doEnemyTick(GameWorld& w, float delta) {
                 if (wall_ == 11) {
                     sendMessage(AudioMessage::playSound(
                         SoundEffect::EnemyFire4, pos - w.getPlayerPosition()));
-                    fireBulletAtPlayer<EnemyBulletSimple>(
-                        w, model().vertices[0], 0.75f, 0.03125f, 0.03125f);
+                    fireBulletAtPlayer<EnemyBullet>(w, model().vertices[0],
+                                                    0.75f, 0.03125f, 0.03125f);
                 }
-                fireBullet<EnemyBulletSimpleScalable>(w, model().vertices[0],
-                                                      Point3D(0, 0, -10), 2.5f,
-                                                      0.0f, 0.5f);
+                fireBullet<EnemyBulletScalable>(w, model().vertices[0],
+                                                Point3D(0, 0, -10), 2.5f, 0.0f,
+                                                0.5f);
                 for (int x = 1; x <= 5; ++x) {
-                    fireBullet<EnemyBulletSimpleScalable>(
-                        w, model().vertices[0], Point3D(x, 0, -10), 2.5f, 0.0f,
-                        0.5f);
-                    fireBullet<EnemyBulletSimpleScalable>(
-                        w, model().vertices[0], Point3D(-x, 0, -10), 2.5f, 0.0f,
-                        0.5f);
-                    fireBullet<EnemyBulletSimpleScalable>(
-                        w, model().vertices[0], Point3D(0, -x, -10), 2.5f, 0.0f,
-                        0.5f);
-                    fireBullet<EnemyBulletSimpleScalable>(
-                        w, model().vertices[0], Point3D(0, x, -10), 2.5f, 0.0f,
-                        0.5f);
+                    fireBullet<EnemyBulletScalable>(w, model().vertices[0],
+                                                    Point3D(x, 0, -10), 2.5f,
+                                                    0.0f, 0.5f);
+                    fireBullet<EnemyBulletScalable>(w, model().vertices[0],
+                                                    Point3D(-x, 0, -10), 2.5f,
+                                                    0.0f, 0.5f);
+                    fireBullet<EnemyBulletScalable>(w, model().vertices[0],
+                                                    Point3D(0, -x, -10), 2.5f,
+                                                    0.0f, 0.5f);
+                    fireBullet<EnemyBulletScalable>(w, model().vertices[0],
+                                                    Point3D(0, x, -10), 2.5f,
+                                                    0.0f, 0.5f);
                 }
                 fireTime_ -= 1;
                 --wall_;
@@ -75,8 +75,8 @@ bool EnemyBoss1::doEnemyTick(GameWorld& w, float delta) {
             while (fireTime_ >= 1) {
                 sendMessage(AudioMessage::playSound(
                     SoundEffect::EnemyFire4, pos - w.getPlayerPosition()));
-                fireBulletAtPlayer<EnemyBulletSimple>(
-                    w, model().vertices[0], 0.75f, 0.03125f, 0.03125f);
+                fireBulletAtPlayer<EnemyBullet>(w, model().vertices[0], 0.75f,
+                                                0.03125f, 0.03125f);
                 fireTime_ -= 1;
                 wall_ = 16;
             }

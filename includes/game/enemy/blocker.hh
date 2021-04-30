@@ -24,7 +24,7 @@ class EnemyBlocker : public EnemyObject {
     float fireTime_{0};
 };
 
-class EnemyBulletBlocker : public EnemyBulletSimple {
+class EnemyBulletBlocker : public EnemyBullet {
   public:
     EnemyBulletBlocker(const Point3D& pos, const Point3D& v);
     bool doBulletTick(GameWorld& w, float delta);

@@ -72,20 +72,20 @@ bool EnemySpreadTurret::doEnemyTick(GameWorld& w, float delta) {
             while (fireTime_ >= 1) {
                 sendMessage(AudioMessage::playSound(
                     SoundEffect::EnemyFire1, pos - w.getPlayerPosition()));
-                fireBullet<EnemyBulletSimple>(w, model().vertices[10], atPlayer,
-                                              0.5f, 0.0f);
-                fireBullet<EnemyBulletSimple>(
-                    w, model().vertices[10],
-                    Orient3D(0.25, 0, 0).rotate(atPlayer), 0.5f, 0.0f);
-                fireBullet<EnemyBulletSimple>(
-                    w, model().vertices[10],
-                    Orient3D(-0.25, 0, 0).rotate(atPlayer), 0.5f, 0.0f);
-                fireBullet<EnemyBulletSimple>(
-                    w, model().vertices[10],
-                    Orient3D(0, 0.25, 0).rotate(atPlayer), 0.5f, 0.0f);
-                fireBullet<EnemyBulletSimple>(
-                    w, model().vertices[10],
-                    Orient3D(0, -0.25, 0).rotate(atPlayer), 0.5f, 0.0f);
+                fireBullet<EnemyBullet>(w, model().vertices[10], atPlayer, 0.5f,
+                                        0.0f);
+                fireBullet<EnemyBullet>(w, model().vertices[10],
+                                        Orient3D(0.25, 0, 0).rotate(atPlayer),
+                                        0.5f, 0.0f);
+                fireBullet<EnemyBullet>(w, model().vertices[10],
+                                        Orient3D(-0.25, 0, 0).rotate(atPlayer),
+                                        0.5f, 0.0f);
+                fireBullet<EnemyBullet>(w, model().vertices[10],
+                                        Orient3D(0, 0.25, 0).rotate(atPlayer),
+                                        0.5f, 0.0f);
+                fireBullet<EnemyBullet>(w, model().vertices[10],
+                                        Orient3D(0, -0.25, 0).rotate(atPlayer),
+                                        0.5f, 0.0f);
                 fireTime_ -= 1;
             }
         }

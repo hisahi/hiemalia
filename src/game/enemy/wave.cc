@@ -41,7 +41,7 @@ bool EnemyWave::doEnemyTick(GameWorld& w, float delta) {
         while (fireTime_ >= 1) {
             sendMessage(AudioMessage::playSound(SoundEffect::EnemyFire2,
                                                 pos - w.getPlayerPosition()));
-            fireBullet<EnemyBulletSimple>(w, p, d, 1.0f, 0.0f);
+            fireBullet<EnemyBullet>(w, p, d, 1.0f, 0.0f);
             fireTime_ -= 1;
         }
     }

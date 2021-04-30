@@ -22,6 +22,7 @@ enum class MusicTrack {
     Stage2,
     Stage3,
     Stage4,
+    GameComplete,
     Continue,
     GameOver,
     HighScore

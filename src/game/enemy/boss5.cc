@@ -81,18 +81,18 @@ bool EnemyBoss5::doEnemyTick(GameWorld& w, float delta) {
                     lerp<coord_t>(4.5, unlerp(0.0f, getHealth(), 60.0f), 2.5);
                 coord_t s = sin(a_), c = cos(a_);
                 a_ += numbers::PI<coord_t> / 16;
-                fireBullet<EnemyBulletSimpleScalable>(w, model().vertices[0],
-                                                      Point3D(s, c, -z), 2.5f,
-                                                      0.0f, 0.5f);
-                fireBullet<EnemyBulletSimpleScalable>(w, model().vertices[0],
-                                                      Point3D(c, -s, -z), 2.5f,
-                                                      0.0f, 0.5f);
-                fireBullet<EnemyBulletSimpleScalable>(w, model().vertices[0],
-                                                      Point3D(-s, -c, -z), 2.5f,
-                                                      0.0f, 0.5f);
-                fireBullet<EnemyBulletSimpleScalable>(w, model().vertices[0],
-                                                      Point3D(-c, s, -z), 2.5f,
-                                                      0.0f, 0.5f);
+                fireBullet<EnemyBulletScalable>(w, model().vertices[0],
+                                                Point3D(s, c, -z), 2.5f, 0.0f,
+                                                0.5f);
+                fireBullet<EnemyBulletScalable>(w, model().vertices[0],
+                                                Point3D(c, -s, -z), 2.5f, 0.0f,
+                                                0.5f);
+                fireBullet<EnemyBulletScalable>(w, model().vertices[0],
+                                                Point3D(-s, -c, -z), 2.5f, 0.0f,
+                                                0.5f);
+                fireBullet<EnemyBulletScalable>(w, model().vertices[0],
+                                                Point3D(-c, s, -z), 2.5f, 0.0f,
+                                                0.5f);
                 x_ -= 1;
             }
             fireTime_ = fireTime_ + (burst_ ? 10.0f : 0.75f) * delta *

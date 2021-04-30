@@ -44,7 +44,7 @@ bool EnemyPod::doEnemyTick(GameWorld& w, float delta) {
             for (int i = 0; i <= N; ++i) {
                 y = lerp<coord_t>(-1, unlerp<coord_t>(0, i, N), 1);
                 r = sqrt(1 - y * y);
-                fireBullet<EnemyBulletSimple>(
+                fireBullet<EnemyBullet>(
                     w, model().vertices[0],
                     Point3D(r * sin(theta), y, r * cos(theta)), 0.5f, 0.0f);
                 theta += phi;

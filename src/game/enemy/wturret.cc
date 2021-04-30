@@ -100,8 +100,8 @@ bool EnemyWheeledTurret::doEnemyTick(GameWorld& w, float delta) {
             while (fireTime_ >= 1) {
                 sendMessage(AudioMessage::playSound(
                     SoundEffect::EnemyFire1, pos - w.getPlayerPosition()));
-                fireBulletAtPlayer<EnemyBulletSimple>(w, model().vertices[10],
-                                                      0.5f, 0.0625f, 1.0f);
+                fireBulletAtPlayer<EnemyBullet>(w, model().vertices[10], 0.5f,
+                                                0.0625f, 1.0f);
                 fireTime_ -= 1;
             }
         }

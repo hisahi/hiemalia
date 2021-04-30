@@ -73,12 +73,12 @@ void EnemyOrbiter::fireAtPlayer(GameWorld& w, float dt, coord_t fireMul) {
                                                 pos - w.getPlayerPosition()));
             bool doSpread = !spread_;
             spread_ = (spread_ + 1) % 4;
-            fireBulletAtPlayer<EnemyBulletSimple>(w, model().vertices[0], 0.75f,
-                                                  0.0625f, 1.0f);
+            fireBulletAtPlayer<EnemyBullet>(w, model().vertices[0], 0.75f,
+                                            0.0625f, 1.0f);
             if (doSpread) {
                 for (int i = 0; i < 4; ++i)
-                    fireBulletAtPlayer<EnemyBulletSimple>(
-                        w, model().vertices[0], 0.75f, 0.375f, 1.0f);
+                    fireBulletAtPlayer<EnemyBullet>(w, model().vertices[0],
+                                                    0.75f, 0.375f, 1.0f);
             }
             fireTime_ -= 1;
         }

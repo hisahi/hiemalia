@@ -60,19 +60,19 @@ bool EnemyBoss2::doEnemyTick(GameWorld& w, float delta) {
                                                 pos - w.getPlayerPosition()));
             w.fireEnemyBullet<EnemyMissileHoming>(
                 p, getBulletVelocity(w, pl, 0.5f, spew));
-            w.fireEnemyBullet<EnemyBulletSimple>(
+            w.fireEnemyBullet<EnemyBullet>(
                 p + Point3D(0.5 * s, 0.5 * c, 0),
                 getBulletVelocity(w, pl + Point3D(spread * s, spread * c, 0),
                                   speed, spew));
-            w.fireEnemyBullet<EnemyBulletSimple>(
+            w.fireEnemyBullet<EnemyBullet>(
                 p + Point3D(0.5 * c, 0.5 * -s, 0),
                 getBulletVelocity(w, pl + Point3D(spread * c, spread * -s, 0),
                                   speed, spew));
-            w.fireEnemyBullet<EnemyBulletSimple>(
+            w.fireEnemyBullet<EnemyBullet>(
                 p + Point3D(0.5 * -s, 0.5 * -c, 0),
                 getBulletVelocity(w, pl + Point3D(spread * -s, spread * -c, 0),
                                   speed, spew));
-            w.fireEnemyBullet<EnemyBulletSimple>(
+            w.fireEnemyBullet<EnemyBullet>(
                 p + Point3D(0.5 * -c, 0.5 * s, 0),
                 getBulletVelocity(w, pl + Point3D(spread * -c, spread * s, 0),
                                   speed, spew));

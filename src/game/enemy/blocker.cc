@@ -57,7 +57,7 @@ bool EnemyBlocker::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
 }
 
 EnemyBulletBlocker::EnemyBulletBlocker(const Point3D& pos, const Point3D& v)
-    : EnemyBulletSimple(pos, v) {
+    : EnemyBullet(pos, v) {
     useGameModel(GameModel::BulletEnemyBlocker);
 }
 
@@ -69,7 +69,7 @@ bool EnemyBulletBlocker::doBulletTick(GameWorld& w, float delta) {
                                      GameModel::ObstacleBlocker, 2.0f);
         return false;
     }
-    return EnemyBulletSimple::doBulletTick(w, delta);
+    return EnemyBullet::doBulletTick(w, delta);
 }
 
 }  // namespace hiemalia

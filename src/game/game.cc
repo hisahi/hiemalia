@@ -289,7 +289,10 @@ void GameMain::doStageComplete() {
                              1.5);
     dynamic_assert(w.isPlayerAlive() && w.getPlayer().playerInControl(),
                    "cannot complete stage when dead");
-    sendMessage(AudioMessage::fadeOutMusic());
+    if (gameComplete_)
+        sendMessage(AudioMessage::playMusic(MusicTrack::GameComplete));
+    else
+        sendMessage(AudioMessage::fadeOutMusic());
     bonus_ = 0;
     bonusIndex_ = 0;
 }
@@ -377,9 +380,11 @@ void GameMain::doStageCompleteTick(GameState& state, float interval) {
         ++bonusIndex_;
     }
     if (timerCrossesP(timer, interval, 2) && w.stageNum == stageCount) {
-        const unsigned completeBonus_ = 10000;
-        font_.drawTextLineLeft(textscreen_, -0.75, getBonusY(bonusIndex_),
-                               white, "COMPLETE BONUS", 1);
+        bool was_1cc = world_->continuesUsed_ == 0;
+        const unsigned completeBonus_ = was_1cc ? 25000 : 10000;
+        font_.drawTextLineLeft(
+            textscreen_, -0.75, getBonusY(bonusIndex_), white,
+            completeBonus_ ? "1CC COMPLETE BONUS" : "COMPLETE BONUS", 1);
         font_.drawTextLineRight(textscreen_, 0.75, getBonusY(bonusIndex_),
                                 white, std::to_string(completeBonus_), 1);
         bonus_ += completeBonus_;

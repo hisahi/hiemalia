@@ -13,34 +13,34 @@
 #include "model.hh"
 
 namespace hiemalia {
-class EnemyBulletSimple : public BulletObject {
+class EnemyBullet : public BulletObject {
   public:
-    EnemyBulletSimple(const Point3D& pos, const Point3D& v);
+    EnemyBullet(const Point3D& pos, const Point3D& v);
     virtual bool doBulletTick(GameWorld& w, float delta);
     void impact(GameWorld& w, bool enemy);
     bool firedByPlayer() const;
     float getDamage() const;
-    virtual ~EnemyBulletSimple() {}
+    virtual ~EnemyBullet() {}
 };
 
-class EnemyBulletLaser : public EnemyBulletSimple {
+class EnemyBulletLaser : public EnemyBullet {
   public:
     EnemyBulletLaser(const Point3D& pos, const Point3D& v);
 };
 
-class EnemyBulletHoming : public EnemyBulletSimple {
+class EnemyBulletHoming : public EnemyBullet {
   public:
     EnemyBulletHoming(const Point3D& pos, const Point3D& v);
     bool doBulletTick(GameWorld& w, float delta);
 };
 
-class EnemyBulletSimpleScalable : public EnemyBulletSimple {
+class EnemyBulletScalable : public EnemyBullet {
   public:
-    EnemyBulletSimpleScalable(const Point3D& pos, const Point3D& v,
-                              coord_t scale, int palette = 0);
+    EnemyBulletScalable(const Point3D& pos, const Point3D& v, coord_t scale,
+                        int palette = 0);
 };
 
-class EnemyBulletSlideScalable : public EnemyBulletSimpleScalable {
+class EnemyBulletSlideScalable : public EnemyBulletScalable {
   public:
     EnemyBulletSlideScalable(const Point3D& pos, const Point3D& v,
                              const Point3D& dst, const Point3D& nv,

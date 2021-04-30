@@ -115,9 +115,9 @@ bool EnemyBoss7::doEnemyTick(GameWorld& w, float delta) {
                 sendMessage(AudioMessage::playSound(
                     SoundEffect::EnemyFire5, pos - w.getPlayerPosition()));
                 for (int x = -5; x <= 5; ++x) {
-                    fireBullet<EnemyBulletSimpleScalable>(
-                        w, model().vertices[0], Point3D(x * s, x * c, -8), 3.0f,
-                        0.0f, 0.5f, 1);
+                    fireBullet<EnemyBulletScalable>(w, model().vertices[0],
+                                                    Point3D(x * s, x * c, -8),
+                                                    3.0f, 0.0f, 0.5f, 1);
                 }
                 fireTime_ -= 1;
             }
@@ -149,7 +149,7 @@ bool EnemyBoss7::doEnemyTick(GameWorld& w, float delta) {
             while (fireTime_ >= 1) {
                 sendMessage(AudioMessage::playSound(
                     SoundEffect::EnemyFire7, pos - w.getPlayerPosition()));
-                fireBullet<EnemyBulletSimple>(
+                fireBullet<EnemyBullet>(
                     w, model().vertices[0],
                     Point3D(pool.random(dist), pool.random(dist), -0.5), 0.5f,
                     0.0f);

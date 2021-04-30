@@ -22,8 +22,9 @@ void LogicEngine::gotMessage(const LogicMessage& msg) {
     switch (msg.type) {
         case LogicMessageType::MainMenu: {
             MenuHandler& menu = getOrCreate<MenuHandler>(MenuInformation{
-                msg.isArcade(), firstRun_ ? MainMenuEnterFlag::MainMenu
-                                          : MainMenuEnterFlag::HighScore});
+                msg.isArcade(), !msg.isArcade() || firstRun_
+                                    ? MainMenuEnterFlag::MainMenu
+                                    : MainMenuEnterFlag::HighScore});
             menu.openMenu(std::make_shared<MenuMain>(menu, msg.holder()));
             if (!firstRun_)
                 menu.openMenu<MenuHighScore>(

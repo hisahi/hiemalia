@@ -32,8 +32,8 @@ bool EnemyGunboat2::doEnemyTick(GameWorld& w, float delta) {
         while (fireTime_ >= 1) {
             sendMessage(AudioMessage::playSound(SoundEffect::EnemyFire2,
                                                 pos - w.getPlayerPosition()));
-            fireBulletAtPlayer<EnemyBulletSimple>(w, model().vertices[0], 0.75f,
-                                                  0.125f, 1.0f);
+            fireBulletAtPlayer<EnemyBullet>(w, model().vertices[0], 0.75f,
+                                            0.125f, 1.0f);
             fireTime_ -= 1;
         }
     }
