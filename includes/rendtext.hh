@@ -24,16 +24,19 @@ class RendererText : private Renderer2D {
     void renderCharacter(SplinterBuffer& buf, coord_t x, coord_t y,
                          const Color& clr, char c) const;
     void renderTextLine(SplinterBuffer& buf, coord_t x, coord_t y,
-                        const Color& clr, std::string s) const;
+                        const Color& clr, const std::string& s) const;
     void renderText(SplinterBuffer& buf, coord_t x, coord_t y, const Color& clr,
-                    std::string s) const;
+                    const std::string& s) const;
     void drawTextLineLeft(SplinterBuffer& buf, coord_t x, coord_t y,
-                          const Color& clr, std::string s, coord_t scale = 1);
+                          const Color& clr, const std::string& s,
+                          coord_t scale = 1);
     void drawTextLineCenter(SplinterBuffer& buf, coord_t x, coord_t y,
-                            const Color& clr, std::string s, coord_t scale = 1);
+                            const Color& clr, const std::string& s,
+                            coord_t scale = 1);
     void drawTextLineRight(SplinterBuffer& buf, coord_t x, coord_t y,
-                           const Color& clr, std::string s, coord_t scale = 1);
-    coord_t getTextWidth(std::string s) const;
+                           const Color& clr, const std::string& s,
+                           coord_t scale = 1);
+    coord_t getTextWidth(const std::string& s) const;
     inline void setFont(const std::shared_ptr<Font>& font) { font_ = font; }
     inline coord_t scaleX() const { return scalex_; }
     inline coord_t scaleY() const { return scaley_; }

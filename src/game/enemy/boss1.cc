@@ -92,7 +92,7 @@ bool EnemyBoss1::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     sendMessage(GameMessage::shakeCamera(0.125));
     if (speed_ >= 0) w.popBoss(speed_);
     if (killedByPlayer) {
-        addScore(w, 2500);
+        addScore(w, 3000);
         w.onEnemyKilled(*this);
     }
     return true;

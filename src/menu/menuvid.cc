@@ -8,6 +8,8 @@
 
 #include "menu/menuvid.hh"
 
+#include <utility>
+
 #include "audio.hh"
 #include "controls.hh"
 #include "defs.hh"
@@ -21,7 +23,7 @@ enum Item : symbol_t { Item_FullScreen, Item_Back };
 
 void MenuVideoOptions::begin(GameState& state) {
     auto& video = holder_->video;
-    auto& config = holder_->video->getConfig();
+    const auto& config = holder_->video->getConfig();
     state.config.sectionLoad(config);
     option(MenuOption::toggle(Item_FullScreen, "FULL SCREEN",
                               video->isFullScreen(),
@@ -49,9 +51,7 @@ void MenuVideoOptions::end(GameState& state) {
 }
 
 MenuVideoOptions::MenuVideoOptions(MenuHandler& handler,
-                                   const std::shared_ptr<ModuleHolder>& holder)
-    : Menu(handler), holder_(holder) {}
-
-MenuVideoOptions::~MenuVideoOptions() noexcept {}
+                                   std::shared_ptr<ModuleHolder> holder)
+    : Menu(handler), holder_(std::move(holder)) {}
 
 }  // namespace hiemalia

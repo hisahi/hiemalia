@@ -33,16 +33,14 @@ static bool keepConsoleOpen = false;
 Hiemalia::Hiemalia(const std::string &command)
     : command_(command), host_(getHostModule()) {}
 
-Hiemalia::~Hiemalia() {}
-
 Hiemalia::Hiemalia(Hiemalia &&move) noexcept
-    : command_(move.command_),
+    : command_(std::move(move.command_)),
       state_(std::move(move.state_)),
       host_(std::move(move.host_)),
       modules_(std::move(move.modules_)) {}
 
 Hiemalia &Hiemalia::operator=(Hiemalia &&move) noexcept {
-    command_ = move.command_;
+    command_ = std::move(move.command_);
     state_ = std::move(move.state_);
     host_ = std::move(move.host_);
     modules_ = std::move(move.modules_);
@@ -295,16 +293,15 @@ int HiemaliaExternal::addCredits(int c) {
     return p ? (*this)->addCredits(c) : 0;
 }
 
-int main(int argc, char *argv[]) {
+int hiemaliaMain(const std::string &name,
+                 const std::vector<std::string> &args) {
 #if NDEBUG
     LOG_ADD_HANDLER(StdLogHandler, LogLevel::WARN);
 #else
     LOG_ADD_HANDLER(StdLogHandler, LogLevel::TRACE);
 #endif
-    std::vector<std::string> args;
-    if (argc > 1) args.assign(argv + 1, argv + argc);
     try {
-        Hiemalia game{std::string(argv[0])};
+        Hiemalia game{std::string(name)};
         HiemaliaRef gref(game);
         game.args(args);
         external = HiemaliaExternal(gref);
@@ -329,4 +326,8 @@ extern "C" int hiemalia_tryAddCredits(int c) {
     return hiemalia::external.addCredits(c);
 }
 
-int main(int argc, char *argv[]) { return hiemalia::main(argc, argv); }
+int main(int argc, char *argv[]) {
+    std::vector<std::string> args;
+    if (argc > 1) args.assign(argv + 1, argv + argc);
+    return hiemalia::hiemaliaMain(argv[0], args);
+}

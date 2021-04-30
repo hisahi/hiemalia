@@ -8,6 +8,8 @@
 
 #include "menu/menuhigh.hh"
 
+#include <utility>
+
 #include "assets.hh"
 #include "defs.hh"
 #include "logger.hh"
@@ -30,7 +32,7 @@ void MenuHighScore::begin(GameState& state) {
     option(MenuOption::label(index_to_symbol(0),
                              "       Loop/Stage                  "));
     option(MenuOption::spacer(symbol_none));
-    listIndex_ = options_.size();
+    listIndex_ = static_cast<int>(options_.size());
     for (int i = 0, n = HighScoreTable::size; i < n; ++i) {
         option(MenuOption::label(index_to_symbol(i + 1), ""));
     }
@@ -50,7 +52,7 @@ void MenuHighScore::highlight(int index) { highlightIndex_ = index; }
 void MenuHighScore::redrawScores() {
     if (!table_) return;
     HighScoreTable& table = *table_;
-    for (int i = 0, n = table.entries.size(); i < n; ++i) {
+    for (size_t i = 0, n = table.entries.size(); i < n; ++i) {
         const auto& e = table.entries[i];
         std::string s =
             stringFormat("%.3s      %2d/%d      %12lu", e.name.data(), e.cycles,
@@ -73,7 +75,6 @@ void MenuHighScore::select(int index, symbol_t id) {
     }
     if (id == Item_Back) {
         closeMenu();
-        return;
     } else if (id == Item_Reset) {
         confirm(Item_Reset, "RESET?", [&] { resetScores(); }, {});
     }
@@ -97,13 +98,11 @@ void MenuHighScore::renderSpecial(SplinterBuffer& sbuf, float interval) {
 }
 
 MenuHighScore::MenuHighScore(MenuHandler& handler,
-                             const std::shared_ptr<ModuleHolder>& holder)
-    : Menu(handler), holder_(holder), table_(nullptr) {
+                             std::shared_ptr<ModuleHolder> holder)
+    : Menu(handler), holder_(std::move(holder)), table_(nullptr) {
     rend3d_.setCamera(Point3D(0, 0, 0), Orient3D(0, 0, 0),
                       Point3D(1, 1, 1) * 0.25);
     donut_ = getGameModel(GameModel::Donut).model;
 }
-
-MenuHighScore::~MenuHighScore() noexcept {}
 
 }  // namespace hiemalia

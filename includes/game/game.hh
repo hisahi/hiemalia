@@ -41,9 +41,9 @@ class GameMain : public LogicModule,
 
     DELETE_COPY(GameMain);
     DEFAULT_MOVE(GameMain);
-    GameMain(ConfigSectionPtr<GameConfig> config,
-             std::shared_ptr<DemoFile> demo);
-    virtual ~GameMain() noexcept;
+    GameMain(const ConfigSectionPtr<GameConfig>& config,
+             const std::shared_ptr<DemoFile>& demo);
+    virtual ~GameMain() noexcept = default;
 
   private:
     static inline const std::string name_ = "GameMain";

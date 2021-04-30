@@ -8,6 +8,8 @@
 
 #include "menu/menuopt.hh"
 
+#include <utility>
+
 #include "defs.hh"
 #include "menu/menuaud.hh"
 #include "menu/menugame.hh"
@@ -56,9 +58,7 @@ void MenuOptions::select(int index, symbol_t id) {
 void MenuOptions::end(GameState& state) {}
 
 MenuOptions::MenuOptions(MenuHandler& handler,
-                         const std::shared_ptr<ModuleHolder>& holder)
-    : Menu(handler), holder_(holder) {}
-
-MenuOptions::~MenuOptions() noexcept {}
+                         std::shared_ptr<ModuleHolder> holder)
+    : Menu(handler), holder_(std::move(holder)) {}
 
 }  // namespace hiemalia

@@ -29,8 +29,8 @@ class MenuInputDevices : public Menu {
     DELETE_COPY(MenuInputDevices);
     DEFAULT_MOVE(MenuInputDevices);
     MenuInputDevices(MenuHandler& handler,
-                     const std::shared_ptr<ModuleHolder>& holder);
-    ~MenuInputDevices() noexcept;
+                     std::shared_ptr<ModuleHolder> holder);
+    ~MenuInputDevices() noexcept = default;
 
   private:
     static inline const std::string name_ = "MenuInputDevices";

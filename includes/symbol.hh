@@ -22,6 +22,9 @@ namespace hiemalia {
 using symbol_t = uint32_t;
 constexpr symbol_t symbol_none = UINT32_MAX;
 constexpr symbol_t index_to_symbol(int i) { return i; }
+constexpr symbol_t index_to_symbol(size_t i) {
+    return static_cast<symbol_t>(i);
+}
 constexpr int symbol_to_index(symbol_t i) { return i; }
 
 };  // namespace hiemalia

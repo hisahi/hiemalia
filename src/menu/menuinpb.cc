@@ -8,6 +8,8 @@
 
 #include "menu/menuinpb.hh"
 
+#include <utility>
+
 #include "controls.hh"
 #include "defs.hh"
 #include "input.hh"
@@ -34,13 +36,13 @@ void MenuInputControls::select(int index, symbol_t id) {
         closeMenu();
         return;
     }
-    ControlInput ctrl = static_cast<ControlInput>(symbol_to_index(id));
-    for (int i = 0, e = options_.size(); i < e; ++i) {
+    auto ctrl = static_cast<ControlInput>(symbol_to_index(id));
+    for (size_t i = 0, e = options_.size(); i < e; ++i) {
         auto& option = options_[i];
         option.enabled = option.id == id;
         if (option.enabled) {
             option.asInput().value = "?" + option.asInput().value + "?";
-            settingButton_ = i;
+            settingButton_ = static_cast<int>(i);
         }
         option.dirty = true;
     }
@@ -68,11 +70,13 @@ std::string MenuInputControls::getControlText(ControlInput input) {
     return module_.get().getButtonName(input);
 }
 
-MenuInputControls::MenuInputControls(
-    MenuHandler& handler, const std::shared_ptr<ModuleHolder>& holder,
-    NamePair<InputDevice> pair, InputControlModule& module)
-    : Menu(handler), holder_(holder), title_(pair.name), module_(module) {}
-
-MenuInputControls::~MenuInputControls() noexcept {}
+MenuInputControls::MenuInputControls(MenuHandler& handler,
+                                     std::shared_ptr<ModuleHolder> holder,
+                                     NamePair<InputDevice> pair,
+                                     InputControlModule& module)
+    : Menu(handler),
+      holder_(std::move(holder)),
+      title_(pair.name),
+      module_(module) {}
 
 }  // namespace hiemalia

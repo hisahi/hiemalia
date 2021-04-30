@@ -117,7 +117,8 @@ void PlayerObject::checkBounds(const MoveRegion& r, const MoveRegion& r0,
         else
             wallContact(0, 1, 0);
         return;
-    } else if (pos.y + shipRadius_ * 0.5 > r.y1) {
+    }
+    if (pos.y + shipRadius_ * 0.5 > r.y1) {
         if (vel.y > 0) vel.y = 0;
         pos.y = r.y1;
         if (r0.y1 - r.y1 >= 0.25)
@@ -125,7 +126,8 @@ void PlayerObject::checkBounds(const MoveRegion& r, const MoveRegion& r0,
         else
             wallContact(0, -1, 0);
         return;
-    } else if (pos.x - shipRadius_ < r.x0) {
+    }
+    if (pos.x - shipRadius_ < r.x0) {
         if (vel.x < 0) vel.x = 0;
         pos.x = r.x0;
         if (r.x0 - r0.x0 >= 0.25)
@@ -133,7 +135,8 @@ void PlayerObject::checkBounds(const MoveRegion& r, const MoveRegion& r0,
         else
             wallContact(1, 0, 0);
         return;
-    } else if (pos.x + shipRadius_ > r.x1) {
+    }
+    if (pos.x + shipRadius_ > r.x1) {
         if (vel.x > 0) vel.x = 0;
         pos.x = r.x1;
         if (r0.x1 - r.x1 >= 0.25)

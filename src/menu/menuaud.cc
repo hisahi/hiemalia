@@ -8,6 +8,8 @@
 
 #include "menu/menuaud.hh"
 
+#include <utility>
+
 #include "audio.hh"
 #include "controls.hh"
 #include "defs.hh"
@@ -21,7 +23,7 @@ enum Item : symbol_t { Item_Music, Item_Sound, Item_Back };
 
 void MenuAudioOptions::begin(GameState& state) {
     auto& audio = holder_->audio;
-    auto& config = holder_->audio->getConfig();
+    const auto& config = holder_->audio->getConfig();
     state.config.sectionLoad(config);
     option(MenuOption::toggle(Item_Music, "MUSIC",
                               audio->canPlayMusic() && config->music,
@@ -55,9 +57,7 @@ void MenuAudioOptions::end(GameState& state) {
 }
 
 MenuAudioOptions::MenuAudioOptions(MenuHandler& handler,
-                                   const std::shared_ptr<ModuleHolder>& holder)
-    : Menu(handler), holder_(holder) {}
-
-MenuAudioOptions::~MenuAudioOptions() noexcept {}
+                                   std::shared_ptr<ModuleHolder> holder)
+    : Menu(handler), holder_(std::move(holder)) {}
 
 }  // namespace hiemalia

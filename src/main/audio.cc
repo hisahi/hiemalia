@@ -51,7 +51,8 @@ void AudioConfig::save(ConfigSectionStore store) const {
     store.set<bool>("Sound", sound);
 }
 
-AudioEngine::AudioEngine(std::shared_ptr<HostModule> host, GameState& state)
+AudioEngine::AudioEngine(const std::shared_ptr<HostModule>& host,
+                         GameState& state)
     : audio_(getAudioModule(host)),
       config_(state.config.section<AudioConfig>()) {}
 

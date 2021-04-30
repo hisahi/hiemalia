@@ -32,9 +32,8 @@ class MenuHighScore : public Menu {
 
     DELETE_COPY(MenuHighScore);
     DEFAULT_MOVE(MenuHighScore);
-    MenuHighScore(MenuHandler& handler,
-                  const std::shared_ptr<ModuleHolder>& holder);
-    ~MenuHighScore() noexcept;
+    MenuHighScore(MenuHandler& handler, std::shared_ptr<ModuleHolder> holder);
+    ~MenuHighScore() noexcept = default;
 
   private:
     static inline const std::string name_ = "MenuHighScore";

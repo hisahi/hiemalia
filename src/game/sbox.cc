@@ -64,7 +64,7 @@ SlidingBox::SlidingBox(const Point3D& pos, coord_t dir, coord_t x0, coord_t y0,
 }
 
 void SlidingBox::absorbBullets(GameWorld& w, const BulletList& list) {
-    for (auto& bptr : list) {
+    for (const auto& bptr : list) {
         if (hits(*bptr)) {
             bptr->backtrackCuboid(pos + *pmin_, pos + *pmax_);
             bptr->impact(w, false);
@@ -74,7 +74,7 @@ void SlidingBox::absorbBullets(GameWorld& w, const BulletList& list) {
 
 void SlidingBox::absorbEnemies(GameWorld& w, const EnemyList& list,
                                const Point3D& avg, const Point3D& siz) {
-    for (auto& e : list) {
+    for (const auto& e : list) {
         if (e->hits(*this)) {
             Point3D dir = collidesCuboidPointDirection(e->pos, avg, siz);
             e->hitWall(w, dir.x, dir.y, dir.z);

@@ -33,7 +33,7 @@ const std::unordered_map<std::string, section_t> sectionMap = {
 
 int getSectionCount() {
     int max = 0;
-    for (auto& it : sectionMap) {
+    for (const auto& it : sectionMap) {
         int n = static_cast<int>(it.second);
         if (max < n) max = n;
     }

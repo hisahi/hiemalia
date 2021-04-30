@@ -293,6 +293,4 @@ MenuHelp::MenuHelp(MenuHandler& handler) : Menu(handler) {
     enemy03_ = getGameModel(GameModel::EnemyDestroyer).model;
 }
 
-MenuHelp::~MenuHelp() noexcept {}
-
 }  // namespace hiemalia

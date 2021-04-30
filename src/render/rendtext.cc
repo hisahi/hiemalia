@@ -25,7 +25,8 @@ void RendererText::renderCharacter(SplinterBuffer& buf, coord_t x, coord_t y,
 }
 
 void RendererText::renderTextLine(SplinterBuffer& buf, coord_t x, coord_t y,
-                                  const Color& clr, std::string s) const {
+                                  const Color& clr,
+                                  const std::string& s) const {
     for (const char& c : s) {
         renderCharacter(buf, x, y, clr, c);
         x += font_->width * scalex_;
@@ -38,12 +39,12 @@ void RendererText::setScale(coord_t scalex, coord_t scaley) {
     Renderer2D::setMatrix(scalex, 0, 0, scaley);
 }
 
-coord_t RendererText::getTextWidth(std::string s) const {
+coord_t RendererText::getTextWidth(const std::string& s) const {
     return (s.empty() ? 0 : s.length() - 1) * font_->width * scalex_;
 }
 
 void RendererText::renderText(SplinterBuffer& buf, coord_t x, coord_t y,
-                              const Color& clr, std::string s) const {
+                              const Color& clr, const std::string& s) const {
     coord_t ox = x;
     for (const char& c : s) {
         if (c == '\n') {
@@ -57,7 +58,7 @@ void RendererText::renderText(SplinterBuffer& buf, coord_t x, coord_t y,
 }
 
 void RendererText::drawTextLineLeft(SplinterBuffer& buf, coord_t x, coord_t y,
-                                    const Color& clr, std::string s,
+                                    const Color& clr, const std::string& s,
                                     coord_t scale) {
     if (scale != 1) {
         coord_t sx = scalex_, sy = scaley_;
@@ -70,7 +71,7 @@ void RendererText::drawTextLineLeft(SplinterBuffer& buf, coord_t x, coord_t y,
 }
 
 void RendererText::drawTextLineCenter(SplinterBuffer& buf, coord_t x, coord_t y,
-                                      const Color& clr, std::string s,
+                                      const Color& clr, const std::string& s,
                                       coord_t scale) {
     if (scale != 1) {
         coord_t sx = scalex_, sy = scaley_;
@@ -85,7 +86,7 @@ void RendererText::drawTextLineCenter(SplinterBuffer& buf, coord_t x, coord_t y,
 }
 
 void RendererText::drawTextLineRight(SplinterBuffer& buf, coord_t x, coord_t y,
-                                     const Color& clr, std::string s,
+                                     const Color& clr, const std::string& s,
                                      coord_t scale) {
     if (scale != 1) {
         coord_t sx = scalex_, sy = scaley_;

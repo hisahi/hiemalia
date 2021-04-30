@@ -97,8 +97,6 @@ static bool collides2DLineLine(coord_t ax1, coord_t ay1, coord_t ax2,
     if (d == 0) {
         ax2 -= ax1, bx1 -= ax1, bx2 -= ax1;
         ay2 -= ay1, by1 -= ay1, by2 -= ay1;
-        ax1 = 0;
-        ay1 = 0;
         d = 1.0 / (ax2 * ax2 + ay2 * ay2);
         coord_t a = d * (ax2 * bx1 + ay2 * by1);
         coord_t b = d * (ax2 * bx2 + ay2 * by2);
@@ -118,9 +116,7 @@ static coord_t collides2DLineLineWhereUnlerp(coord_t ax1, coord_t ay1,
     coord_t d = (ax2 - ax1) * (by2 - by1) - (ay2 - ay1) * (bx2 - bx1);
     if (d == 0) {
         ax2 -= ax1, bx1 -= ax1, bx2 -= ax1;
-        ax1 = 0;
         ay2 -= ay1, by1 -= ay1, by2 -= ay1;
-        ay1 = 0;
         d = 1.0 / (ax2 * ax2 + ay2 * ay2);
         coord_t a = d * (ax2 * bx1 + ay2 * by1);
         coord_t b = d * (ax2 * bx2 + ay2 * by2);

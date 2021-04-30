@@ -22,8 +22,7 @@ namespace hiemalia {
 SDLMixer::SDLMixer() {
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024))
         throw SDLMixerException("could not initialize SDL_mixer 2");
-    else
-        own_ = true;
+    own_ = true;
 }
 
 SDLMixer::~SDLMixer() noexcept {
@@ -38,7 +37,8 @@ SDLMixer &SDLMixer::operator=(SDLMixer &&move) noexcept {
     return *this;
 }
 
-AudioModuleSDLMixer2::AudioModuleSDLMixer2(std::shared_ptr<HostModule> host)
+AudioModuleSDLMixer2::AudioModuleSDLMixer2(
+    const std::shared_ptr<HostModule> &host)
     : host_(std::dynamic_pointer_cast<HostModuleSDL2>(host)) {
     dynamic_assert(host_ != nullptr, "must be HostModuleSDL2!!!");
     if (SDL_InitSubSystem(SDL_INIT_AUDIO))
@@ -82,14 +82,15 @@ void AudioModuleSDLMixer2::playMusic(const std::string &filename,
     if (music_) Mix_FreeMusic(music_);
     music_ = Mix_LoadMUS(filename.c_str());
     if (music_) {
-        Mix_PlayMusic(music_, loopCount > 0 ? loopCount - 1 : -1);
+        Mix_PlayMusic(music_,
+                      loopCount > 0 ? static_cast<int>(loopCount) - 1 : -1);
     } else {
         LOG_WARN("Failed to load music file %s: %s", filename, Mix_GetError());
     }
 }
 
 void AudioModuleSDLMixer2::fadeOutMusic(unsigned int duration) {
-    Mix_FadeOutMusic(duration);
+    Mix_FadeOutMusic(static_cast<int>(duration));
 }
 
 void AudioModuleSDLMixer2::stopMusic() { Mix_HaltMusic(); }
@@ -99,13 +100,13 @@ bool AudioModuleSDLMixer2::isMusicPlaying() {
 }
 
 sound_t AudioModuleSDLMixer2::loadSound(const std::string &filename) {
-    sound_t index = sounds_.size();
+    auto index = static_cast<int>(sounds_.size());
     Mix_Chunk *sample = Mix_LoadWAV(filename.c_str());
     if (!sample) {
         LOG_WARN("Failed to load sound file %s: %s", filename, Mix_GetError());
         return -1;
     }
-    sounds_.push_back(SDLSoundClip(sample));
+    sounds_.emplace_back(sample);
     return index;
 }
 
@@ -116,7 +117,7 @@ void AudioModuleSDLMixer2::playSound(sound_t soundId, float volume, float pan,
         return;
     }
     int ch = Mix_PlayChannel(channel, sounds_[soundId].sdl,
-                             loopCount ? loopCount - 1 : -1);
+                             loopCount ? static_cast<int>(loopCount) - 1 : -1);
     if (ch < 0) {
         LOG_WARN("Failed to play sound effect %d: %s", soundId, Mix_GetError());
         return;

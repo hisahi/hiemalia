@@ -18,7 +18,7 @@
 
 namespace hiemalia {
 
-ModuleHolder::ModuleHolder(const std::shared_ptr<HostModule> host,
+ModuleHolder::ModuleHolder(const std::shared_ptr<HostModule> &host,
                            GameState &state)
     : input(Module::create_unique<InputEngine>(host, state)),
       video(Module::create_unique<VideoEngine>(host, state)),

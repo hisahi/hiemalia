@@ -20,8 +20,8 @@ namespace hiemalia {
 static const Color white{255, 255, 255, 255};
 static const bool firstPerson = true;
 
-GameMain::GameMain(ConfigSectionPtr<GameConfig> config_,
-                   std::shared_ptr<DemoFile> demo)
+GameMain::GameMain(const ConfigSectionPtr<GameConfig>& config_,
+                   const std::shared_ptr<DemoFile>& demo)
     : world_(std::make_unique<GameWorld>(config_)),
       config_(config_),
       demo_(demo),
@@ -33,8 +33,6 @@ GameMain::GameMain(ConfigSectionPtr<GameConfig> config_,
     if (demo_)
         world_->difficulty_ = GameDifficulty{GameDifficultyLevel::Normal};
 }
-
-GameMain::~GameMain() noexcept {}
 
 static void playStageMusic(int stageNum) {
     switch (stageNum) {
@@ -115,8 +113,7 @@ void GameMain::drawStatusBar() {
 
 void GameMain::startNewStage() {
     world_->startNewStage();
-    if (demo_)
-        world_->resetStage(demo_->offset());
+    if (demo_) world_->resetStage(demo_->offset());
 }
 
 void GameMain::pauseGame() {
@@ -125,8 +122,7 @@ void GameMain::pauseGame() {
             doExitGame();
             return;
         }
-        if (arcade_)
-            return;
+        if (arcade_) return;
         shouldBePaused_ = true;
         paused_ = true;
         sendMessage(LogicMessage::pauseMenu());
@@ -173,7 +169,7 @@ void GameMain::gotMessage(const GameMessage& msg) {
                 instaExit_ = true;
                 return;
             }
-            world_->addCredits(msg.getCredits());
+            world_->addCredits(static_cast<int>(msg.getCredits()));
             break;
     }
 }
@@ -328,7 +324,9 @@ static unsigned getTimeBonus(float time) {
            10;
 }
 
-static float getBonusY(int index) { return 0.0625f * index; }
+static float getBonusY(int index) {
+    return static_cast<float>(index) * 0.0625f;
+}
 
 void GameMain::doStageCompleteTick(GameState& state, float interval) {
     static const float timerEnd = 8;
@@ -493,8 +491,7 @@ void GameMain::doInit(GameState& state) {
     if (!arcade_) w.continues_ = config_->maxContinues;
     drawStatusBar();
     init_ = true;
-    if (demo_)
-        world_->stageNum = demo_->stage() - 1;
+    if (demo_) world_->stageNum = demo_->stage() - 1;
 }
 
 bool GameMain::run(GameState& state, float interval) {
@@ -553,7 +550,9 @@ bool GameMain::run(GameState& state, float interval) {
         // I am paused
         state.sbuf.append(statusbar_);
         return true;
-    } else if (stageStartTimer > 0) {
+    }
+
+    if (stageStartTimer > 0) {
         state.sbuf.push(Splinter(SplinterType::BeginClipCenter, -Y, +Y));
         doStageStartTick(state, interval);
         state.sbuf.push(Splinter(SplinterType::EndClip, 0, 0));

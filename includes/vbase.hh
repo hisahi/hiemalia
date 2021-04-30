@@ -47,7 +47,8 @@ class VideoModule : public Module {
     static inline const std::string role_ = "video module";
 };
 
-std::shared_ptr<VideoModule> getVideoModule(std::shared_ptr<HostModule> host);
+std::shared_ptr<VideoModule> getVideoModule(
+    const std::shared_ptr<HostModule>& host);
 
 };  // namespace hiemalia
 

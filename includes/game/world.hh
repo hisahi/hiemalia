@@ -42,7 +42,7 @@ using EnemyList = ObjectListBase<EnemyObject>;
 
 class GameWorld {
   public:
-    GameWorld(ConfigSectionPtr<GameConfig> config);
+    GameWorld(const ConfigSectionPtr<GameConfig>& config);
 
     DELETE_COPY(GameWorld);
     DEFAULT_MOVE(GameWorld);

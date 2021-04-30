@@ -23,7 +23,7 @@ std::ifstream openAssetFileRead(const std::string& folder,
                                 const std::string& filename, bool binary);
 void fileThrowOnError(std::ios& stream);
 void fileThrowOnFatalError(std::ios& stream);
-void useAlternativeAssetsFolder(const std::string s);
+void useAlternativeAssetsFolder(const std::string& s);
 };  // namespace hiemalia
 
 #endif  // M_FILE_HH

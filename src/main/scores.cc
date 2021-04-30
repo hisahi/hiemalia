@@ -9,6 +9,7 @@
 #include "scores.hh"
 
 #include <algorithm>
+#include <climits>
 
 #include "array.hh"
 #include "file.hh"
@@ -24,7 +25,7 @@ static const auto randomChars =
     hiemalia::strToArray("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
 int HighScoreTable::getHighscoreRank(unsigned long score) const {
-    if (!score) return -1;
+    if (score == 0) return -1;
     int i = 0;
     for (const HighScoreEntry& entry : entries) {
         if (score > entry.score) {
@@ -66,7 +67,9 @@ static HighScoreTable defaultScores;
 static HighScoreTable getDefaultHighscoreTable() {
     if (defaultScores.entries.empty()) {
         auto& e = defaultScores.entries;
-        std::uniform_int_distribution<int> rc(0, randomChars.size() - 1);
+        static_assert(!randomChars.empty(), "must have name chars to pick");
+        std::uniform_int_distribution<int> rc(
+            0, static_cast<int>(randomChars.size()) - 1);
         for (int i = 0; i < HighScoreTable::size; ++i) {
             e.push_back(HighScoreEntry{
                 {randomChars[random(rc)], randomChars[random(rc)],
@@ -173,7 +176,7 @@ static int32_t checksum(const char* p, const char* e) {
     return static_cast<int32_t>(s);
 }
 
-static void crypt(char* p, char* e, int32_t k) {
+static void crypt(char* p, const char* e, int32_t k) {
     while (p < e) *p++ ^= crypt_next(k);
 }
 
@@ -216,7 +219,7 @@ HighScoreTable loadHighscores() {
 
 static void dumpScores(const HighScoreTable& table) {
     LOG_ERROR("Could not save high scores. they were");
-    uint16_t n = static_cast<uint16_t>(table.entries.size());
+    auto n = static_cast<uint16_t>(table.entries.size());
     for (uint16_t i = 0; i < n; ++i) {
         const HighScoreEntry& e = table.entries[i];
         LOG_ERROR("#%2d   %.3s   %2d   %d   %12lu", i + 1, e.name, e.cycles,
@@ -233,7 +236,7 @@ void saveHighscores(HighScoreTable& table) {
         try {
             fileThrowOnError(out);
             omemorystream maindata;
-            uint16_t n = static_cast<uint16_t>(table.entries.size());
+            auto n = static_cast<uint16_t>(table.entries.size());
             writeUInt16(maindata, n);
             for (uint16_t i = 0; i < n; ++i) {
                 writeHighscoreEntry(maindata, table.entries[i]);

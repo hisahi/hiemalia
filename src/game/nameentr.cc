@@ -95,13 +95,15 @@ void NameEntry::gotMessage(const MenuMessage& msg) {
         case MenuMessageType::MenuUp:
             sendMessage(AudioMessage::playSound(SoundEffect::MenuChange));
             name_[index_] =
-                remainder<int>(name_[index_] - 1, validScoreNameChars.size());
+                remainder<int>(name_[index_] - 1,
+                               static_cast<int>(validScoreNameChars.size()));
             redrawChar(index_);
             break;
         case MenuMessageType::MenuDown:
             sendMessage(AudioMessage::playSound(SoundEffect::MenuChange));
             name_[index_] =
-                remainder<int>(name_[index_] + 1, validScoreNameChars.size());
+                remainder<int>(name_[index_] + 1,
+                               static_cast<int>(validScoreNameChars.size()));
             redrawChar(index_);
             break;
         case MenuMessageType::MenuLeft:
@@ -191,7 +193,7 @@ bool NameEntry::run(GameState& state, float interval) {
         fireworks_.emplace_back(std::make_unique<Firework>());
 
     t_ = wrapAngle(t_ + interval * 4);
-    uint8_t a = static_cast<uint8_t>(sin(t_) * 64 + 127);
+    auto a = static_cast<uint8_t>(sin(t_) * 64 + 127);
     rendtext_.drawTextLineCenter(state.sbuf, 0, -0.625, Color{255, 255, 255, a},
                                  "NAME ENTRY", 2.5);
     state.sbuf.append(maintext_);
@@ -229,7 +231,7 @@ NameEntry& NameEntry::operator=(NameEntry&& move) noexcept {
     return *this;
 }
 
-NameEntry::NameEntry(std::shared_ptr<ModuleHolder> holder_,
+NameEntry::NameEntry(const std::shared_ptr<ModuleHolder>& holder_,
                      const PartialHighScoreEntry& entry, HighScoreTable* table)
     : holder_(holder_), entry_(entry), table_(table) {
     rendtext_.setFont(getAssets().menuFont);
@@ -250,7 +252,5 @@ NameEntry::NameEntry(std::shared_ptr<ModuleHolder> holder_,
                                  std::to_string(entry.score), 0.75);
     sendMessage(AudioMessage::playMusic(MusicTrack::HighScore));
 }
-
-NameEntry::~NameEntry() noexcept {}
 
 }  // namespace hiemalia

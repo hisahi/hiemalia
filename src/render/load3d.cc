@@ -20,7 +20,7 @@
 #include "str.hh"
 
 namespace hiemalia {
-static Point3D parseModelPoint(std::string s, coord_t sx, coord_t sy,
+static Point3D parseModelPoint(const std::string& s, coord_t sx, coord_t sy,
                                coord_t sz) {
     coord_t x = 0, y = 0, z = 0;
     if (s_sscanf(s.c_str(), FMT_coord_t " " FMT_coord_t " " FMT_coord_t, &x, &y,
@@ -29,7 +29,8 @@ static Point3D parseModelPoint(std::string s, coord_t sx, coord_t sy,
     return Point3D(x * sx, y * sy, z * sz);
 }
 
-static ModelFragment parseModelFragment(std::string s, size_t n, Color color) {
+static ModelFragment parseModelFragment(const std::string& s, size_t n,
+                                        Color color) {
     std::istringstream in(s);
     size_t start;
     int num;
@@ -81,22 +82,22 @@ static Model loadStream3D(std::istream& in, ModelCollisionRadius* col) {
             std::istringstream in(value);
             int a;
             in >> a;
-            if (a < 0) a += vertices.size();
+            if (a < 0) a += static_cast<int>(vertices.size());
             col->shapes.push_back(CollisionShape::point(vertices[a]));
         } else if (command == "cl" && col) {
             std::istringstream in(value);
             int a, b;
             in >> a >> b;
-            if (a < 0) a += vertices.size();
-            if (b < 0) b += vertices.size();
+            if (a < 0) a += static_cast<int>(vertices.size());
+            if (b < 0) b += static_cast<int>(vertices.size());
             col->shapes.push_back(
                 CollisionShape::line(vertices[a], vertices[b]));
         } else if (command == "cc" && col) {
             std::istringstream in(value);
             int a, b;
             in >> a >> b;
-            if (a < 0) a += vertices.size();
-            if (b < 0) b += vertices.size();
+            if (a < 0) a += static_cast<int>(vertices.size());
+            if (b < 0) b += static_cast<int>(vertices.size());
             Point3D c1{std::min(vertices[a].x, vertices[b].x),
                        std::min(vertices[a].y, vertices[b].y),
                        std::min(vertices[a].z, vertices[b].z)};
@@ -109,16 +110,16 @@ static Model loadStream3D(std::istream& in, ModelCollisionRadius* col) {
             int a;
             coord_t r;
             in >> a >> r;
-            if (a < 0) a += vertices.size();
+            if (a < 0) a += static_cast<int>(vertices.size());
             r *= scale;
             col->shapes.push_back(CollisionShape::sphere(vertices[a], r));
         } else if (command == "ct" && col) {
             std::istringstream in(value);
             int a, b, c;
             in >> a >> b >> c;
-            if (a < 0) a += vertices.size();
-            if (b < 0) b += vertices.size();
-            if (c < 0) c += vertices.size();
+            if (a < 0) a += static_cast<int>(vertices.size());
+            if (b < 0) b += static_cast<int>(vertices.size());
+            if (c < 0) c += static_cast<int>(vertices.size());
             col->shapes.push_back(
                 CollisionShape::tri(vertices[a], vertices[b], vertices[c]));
             dynamic_assert(

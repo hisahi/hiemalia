@@ -84,7 +84,8 @@ class InputControlModule : public Module {
     static inline const std::string role_ = "input control module";
 };
 
-std::shared_ptr<InputModule> getInputModule(std::shared_ptr<HostModule> host);
+std::shared_ptr<InputModule> getInputModule(
+    const std::shared_ptr<HostModule>& host);
 
 };  // namespace hiemalia
 

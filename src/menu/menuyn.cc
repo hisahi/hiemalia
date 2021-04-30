@@ -8,6 +8,8 @@
 
 #include "menu/menuyn.hh"
 
+#include <utility>
+
 #include "defs.hh"
 #include "game/gamemsg.hh"
 #include "hiemalia.hh"
@@ -42,10 +44,7 @@ void MenuYesNo::end(GameState& state) {
         sendMessage(MenuMessage::yes(myId_));
 }
 
-MenuYesNo::MenuYesNo(MenuHandler& handler, symbol_t id,
-                     const std::string& title)
-    : Menu(handler), myId_(id), title_(title) {}
-
-MenuYesNo::~MenuYesNo() noexcept {}
+MenuYesNo::MenuYesNo(MenuHandler& handler, symbol_t id, std::string title)
+    : Menu(handler), myId_(id), title_(std::move(title)) {}
 
 }  // namespace hiemalia

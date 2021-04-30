@@ -8,6 +8,8 @@
 
 #include "arcadeoverlay.hh"
 
+#include <utility>
+
 #include "assets.hh"
 #include "audio.hh"
 #include "hiemalia.hh"
@@ -15,11 +17,9 @@
 namespace hiemalia {
 
 ArcadeOverlay::ArcadeOverlay(std::shared_ptr<ModuleHolder> holder)
-    : holder_(holder) {
+    : holder_(std::move(holder)) {
     font_.setFont(getAssets().menuFont);
 }
-
-ArcadeOverlay::~ArcadeOverlay() noexcept {}
 
 bool ArcadeOverlay::run(GameState& state, float interval) {
     if (visible_ && (haveCredits_ || blink_ < 0.75)) state.sbuf.append(buf_);

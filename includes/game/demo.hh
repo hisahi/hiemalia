@@ -27,18 +27,17 @@ struct DemoCommand {
 class DemoFile {
   public:
     static DemoFile loadDemo(const std::string& file);
-    bool runDemo(float dt) noexcept;
+    bool runDemo(float dt);
     inline const ControlState& getInputs() const noexcept { return input_; }
     inline int stage() const noexcept { return stageNum_; }
     inline coord_t offset() const noexcept { return checkpoint_; }
     void reset();
 
   private:
-    DemoFile();
     int stageNum_{1};
     double t_{0};
     coord_t checkpoint_{0};
-    int commandIndex_{0};
+    size_t commandIndex_{0};
     std::vector<DemoCommand> commands_;
     ControlState input_;
 };

@@ -61,9 +61,9 @@ class NameEntry : public LogicModule, MessageHandler<MenuMessage> {
     DELETE_COPY(NameEntry);
     NameEntry(NameEntry&& move) noexcept;
     NameEntry& operator=(NameEntry&& move) noexcept;
-    NameEntry(std::shared_ptr<ModuleHolder> holder_,
+    NameEntry(const std::shared_ptr<ModuleHolder>& holder_,
               const PartialHighScoreEntry& entry, HighScoreTable* table);
-    virtual ~NameEntry() noexcept;
+    virtual ~NameEntry() noexcept = default;
 
   private:
     static inline const std::string mname_ = "NameEntry";

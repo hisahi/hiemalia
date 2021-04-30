@@ -37,7 +37,7 @@ class MenuHelp : public Menu {
     MenuHelp(MenuHelp&& move) noexcept;
     MenuHelp& operator=(MenuHelp&& move) noexcept;
     MenuHelp(MenuHandler& handler);
-    ~MenuHelp() noexcept;
+    ~MenuHelp() noexcept = default;
 
   protected:
     void timedOut();

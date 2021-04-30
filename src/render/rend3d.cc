@@ -165,13 +165,16 @@ void Renderer3D::renderModel(SplinterBuffer& buf, Point3D p, Orient3D r,
 }
 
 inline static int outcode(const Vector3D& v) {
-    return ((v.x > v.w) << 0) | ((v.x < -v.w) << 1) | ((v.y > v.w) << 2) |
-           ((v.y < -v.w) << 3) | ((v.z > viewDistance) << 4) |
-           ((v.w < near) << 5);
+    return static_cast<int>((v.x > v.w) << 0) |
+           static_cast<int>((v.x < -v.w) << 1) |
+           static_cast<int>((v.y > v.w) << 2) |
+           static_cast<int>((v.y < -v.w) << 3) |
+           static_cast<int>((v.z > viewDistance) << 4) |
+           static_cast<int>((v.w < near) << 5);
 }
 
 Point3D Renderer3D::clipPoint(const Vector3D& onScreen,
-                              const Vector3D& offScreen) const {
+                              const Vector3D& offScreen) {
     coord_t n = unlerp(onScreen.w, near, offScreen.w);
     return Vector3D(lerp(onScreen.x, n, offScreen.x),
                     lerp(onScreen.y, n, offScreen.y),
@@ -202,8 +205,8 @@ void Renderer3D::renderModelFragment(SplinterBuffer& buf,
     const Vector3D* v0 = &points_[f.start];
     const Vector3D* v1;
     Point3D p0{0, 0, 0}, p1{0, 0, 0};
-    for (auto it = f.points.begin(); it != f.points.end(); ++it) {
-        v1 = &points_[*it];
+    for (size_t p : f.points) {
+        v1 = &points_[p];
         visible = clipLine(*v0, *v1, p0, p1);
         if (visible) {
             if (!shape) {

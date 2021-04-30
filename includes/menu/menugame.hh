@@ -29,9 +29,8 @@ class MenuGameOptions : public Menu {
 
     DELETE_COPY(MenuGameOptions);
     DEFAULT_MOVE(MenuGameOptions);
-    MenuGameOptions(MenuHandler& handler,
-                    const std::shared_ptr<ModuleHolder>& holder);
-    ~MenuGameOptions() noexcept;
+    MenuGameOptions(MenuHandler& handler, std::shared_ptr<ModuleHolder> holder);
+    ~MenuGameOptions() noexcept = default;
 
   private:
     static inline const std::string name_ = "MenuGameOptions";

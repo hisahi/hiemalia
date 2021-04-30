@@ -49,7 +49,7 @@ bool EnemyChevron::doEnemyTick(GameWorld& w, float delta) {
         sawPlayer_ = true;
         vel = ((w.getPlayerPosition() - pos) - Point3D(0, 0, 2)).normalize();
     } else {
-        doMove(delta, {0, 0, -1 / 128});
+        doMove(delta, {0, 0, -1.0 / 128});
     }
     killPlayerOnContact(w);
     coord_t xr = lerp(0.2 * 0.375, cos(rot.roll), 1 * 0.375);
@@ -63,7 +63,7 @@ bool EnemyChevron::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     sendMessage(AudioMessage::playSound(SoundEffect::ExplodeSmall,
                                         pos - w.getPlayerPosition()));
     if (killedByPlayer) {
-        addScore(w, 200);
+        addScore(w, 500);
         w.onEnemyKilled(*this);
     }
     return true;

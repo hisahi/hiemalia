@@ -32,8 +32,8 @@ class MenuMain : public Menu {
 
     DELETE_COPY(MenuMain);
     DEFAULT_MOVE(MenuMain);
-    MenuMain(MenuHandler& handler, const std::shared_ptr<ModuleHolder>& holder);
-    ~MenuMain() noexcept;
+    MenuMain(MenuHandler& handler, std::shared_ptr<ModuleHolder> holder);
+    ~MenuMain() noexcept = default;
 
   protected:
     void timedOut();

@@ -91,7 +91,7 @@ void streamExtractCopy_(std::istream& ss, Td& out) {
 
 template <typename T, typename Ta, std::size_t... I>
 std::shared_ptr<GameObject> makeCoordPropObject_(const Point3D& p,
-                                                 std::string prop,
+                                                 const std::string& prop,
                                                  std::index_sequence<I...>) {
     std::array<Ta, sizeof...(I)> arr;
     std::istringstream ss{prop};

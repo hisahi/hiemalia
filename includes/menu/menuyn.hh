@@ -27,8 +27,8 @@ class MenuYesNo : public Menu {
 
     DELETE_COPY(MenuYesNo);
     DEFAULT_MOVE(MenuYesNo);
-    MenuYesNo(MenuHandler& handler, symbol_t id, const std::string& title);
-    ~MenuYesNo() noexcept;
+    MenuYesNo(MenuHandler& handler, symbol_t id, std::string title);
+    ~MenuYesNo() noexcept = default;
 
   private:
     static inline const std::string name_ = "MenuYesNo";

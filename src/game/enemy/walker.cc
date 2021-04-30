@@ -105,7 +105,7 @@ bool EnemyWalker::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     sendMessage(AudioMessage::playSound(SoundEffect::ExplodeMedium,
                                         pos - w.getPlayerPosition()));
     if (killedByPlayer) {
-        addScore(w, 600);
+        addScore(w, 400);
         w.onEnemyKilled(*this);
     }
     return true;

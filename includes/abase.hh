@@ -97,7 +97,8 @@ class AudioModuleNull : public AudioModule {
     static inline const std::string name_ = "AudioModuleNull";
 };
 
-std::shared_ptr<AudioModule> getAudioModule(std::shared_ptr<HostModule> host);
+std::shared_ptr<AudioModule> getAudioModule(
+    const std::shared_ptr<HostModule>& host);
 
 };  // namespace hiemalia
 

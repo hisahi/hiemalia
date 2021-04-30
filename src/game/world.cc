@@ -22,7 +22,7 @@ namespace hiemalia {
 
 constexpr int pointsPer1up = 50000;
 
-GameWorld::GameWorld(ConfigSectionPtr<GameConfig> config)
+GameWorld::GameWorld(const ConfigSectionPtr<GameConfig>& config)
     : config_(config), difficulty_{config->difficulty} {
     moveSpeedFac = difficulty_.getStageSpeedMultiplier();
 }

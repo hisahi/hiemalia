@@ -23,7 +23,7 @@ Obstacle::Obstacle(const Point3D& pos, const Orient3D& r, GameModel model)
 }
 
 void Obstacle::absorbBullets(GameWorld& w, const BulletList& list) {
-    for (auto& bptr : list) {
+    for (const auto& bptr : list) {
         if (bptr->hits(*this)) {
             bptr->backtrackObject(*this);
             bptr->impact(w, false);
@@ -32,7 +32,7 @@ void Obstacle::absorbBullets(GameWorld& w, const BulletList& list) {
 }
 
 void Obstacle::absorbEnemies(GameWorld& w, const EnemyList& list) {
-    for (auto& e : list) {
+    for (const auto& e : list) {
         if (e->canHitWalls() && e->hits(*this)) {
             e->hitWall(w, 0, 0, 0);
         }
@@ -58,7 +58,7 @@ DestroyableObstacle::DestroyableObstacle(const Point3D& pos, const Orient3D& r,
     : Obstacle(pos, r, model), ObjectDamageable(health) {}
 
 void DestroyableObstacle::absorbBullets(GameWorld& w, const BulletList& list) {
-    for (auto& bptr : list) {
+    for (const auto& bptr : list) {
         if (bptr->hits(*this)) {
             bptr->backtrackObject(*this);
             damage(w, bptr->getDamage(), bptr->pos);

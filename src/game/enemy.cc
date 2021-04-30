@@ -24,7 +24,7 @@ EnemyObject::EnemyObject(const Point3D& pos, float health)
 
 bool EnemyObject::update(GameWorld& w, float delta) {
     if (sponge_ > 0) {
-        for (auto& bptr : w.getPlayerBullets()) {
+        for (const auto& bptr : w.getPlayerBullets()) {
             if (bptr->hits(*this)) {
                 bptr->impact(w, true);
             }
@@ -151,7 +151,7 @@ Point3D EnemyObject::aimAtPlayer(GameWorld& w, float speed, float lead) const {
 }
 
 Point3D EnemyObject::getBulletVelocity(GameWorld& w, Point3D dir, float speed,
-                                       float spew) const {
+                                       float spew) {
     speed *= w.difficulty().getBulletSpeedMultiplier();
     spew *= speed * w.difficulty().getBulletSpewMultiplier();
     return (dir + randomUnitVector() * spew).normalize() * speed;

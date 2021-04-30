@@ -30,8 +30,8 @@ class MenuAudioOptions : public Menu {
     DELETE_COPY(MenuAudioOptions);
     DEFAULT_MOVE(MenuAudioOptions);
     MenuAudioOptions(MenuHandler& handler,
-                     const std::shared_ptr<ModuleHolder>& holder);
-    ~MenuAudioOptions() noexcept;
+                     std::shared_ptr<ModuleHolder> holder);
+    ~MenuAudioOptions() noexcept = default;
 
   private:
     static inline const std::string name_ = "MenuAudioOptions";

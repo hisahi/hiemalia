@@ -15,7 +15,8 @@
 #include "menu.hh"
 
 namespace hiemalia {
-InputEngine::InputEngine(std::shared_ptr<HostModule> host, GameState& state)
+InputEngine::InputEngine(const std::shared_ptr<HostModule>& host,
+                         GameState& state)
     : input_(getInputModule(host)) {
     for (const auto& pair : inputDevices) {
         if (input_->hasInputDevice(pair.value)) {

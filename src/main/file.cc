@@ -13,7 +13,7 @@
 namespace hiemalia {
 static std::string assetsFolder = "assets";
 
-void useAlternativeAssetsFolder(const std::string s) { assetsFolder = s; }
+void useAlternativeAssetsFolder(const std::string& s) { assetsFolder = s; }
 
 std::ifstream openFileRead(const std::string& filename, bool binary) {
     return std::ifstream(

@@ -32,7 +32,7 @@ static bool crossover(float t, float dt, float t1) {
 void EnemyFighter::patternMoveXThenZ(GameWorld& w, float dt, coord_t v,
                                      float xt) {
     if (crossover(t_, dt, xt))
-        vel = Point3D(0, 0, -1 / 16);
+        vel = Point3D(0, 0, -1.0 / 16);
     else if (t_ < xt)
         vel = Point3D(v, 0, 0), fireAtPlayer(w, dt, 0.5);
     else

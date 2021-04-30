@@ -20,7 +20,7 @@ EnemyGunboat2::EnemyGunboat2(const Point3D& pos) : EnemyObject(pos, 4.0f) {
     rot = Orient3D::atPlayer;
     fireTime_ =
         getRandomPool().random(std::uniform_real_distribution<float>(0, 1));
-    vel = Point3D(0, 0, -1 / 16);
+    vel = Point3D(0, 0, -1.0 / 16);
 }
 
 bool EnemyGunboat2::doEnemyTick(GameWorld& w, float delta) {

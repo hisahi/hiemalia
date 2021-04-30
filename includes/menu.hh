@@ -262,7 +262,8 @@ class Menu {
 
     inline void closeMenu() { exiting_ = true; }
     void confirm(symbol_t id, const std::string& title,
-                 std::function<void()> onYes, std::function<void()> onNo);
+                 const std::function<void()>& onYes,
+                 const std::function<void()>& onNo);
 
     template <typename T, typename... Ts>
     void openMenu(Ts&&... args) {
@@ -293,7 +294,7 @@ class Menu {
     SplinterBuffer titlebuf_;
     std::vector<MenuOption> options_;
     std::shared_ptr<Menu> replaceWith_;
-    coord_t getMenuOptionY(int index) const;
+    coord_t getMenuOptionY(size_t index) const;
     inline virtual void pageLeft() {}
     inline virtual void pageRight(bool) {}
     inline const MenuInformation& info() const noexcept {

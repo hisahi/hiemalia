@@ -29,7 +29,7 @@ GameStage::GameStage(std::vector<section_t>&& sections, int loopLength,
     dynamic_assert(loopLength > 0, "must have loop!");
     auto& s = this->sections_;
     dynamic_assert(loopLength <= static_cast<int>(s.size()), "loop too long!");
-    for (int e = s.size(), i = e - loopLength; i < e; ++i)
+    for (size_t e = s.size(), i = e - loopLength; i < e; ++i)
         sectionsLoop_.push_back(s[i]);
     for (unsigned i = 0; i < stageVisibility; ++i) nextSection();
 }
@@ -96,7 +96,7 @@ void GameStage::drawStage(SplinterBuffer& sbuf, Renderer3D& r3d,
     }
 }
 
-static MoveRegion parseMoveRegion(std::string s) {
+static MoveRegion parseMoveRegion(const std::string& s) {
     coord_t x0 = -1, x1 = 1, y0 = -1, y1 = 1;
     if (s_sscanf(s.c_str(),
                  FMT_coord_t " " FMT_coord_t " " FMT_coord_t " " FMT_coord_t,
@@ -105,7 +105,7 @@ static MoveRegion parseMoveRegion(std::string s) {
     return MoveRegion{x0, x1, y0, y1};
 }
 
-static Orient3D parseRotation3D(std::string s) {
+static Orient3D parseRotation3D(const std::string& s) {
     coord_t y = 0, p = 0, r = 0;
     if (s_sscanf(s.c_str(), FMT_coord_t " " FMT_coord_t " " FMT_coord_t, &y, &p,
                  &r) < 3)
@@ -145,7 +145,7 @@ GameSection loadSection(const std::string& name) {
     return GameSection{load3D("smodels", modelFile), moveRegion, turn};
 }
 
-static ObjectSpawn parseObject(std::string v, coord_t& dist, int lineNum,
+static ObjectSpawn parseObject(const std::string& v, coord_t& dist, int lineNum,
                                bool front, bool relative) {
     coord_t r, x, y, z;
     unsigned n, q;
@@ -157,7 +157,7 @@ static ObjectSpawn parseObject(std::string v, coord_t& dist, int lineNum,
         throw std::runtime_error("invalid object spawn on line number " +
                                  std::to_string(lineNum));
     std::string name = trimLeft(v.substr(n));
-    std::string prop = "";
+    std::string prop;
     size_t i = name.find_first_of(" \t");
     if (i != std::string::npos) {
         prop = name.substr(i + 1);
@@ -170,7 +170,7 @@ static ObjectSpawn parseObject(std::string v, coord_t& dist, int lineNum,
     else
         f *= dist, dist += r;
 
-    unsigned u = floatToWholeFrac<unsigned>(f);
+    auto u = floatToWholeFrac<unsigned>(f);
     f *= stageSectionLength;
     z += front ? 0 : stageSpawnDistance;
     auto ptr = loadObjectSpawn(Point3D(x, y, z), name, prop);
@@ -178,7 +178,8 @@ static ObjectSpawn parseObject(std::string v, coord_t& dist, int lineNum,
         ptr, std::dynamic_pointer_cast<EnemyObject>(ptr) != nullptr, u, f};
 }
 
-static ObjectSpawn parseObjectZ(std::string v, coord_t& dist, int lineNum) {
+static ObjectSpawn parseObjectZ(const std::string& v, coord_t& dist,
+                                int lineNum) {
     coord_t x, y, z;
     unsigned n, q;
     q = s_sscanf(v.c_str(), FMT_coord_t " " FMT_coord_t " " FMT_coord_t "%n",
@@ -187,7 +188,7 @@ static ObjectSpawn parseObjectZ(std::string v, coord_t& dist, int lineNum) {
         throw std::runtime_error("invalid object spawn on line number " +
                                  std::to_string(lineNum));
     std::string name = trimLeft(v.substr(n));
-    std::string prop = "";
+    std::string prop;
     size_t i = name.find_first_of(" \t");
     if (i != std::string::npos) {
         prop = name.substr(i + 1);
@@ -195,7 +196,7 @@ static ObjectSpawn parseObjectZ(std::string v, coord_t& dist, int lineNum) {
     }
 
     coord_t f = stageDivision * z - stageSpawnDistance;
-    unsigned u = floatToWholeFrac<unsigned>(f);
+    auto u = floatToWholeFrac<unsigned>(f);
     f *= stageSectionLength;
     z = stageSpawnDistance;
     auto ptr = loadObjectSpawn(Point3D(x, y, z), name, prop);
@@ -204,7 +205,7 @@ static ObjectSpawn parseObjectZ(std::string v, coord_t& dist, int lineNum) {
 }
 
 void GameStage::processSectionCommand(std::vector<section_t>& sections,
-                                      std::string s) {
+                                      const std::string& s) {
     static const decltype(std::string::npos) npos = std::string::npos;
     std::string::size_type prev = 0, next = 0;
     int i;
@@ -278,7 +279,7 @@ void GameStage::enterBossLoop(std::initializer_list<section_t> loop) {
     inBoss_ = true;
     bossLoop_ = loop;
     inBossIndex_ = 0;
-    dynamic_assert(bossLoop_.size() > 0,
+    dynamic_assert(!bossLoop_.empty(),
                    "must have at least one section to loop");
 }
 

@@ -9,6 +9,7 @@
 #include "base/sdl2/vbasei.hh"
 
 #include <algorithm>
+#include <climits>
 
 #include "base/sdl2.hh"
 #include "base/sdl2/hbasei.hh"
@@ -19,7 +20,7 @@
 namespace hiemalia {
 static int round_down(int x) { return (x / 256) * 256; }
 
-VideoModuleSDL2::VideoModuleSDL2(std::shared_ptr<HostModule> host)
+VideoModuleSDL2::VideoModuleSDL2(const std::shared_ptr<HostModule> &host)
     : host_(std::dynamic_pointer_cast<HostModuleSDL2>(host)) {
     dynamic_assert(host_ != nullptr, "must be HostModuleSDL2!!!");
     if (SDL_InitSubSystem(SDL_INIT_VIDEO))
@@ -98,7 +99,7 @@ void VideoModuleSDL2::blank() {
 void VideoModuleSDL2::draw(const SplinterBuffer &buffer) {
     int x, y;
     SDL_RenderSetClipRect(renderer_, &square_);
-    for (auto &s : buffer) {
+    for (const auto &s : buffer) {
         x = static_cast<int>(s.x * scale_ + cx_);
         y = static_cast<int>(s.y * scale_ + cy_);
         switch (s.type) {
@@ -113,7 +114,10 @@ void VideoModuleSDL2::draw(const SplinterBuffer &buffer) {
                 break;
             case SplinterType::EndShapePoint:
                 points_.push_back(SDL_Point{x, y});
-                SDL_RenderDrawLines(renderer_, points_.data(), points_.size());
+                dynamic_assert(points_.size() <= INT_MAX,
+                               "too complex of a shape");
+                SDL_RenderDrawLines(renderer_, points_.data(),
+                                    static_cast<int>(points_.size()));
                 break;
             case SplinterType::BeginClipCenter:
                 x = static_cast<int>(s.x * scale_ + cy_);
@@ -128,7 +132,7 @@ void VideoModuleSDL2::draw(const SplinterBuffer &buffer) {
                 break;
         }
     }
-    SDL_RenderSetClipRect(renderer_, NULL);
+    SDL_RenderSetClipRect(renderer_, nullptr);
 }
 
 void VideoModuleSDL2::blit() { SDL_RenderPresent(renderer_); }

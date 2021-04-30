@@ -29,7 +29,7 @@ class MenuPause : public Menu {
     DELETE_COPY(MenuPause);
     DEFAULT_MOVE(MenuPause);
     MenuPause(MenuHandler& handler);
-    ~MenuPause() noexcept;
+    ~MenuPause() noexcept = default;
 
   private:
     static inline const std::string name_ = "MenuPause";

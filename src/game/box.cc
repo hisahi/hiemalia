@@ -27,7 +27,7 @@ Box::Box(const Point3D& pos, coord_t x, coord_t y, coord_t z)
 }
 
 void Box::absorbBullets(GameWorld& w, const BulletList& list) {
-    for (auto& bptr : list) {
+    for (const auto& bptr : list) {
         if (bptr->hits(*this)) {
             bptr->backtrackCuboid(pos - scale, pos + scale);
             bptr->impact(w, false);
@@ -36,7 +36,7 @@ void Box::absorbBullets(GameWorld& w, const BulletList& list) {
 }
 
 void Box::absorbEnemies(GameWorld& w, const EnemyList& list) {
-    for (auto& e : list) {
+    for (const auto& e : list) {
         if (e->canHitWalls() && e->hits(*this)) {
             Point3D dir = collidesCuboidPointDirection(e->pos, pos, scale);
             e->hitWall(w, dir.x, dir.y, dir.z);
@@ -63,7 +63,7 @@ DestroyableBox::DestroyableBox(const Point3D& pos, coord_t x, coord_t y,
 }
 
 void DestroyableBox::absorbBullets(GameWorld& w, const BulletList& list) {
-    for (auto& bptr : list) {
+    for (const auto& bptr : list) {
         if (bptr->hits(*this)) {
             bptr->backtrackCuboid(pos - scale, pos + scale);
             damage(w, bptr->getDamage(), bptr->pos);
@@ -90,9 +90,9 @@ void DestroyableBox::onDamage(GameWorld& w, float dmg,
 void DestroyableBox::onDeath(GameWorld& w) {
     if (!alive_) return;
     SoundEffect sound;
-    if (getCollisionRadius() < 0.5) {
+    if (getCollisionRadius() < 1) {
         sound = SoundEffect::ExplodeSmall;
-    } else if (getCollisionRadius() < 1.25) {
+    } else if (getCollisionRadius() < 2) {
         sound = SoundEffect::ExplodeMedium;
     } else {
         sound = SoundEffect::ExplodeLarge;

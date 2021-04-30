@@ -27,7 +27,7 @@ const GameAssets& getAssets() {
         assets.gameFont = assets.menuFont;
         assets.sectionData.insert(assets.sectionData.begin(),
                                   getSectionCount() + 1, nullptr);
-        for (auto& it : sectionMap)
+        for (const auto& it : sectionMap)
             assets.sectionData[static_cast<int>(it.second)] =
                 std::make_shared<GameSection>(loadSection(it.first));
     }

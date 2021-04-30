@@ -26,8 +26,8 @@ class EnemyFighter : public EnemyObject {
     float fireTime_{0};
     float t_{0};
     coord_t v_{0};
-    void movePattern(GameWorld& w, float delta);
-    void fireAtPlayer(GameWorld& w, float delta, coord_t fireMul);
+    void movePattern(GameWorld& w, float dt);
+    void fireAtPlayer(GameWorld& w, float dt, coord_t fireMul);
 
     void patternMoveXThenZ(GameWorld& w, float dt, coord_t v, float xt);
 };

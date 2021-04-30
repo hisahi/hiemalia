@@ -125,7 +125,7 @@ class AudioEngine : public Module, MessageHandler<AudioMessage> {
         audio_ = std::move(move.audio_);
         return *this;
     }
-    AudioEngine(std::shared_ptr<HostModule> host, GameState& state);
+    AudioEngine(const std::shared_ptr<HostModule>& host, GameState& state);
     ~AudioEngine() noexcept {}
 
     void load();

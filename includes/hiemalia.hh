@@ -87,7 +87,7 @@ struct HostMessage {
 class Hiemalia : MessageHandler<HostMessage> {
   public:
     Hiemalia(const std::string& command);
-    ~Hiemalia();
+    ~Hiemalia() = default;
     Hiemalia(const Hiemalia& copy) = delete;
     Hiemalia& operator=(const Hiemalia& copy) = delete;
     Hiemalia(Hiemalia&& move) noexcept;

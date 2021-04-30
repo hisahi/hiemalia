@@ -93,7 +93,7 @@ void Menu::goUp() {
                 i = index_;
                 break;
             }
-            i += options_.size();
+            i += static_cast<int>(options_.size());
         }
         if (options_[i].enabled) {
             options_[i].dirty = true;
@@ -151,7 +151,7 @@ void Menu::doLeft() {
     MenuOption& option = options_[index_];
     if (option.type == MenuOptionType::Select) {
         MenuOptionSelect& sel = option.asSelect();
-        if (--sel.index < 0) sel.index += sel.options.size();
+        if (--sel.index < 0) sel.index += static_cast<int>(sel.options.size());
         option.dirty = true;
         select(index_, option.id);
         sendMessage(AudioMessage::playSound(SoundEffect::MenuSelect));
@@ -275,7 +275,8 @@ static Color getMenuOptionColor(const MenuOption& o, bool selected) {
 }
 
 void Menu::confirm(symbol_t id, const std::string& title,
-                   std::function<void()> onYes, std::function<void()> onNo) {
+                   const std::function<void()>& onYes,
+                   const std::function<void()>& onNo) {
     dynamic_assert(confirmId_ == symbol_none, "nested confirm not OK!");
     onMenuYes_ = onYes;
     onMenuNo_ = onNo;
@@ -283,8 +284,9 @@ void Menu::confirm(symbol_t id, const std::string& title,
     openMenu<MenuYesNo>(id, title);
 }
 
-coord_t Menu::getMenuOptionY(int index) const {
-    return (-font_.lineHeight() * (options_.size() - 1)) / 2 +
+coord_t Menu::getMenuOptionY(size_t index) const {
+    return (-font_.lineHeight() * static_cast<double>(options_.size() - 1)) /
+               2 +
            index * font_.lineHeight();
 }
 
@@ -314,12 +316,12 @@ void Menu::runMenu(GameState& state, float interval) {
         font_.renderTextLine(titlebuf_, -font_.getTextWidth(t) / 2, -0.875,
                              menuTitleColor, t);
     }
-    if (maxLifetime_) lifetime_ += interval;
+    if (maxLifetime_ != 0) lifetime_ += interval;
 
     renderSpecial(state.sbuf, interval);
     coord_t x1 = -0.75;
     coord_t x2 = 0.75;
-    for (int i = 0, e = options_.size(); i < e; ++i) {
+    for (size_t i = 0, e = options_.size(); i < e; ++i) {
         MenuOption& option = options_[i];
         if (option.dirty) {
             option.redraw(x1, x2, getMenuOptionY(i), font_,

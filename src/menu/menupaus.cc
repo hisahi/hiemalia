@@ -44,6 +44,4 @@ void MenuPause::end(GameState& state) {
 
 MenuPause::MenuPause(MenuHandler& handler) : Menu(handler) {}
 
-MenuPause::~MenuPause() noexcept {}
-
 }  // namespace hiemalia

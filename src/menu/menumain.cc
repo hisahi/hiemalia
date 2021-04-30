@@ -8,6 +8,8 @@
 
 #include "menu/menumain.hh"
 
+#include <utility>
+
 #include "assets.hh"
 #include "defs.hh"
 #include "hiemalia.hh"
@@ -102,9 +104,8 @@ void MenuMain::renderSpecial(SplinterBuffer& sbuf, float interval) {
     sbuf.append(copyright);
 }
 
-MenuMain::MenuMain(MenuHandler& handler,
-                   const std::shared_ptr<ModuleHolder>& holder)
-    : Menu(handler), holder_(holder) {
+MenuMain::MenuMain(MenuHandler& handler, std::shared_ptr<ModuleHolder> holder)
+    : Menu(handler), holder_(std::move(holder)) {
     makeUncloseable();
     tube_ = getGameModel(GameModel::TitleCubeModel).model;
     rend_.setCamera(Point3D(0, 0, 0), Orient3D(0, 0, 0),
@@ -137,7 +138,5 @@ void MenuMain::timedOut() {
         // nextScreen_ = 5;
     }
 }
-
-MenuMain::~MenuMain() noexcept {}
 
 }  // namespace hiemalia

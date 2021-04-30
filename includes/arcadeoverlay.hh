@@ -28,7 +28,7 @@ class ArcadeOverlay : public LogicModule {
     DELETE_COPY(ArcadeOverlay);
     DEFAULT_MOVE(ArcadeOverlay);
     ArcadeOverlay(std::shared_ptr<ModuleHolder> holder);
-    virtual ~ArcadeOverlay() noexcept;
+    virtual ~ArcadeOverlay() noexcept = default;
 
     void visible(bool visible);
     void redraw(int credits, bool freePlay);

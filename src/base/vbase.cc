@@ -23,7 +23,8 @@
 
 namespace hiemalia {
 
-std::shared_ptr<VideoModule> getVideoModule(std::shared_ptr<HostModule> host) {
+std::shared_ptr<VideoModule> getVideoModule(
+    const std::shared_ptr<HostModule>& host) {
 #ifdef VBACKEND_sdl2
     TRY_MODULE("video", VideoModuleSDL2, std::move(host));
 #endif

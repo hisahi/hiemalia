@@ -34,7 +34,7 @@ class InputEngine : public Module {
         input_ = std::move(move.input_);
         return *this;
     }
-    InputEngine(std::shared_ptr<HostModule> host, GameState& state);
+    InputEngine(const std::shared_ptr<HostModule>& host, GameState& state);
     ~InputEngine() noexcept {}
 
     bool hasInputDevice(InputDevice device) const;

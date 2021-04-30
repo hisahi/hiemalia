@@ -312,8 +312,8 @@ class Renderer3D {
   private:
     void renderModelFragment(SplinterBuffer& buf, const ModelFragment& f) const;
     void projectVertices(const std::vector<Point3D>& v, const Matrix3D& m);
-    Point3D clipPoint(const Vector3D& onScreen,
-                      const Vector3D& offScreen) const;
+    static Point3D clipPoint(const Vector3D& onScreen,
+                             const Vector3D& offScreen);
     bool clipLine(const Vector3D& v0, const Vector3D& v1, Point3D& p0,
                   Point3D& p1) const;
     Matrix3D view;

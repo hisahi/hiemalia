@@ -23,7 +23,8 @@
 
 namespace hiemalia {
 
-std::shared_ptr<AudioModule> getAudioModule(std::shared_ptr<HostModule> host) {
+std::shared_ptr<AudioModule> getAudioModule(
+    const std::shared_ptr<HostModule>& host) {
 #ifdef ABACKEND_sdl2
     TRY_MODULE("audio", AudioModuleSDLMixer2, std::move(host));
 #endif

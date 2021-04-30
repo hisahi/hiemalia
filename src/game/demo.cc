@@ -72,10 +72,11 @@ DemoFile DemoFile::loadDemo(const std::string& file) {
     return demo;
 }
 
-bool DemoFile::runDemo(float dt) noexcept {
+bool DemoFile::runDemo(float dt) {
     t_ += dt;
-    int commandCount = commands_.size();
-    while (commandIndex_ < commandCount && t_ >= commands_[commandIndex_].time) {
+    size_t commandCount = commands_.size();
+    while (commandIndex_ < commandCount &&
+           t_ >= commands_[commandIndex_].time) {
         DemoCommand& cmd = commands_[commandIndex_++];
         switch (cmd.type) {
             case DemoCommandType::ButtonDown:
@@ -96,12 +97,10 @@ void DemoFile::reset() {
     t_ = 0;
 }
 
-DemoFile::DemoFile() {}
-
 static auto demoFileNames = hiemalia::makeArray<std::string>({"demo.dem"});
 static std::vector<std::shared_ptr<DemoFile>> loadedDemos{demoFileNames.size(),
                                                           nullptr};
-static int nextDemo = 0;
+static size_t nextDemo = 0;
 
 std::shared_ptr<DemoFile> getNextDemo() {
     if (loadedDemos.empty()) return nullptr;

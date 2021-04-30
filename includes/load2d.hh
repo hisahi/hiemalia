@@ -15,7 +15,7 @@
 #include "shape.hh"
 
 namespace hiemalia {
-Color parseColor(std::string s);
+Color parseColor(const std::string& s);
 ShapeSheet load2D(const std::string& filename);
 Font loadFont(const std::string& filename);
 

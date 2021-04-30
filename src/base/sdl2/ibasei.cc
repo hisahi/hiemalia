@@ -15,7 +15,7 @@
 #include "logger.hh"
 
 namespace hiemalia {
-InputModuleSDL2::InputModuleSDL2(std::shared_ptr<HostModule> host)
+InputModuleSDL2::InputModuleSDL2(const std::shared_ptr<HostModule>& host)
     : host_(std::dynamic_pointer_cast<HostModuleSDL2>(host)),
       devices_(inputDevices.size()) {
     dynamic_assert(host_ != nullptr, "must be HostModuleSDL2!!!");

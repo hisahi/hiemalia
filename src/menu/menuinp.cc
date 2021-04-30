@@ -8,6 +8,8 @@
 
 #include "menu/menuinp.hh"
 
+#include <utility>
+
 #include "controls.hh"
 #include "defs.hh"
 #include "input.hh"
@@ -20,7 +22,7 @@ enum Item : symbol_t { Item_Back = index_to_symbol(9999) };
 
 void MenuInputDevices::begin(GameState& state) {
     InputEngine& inp = *holder_->input;
-    for (int i = 0, e = inputDevices.size(); i < e; ++i) {
+    for (size_t i = 0, e = inputDevices.size(); i < e; ++i) {
         const auto& pair = inputDevices[i];
         InputDevice device = pair.value;
         option(MenuOption::button(index_to_symbol(i), pair.name,
@@ -44,9 +46,7 @@ void MenuInputDevices::select(int index, symbol_t id) {
 void MenuInputDevices::end(GameState& state) {}
 
 MenuInputDevices::MenuInputDevices(MenuHandler& handler,
-                                   const std::shared_ptr<ModuleHolder>& holder)
-    : Menu(handler), holder_(holder) {}
-
-MenuInputDevices::~MenuInputDevices() noexcept {}
+                                   std::shared_ptr<ModuleHolder> holder)
+    : Menu(handler), holder_(std::move(holder)) {}
 
 }  // namespace hiemalia

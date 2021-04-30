@@ -20,7 +20,7 @@
 #include "str.hh"
 
 namespace hiemalia {
-Color parseColor(std::string s) {
+Color parseColor(const std::string& s) {
     uint8_t r = 255, g = 255, b = 255, a;
     float af = 1.0f;
     if (s_sscanf(s.c_str(), "%hhu,%hhu,%hhu,%f", &r, &g, &b, &af) < 4)
@@ -29,7 +29,7 @@ Color parseColor(std::string s) {
     return Color{r, g, b, a};
 }
 
-static Point2D parseShapePoint(std::string s, coord_t scale) {
+static Point2D parseShapePoint(const std::string& s, coord_t scale) {
     coord_t x = 0, y = 0;
     if (s_sscanf(s.c_str(), FMT_coord_t "," FMT_coord_t, &x, &y) < 2)
         never("Invalid point");

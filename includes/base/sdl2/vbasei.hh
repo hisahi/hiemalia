@@ -35,7 +35,7 @@ class VideoModuleSDL2 : public VideoModule {
 
     void onResize();
 
-    explicit VideoModuleSDL2(std::shared_ptr<HostModule> host);
+    explicit VideoModuleSDL2(const std::shared_ptr<HostModule>& host);
     DELETE_COPY(VideoModuleSDL2);
     VideoModuleSDL2(VideoModuleSDL2&& move) noexcept;
     VideoModuleSDL2& operator=(VideoModuleSDL2&& move) noexcept;

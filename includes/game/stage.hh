@@ -69,7 +69,7 @@ class GameStage {
     GameStage(std::vector<section_t>&& sections, int loopLength,
               std::deque<ObjectSpawn>&& spawns);
     static void processSectionCommand(std::vector<section_t>& sections,
-                                      std::string s);
+                                      const std::string& s);
     std::deque<ObjectSpawn> spawns_;
     visible_type visible_;
     std::vector<section_t> sections_;

@@ -15,6 +15,7 @@ void GameConfig::load(ConfigSectionStore store) {
     maxContinues = store.get<int>("MaxContinues", maxContinues);
     arcadeFreePlay = store.get<bool>("ArcadeFreePlay", arcadeFreePlay);
     arcadeMaxCredits = store.get<int>("ArcadeMaxCredits", arcadeMaxCredits);
+    if (arcadeMaxCredits > 10000) never("way too many ArcadeMaxCredits!");
     switch (difficulty) {
         case GameDifficultyLevel::Easy:
         case GameDifficultyLevel::Normal:

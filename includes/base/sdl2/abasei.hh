@@ -74,7 +74,7 @@ class AudioModuleSDLMixer2 : public AudioModule {
     void stopSound(int channel);
     void stopSounds();
 
-    explicit AudioModuleSDLMixer2(std::shared_ptr<HostModule> host);
+    explicit AudioModuleSDLMixer2(const std::shared_ptr<HostModule>& host);
     DELETE_COPY(AudioModuleSDLMixer2);
     AudioModuleSDLMixer2(AudioModuleSDLMixer2&& move) noexcept;
     AudioModuleSDLMixer2& operator=(AudioModuleSDLMixer2&& move) noexcept;

@@ -28,9 +28,8 @@ class MenuOptions : public Menu {
 
     DELETE_COPY(MenuOptions);
     DEFAULT_MOVE(MenuOptions);
-    MenuOptions(MenuHandler& handler,
-                const std::shared_ptr<ModuleHolder>& holder);
-    ~MenuOptions() noexcept;
+    MenuOptions(MenuHandler& handler, std::shared_ptr<ModuleHolder> holder);
+    ~MenuOptions() noexcept = default;
 
   private:
     static inline const std::string name_ = "MenuOptions";

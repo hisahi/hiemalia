@@ -118,7 +118,7 @@ bool EnemySpider::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     sendMessage(AudioMessage::playSound(SoundEffect::ExplodeSmall,
                                         pos - w.getPlayerPosition()));
     if (killedByPlayer) {
-        addScore(w, 400);
+        addScore(w, 700);
         w.onEnemyKilled(*this);
     }
     return true;

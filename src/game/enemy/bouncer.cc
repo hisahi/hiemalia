@@ -30,13 +30,9 @@ bool EnemyBouncer::doEnemyTick(GameWorld& w, float delta) {
     killPlayerOnContact(w);
     bool hit = false;
     auto region = w.getMoveRegionForZ(pos.z);
-    if (pos.x - size <= region.x0)
+    if (pos.x - size <= region.x0 || pos.x + size >= region.x1)
         hit = true, vel.x = -vel.x;
-    else if (pos.x + size >= region.x1)
-        hit = true, vel.x = -vel.x;
-    if (pos.y - size <= region.y0)
-        hit = true, vel.y = -vel.y;
-    else if (pos.y + size >= region.y1)
+    if (pos.y - size <= region.y0 || pos.y + size >= region.y1)
         hit = true, vel.y = -vel.y;
     if (hit) rotvel_ = -rotvel_;
     rot += rotvel_ * delta;

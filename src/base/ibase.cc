@@ -25,7 +25,8 @@
 
 namespace hiemalia {
 
-std::shared_ptr<InputModule> getInputModule(std::shared_ptr<HostModule> host) {
+std::shared_ptr<InputModule> getInputModule(
+    const std::shared_ptr<HostModule>& host) {
 #ifdef IBACKEND_sdl2
     TRY_MODULE("input", InputModuleSDL2, std::move(host));
 #endif

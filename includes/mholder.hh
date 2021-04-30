@@ -28,7 +28,7 @@ struct ModuleHolder {
     std::shared_ptr<LogicEngine> logic;
     ConfigSectionPtr<GameConfig> gconfig;
 
-    ModuleHolder(const std::shared_ptr<HostModule> host, GameState& state);
+    ModuleHolder(const std::shared_ptr<HostModule>& host, GameState& state);
     ~ModuleHolder() noexcept {}
     ModuleHolder(const ModuleHolder& copy) = delete;
     ModuleHolder& operator=(const ModuleHolder& copy) = delete;

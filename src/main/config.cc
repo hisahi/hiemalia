@@ -23,11 +23,11 @@ void ConfigStore::readStream(std::istream& stream) {
 }
 
 void ConfigStore::writeStream(std::ostream& stream) const {
-    for (auto& pair : map_)
+    for (const auto& pair : map_)
         stream << pair.first << '=' << pair.second << std::endl;
 }
 
-void Config::load(std::string filename) {
+void Config::load(const std::string& filename) {
     store_.clear();
     LOG_TRACE("loading config from %s", filename);
     auto f = openFileRead(filename, false);
@@ -41,7 +41,7 @@ void Config::load(std::string filename) {
     for (auto& conf : confs_) conf->load(ConfigSectionStore(*conf, store_));
 }
 
-void Config::save(std::string filename) {
+void Config::save(const std::string& filename) {
     for (auto& conf : confs_) conf->save(ConfigSectionStore(*conf, store_));
     auto f = openFileWrite(filename, false);
     if (f.fail()) {

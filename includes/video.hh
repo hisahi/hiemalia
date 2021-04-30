@@ -48,7 +48,7 @@ class VideoEngine : public Module, MessageHandler<VideoMessage> {
         video_ = std::move(move.video_);
         return *this;
     }
-    VideoEngine(std::shared_ptr<HostModule> host, GameState& state);
+    VideoEngine(const std::shared_ptr<HostModule>& host, GameState& state);
     ~VideoEngine() noexcept {}
 
     void frame(const SplinterBuffer& sbuf);

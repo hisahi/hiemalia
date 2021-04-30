@@ -30,8 +30,8 @@ class MenuVideoOptions : public Menu {
     DELETE_COPY(MenuVideoOptions);
     DEFAULT_MOVE(MenuVideoOptions);
     MenuVideoOptions(MenuHandler& handler,
-                     const std::shared_ptr<ModuleHolder>& holder);
-    ~MenuVideoOptions() noexcept;
+                     std::shared_ptr<ModuleHolder> holder);
+    ~MenuVideoOptions() noexcept = default;
 
   private:
     static inline const std::string name_ = "MenuVideoOptions";

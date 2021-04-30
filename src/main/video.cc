@@ -21,7 +21,8 @@ void VideoConfig::save(ConfigSectionStore store) const {
     store.set<bool>("FullScreen", fullScreen);
 }
 
-VideoEngine::VideoEngine(std::shared_ptr<HostModule> host, GameState& state)
+VideoEngine::VideoEngine(const std::shared_ptr<HostModule>& host,
+                         GameState& state)
     : video_(getVideoModule(host)),
       config_(state.config.section<VideoConfig>()) {
     readConfig();
@@ -57,7 +58,7 @@ void VideoEngine::setFullScreenOrElse() {
 
 Color Color::fromHSVA(float h, float s, float v, float a) {
     float h6 = h * 6.0f;
-    unsigned u = floatToWholeFrac<unsigned, float>(h6);
+    auto u = floatToWholeFrac<unsigned, float>(h6);
     float p = v * (1 - s);
     float q = v * (1 - s * h6);
     float t = v * (1 - s * (1 - h6));

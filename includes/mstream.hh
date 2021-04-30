@@ -157,6 +157,14 @@ class memorybuf : public std::streambuf {
         setp(nullptr, nullptr);
     }
 
+    inline void gbump_s(size_t n) {
+        if (n < INT_MAX)
+            gbump(static_cast<int>(n));
+        else {
+            setg(eback(), gptr() + n, egptr());
+        }
+    }
+
   protected:
     inline int_type underflow() {
         if (!(mode_ & std::ios_base::in)) return traits::eof();
@@ -382,7 +390,7 @@ class memorystream : public std::iostream {
             p += n;
             t += n;
         }
-        vbuf_.gbump(t);
+        vbuf_.gbump_s(t);
         vbuf_.flush();
         return t;
     }

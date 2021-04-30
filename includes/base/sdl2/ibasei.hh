@@ -32,7 +32,7 @@ class InputModuleSDL2 : public InputModule {
         InputDevice device, const ConfigSectionPtr<ButtonSetup>& config);
     void handle(const SDL_Event& event);
 
-    explicit InputModuleSDL2(std::shared_ptr<HostModule> host);
+    explicit InputModuleSDL2(const std::shared_ptr<HostModule>& host);
     DELETE_COPY(InputModuleSDL2);
     InputModuleSDL2(InputModuleSDL2&& move) noexcept;
     InputModuleSDL2& operator=(InputModuleSDL2&& move) noexcept;

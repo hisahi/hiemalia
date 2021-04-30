@@ -117,8 +117,8 @@ class Config {
     template <typename T>
     using ConfigSectionContainer = std::vector<T>;
 
-    void load(std::string filename);
-    void save(std::string filename);
+    void load(const std::string& filename);
+    void save(const std::string& filename);
 
     template <typename T, typename... Ts>
     ConfigSectionPtr<T> section(Ts&&... args) {

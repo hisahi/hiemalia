@@ -22,7 +22,7 @@ PlayerBullet::PlayerBullet(const Point3D& pos, const Point3D& v)
 }
 
 bool PlayerBullet::doBulletTick(GameWorld& w, float delta) {
-    for (auto& eptr : w.getEnemies()) {
+    for (const auto& eptr : w.getEnemies()) {
         if (hits(*eptr)) {
             Point3D c = lerp(0.5);
             impact(w, eptr->hitBullet(w, getDamage(), c));

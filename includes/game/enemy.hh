@@ -44,7 +44,6 @@ class EnemyObject : public GameObject, public ObjectDamageable {
     void doExplode(GameWorld& w, const Model& m);
     void doExplodeBoss(GameWorld& w);
     void doExplodeBoss(GameWorld& w, const Model& m);
-    void addScore(GameWorld& w, unsigned int score);
     void killPlayerOnContact(GameWorld& w);
     void explodeIfOutOfBounds(GameWorld& w, coord_t x0, coord_t x1, coord_t y0,
                               coord_t y1);
@@ -67,8 +66,10 @@ class EnemyObject : public GameObject, public ObjectDamageable {
             std::forward<Ts>(args)...);
     }
     Point3D aimAtPlayer(GameWorld& w, float speed, float lead) const;
-    Point3D getBulletVelocity(GameWorld& w, Point3D dir, float speed,
-                              float spew) const;
+
+    static void addScore(GameWorld& w, unsigned int score);
+    static Point3D getBulletVelocity(GameWorld& w, Point3D dir, float speed,
+                                     float spew);
 
   private:
     bool alive_{true};

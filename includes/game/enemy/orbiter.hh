@@ -27,8 +27,8 @@ class EnemyOrbiter : public EnemyObject {
     coord_t ox_{0};
     coord_t oy_{0};
     int spread_{0};
-    void movePattern(GameWorld& w, float delta);
-    void fireAtPlayer(GameWorld& w, float delta, coord_t fireMul);
+    void movePattern(GameWorld& w, float dt);
+    void fireAtPlayer(GameWorld& w, float dt, coord_t fireMul);
 };
 };  // namespace hiemalia
 

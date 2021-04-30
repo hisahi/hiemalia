@@ -40,16 +40,16 @@ void EnemyBoss5::render(SplinterBuffer& sbuf, Renderer3D& r3d) {
 bool EnemyBoss5::doEnemyTick(GameWorld& w, float delta) {
     if (pos.z - getCollisionRadius() > stageSpawnDistance) return true;
     if (invul_ > 0) invul_ = std::max<float>(0, invul_ - delta);
-    coord_t tx, ty, v;
+    coord_t tx, ty;
     if (phase_ == 1 && invul_ == 0) {
         tx = sin(y_) * 1;
         ty = cos(y_ * 5) * 0.625;
-        v = 0.375 * delta;
         y_ = wrapAngle(y_ + delta);
         Point3D targetVel = Point3D(tx - pos.x, ty - pos.y, 0);
         vel = Point3D::lerp(vel, 0.25, targetVel);
         pos += vel * delta;
     } else {
+        coord_t v;
         if (invul_ > 0)
             tx = ty = 0, v = 0.125 * delta;
         else {
@@ -151,7 +151,7 @@ bool EnemyBoss5::onEnemyDeath(GameWorld& w, bool killedByPlayer) {
     sendMessage(GameMessage::shakeCamera(0.0625));
     if (speed_ >= 0) w.popBoss(speed_);
     if (killedByPlayer) {
-        addScore(w, 2000);
+        addScore(w, 3000);
         w.onEnemyKilled(*this);
     }
     return true;
@@ -173,13 +173,9 @@ bool EnemyBulletBounce::doBulletTick(GameWorld& w, float delta) {
         impact(w, false);
     }
     auto region = w.getMoveRegionForZ(pos.z);
-    if (pos.x + vel.x <= region.x0)
+    if (pos.x + vel.x <= region.x0 || pos.x + vel.x >= region.x1)
         vel.x = -vel.x;
-    else if (pos.x + vel.x >= region.x1)
-        vel.x = -vel.x;
-    if (pos.y + vel.y <= region.y0)
-        vel.y = -vel.y;
-    else if (pos.y + vel.y >= region.y1)
+    if (pos.y + vel.y <= region.y0 || pos.y + vel.y >= region.y1)
         vel.y = -vel.y;
     return true;
 }

@@ -55,7 +55,7 @@ EnemyBulletHoming::EnemyBulletHoming(const Point3D& pos, const Point3D& v)
 static Point3D bulletAimAt(const Point3D& me, coord_t speed, const Point3D& p0,
                            const Point3D& x) {
     if (x.isZero()) return (p0 - me).normalize() * speed;
-    Point3D ax = x * (1 + ((p0 - me).length() / 32));
+    Point3D ax = x * (1 + ((p0 - me).length() / (speed / 8)));
     Point3D p = p0 + ax;
     Point3D d = p - me;
     Point3D y = d - ax * (ax.dot(d) / ax.dot(ax));

@@ -78,7 +78,7 @@ bool MovingBox::update(GameWorld& w, float delta) {
 }
 
 void MovingBox::absorbBullets(GameWorld& w, const BulletList& list) {
-    for (auto& bptr : list) {
+    for (const auto& bptr : list) {
         if (bptr->hits(*this)) {
             bptr->backtrackCuboid(pos - scale, pos + scale);
             bptr->impact(w, false);
@@ -87,7 +87,7 @@ void MovingBox::absorbBullets(GameWorld& w, const BulletList& list) {
 }
 
 void MovingBox::absorbEnemies(GameWorld& w, const EnemyList& list) {
-    for (auto& e : list) {
+    for (const auto& e : list) {
         if (e->canHitWalls() && e->hits(*this)) {
             Point3D dir = collidesCuboidPointDirection(e->pos, pos, scale);
             e->hitWall(w, dir.x, dir.y, dir.z);
