@@ -1,6 +1,6 @@
 Hiemalia is a vector-based three-dimensional tunnel flying/shoot 'em up (rail
 shooter) game developed in (modern) C++. It is designed for the
-University of Helsinki Game Project Course. Currently the game is an
-early work-in-progress.
+University of Helsinki Game Project Course. Currently the game is mostly
+finished, with only music and playtesting required to "go gold".
 
 The project can be compiled in both GCC/Clang (with GNU Make) or Visual C++.
