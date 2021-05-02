@@ -16,7 +16,7 @@ LD := $(CXX)
 RM=rm -f
 
 # release flags:
-CXXFLAGS=-Ofast
+CXXFLAGS=-Ofast -DNDEBUG
 # debug flags:
 #CXXFLAGS=-g3 -O0 -Wall -Wextra -Werror -Wno-unused-parameter
 
